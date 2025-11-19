@@ -3,8 +3,7 @@
   include APP_PATH . 'views/layouts/navbar.php'; 
 ?>
 
-
-<section>
+<section class="section-top">
     <div class="container">
         
         <?php include APP_PATH . 'templates/alertView.php'; ?>
@@ -75,7 +74,5 @@
         </div>
     </div>
 </section>
-
-
 
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>
