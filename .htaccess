@@ -1,0 +1,12 @@
+# Désactiver l'affichage du contenu des dossiers
+Options -Indexes
+
+# Activer le moteur de réecriture d'URL
+RewriteEngine On
+
+# Ne pas réecrire si c'est un fichier ou dossier existant
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-de
+
+# Rediriger toutes les autres requêtes vers index.php
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]

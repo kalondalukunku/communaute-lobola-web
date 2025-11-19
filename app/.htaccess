@@ -1,0 +1,9 @@
+# Interdire tout accès direct depuis le navigateur
+Order allow,deny
+Deny from all
+
+# Rediriger tout accès vers l'acceuil
+RewriteEngine On
+RewriteBase /
+
+RewriteRule ^.*$ / [R=302,L]
