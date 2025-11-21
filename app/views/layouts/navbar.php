@@ -81,7 +81,7 @@
                                     <li><hr class="dropdown-divider"></li>
 
                                     <li class="px-3">
-                                        <a class="dropdown-item  href="/"text-center text-danger border border-danger rounded-pill" href="/logout">
+                                        <a class="dropdown-item btn-danger text-center text-danger border border-danger rounded-pill" href="/logout">
                                             Déconnexion
                                         </a>
                                     </li>

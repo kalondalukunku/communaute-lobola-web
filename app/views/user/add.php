@@ -41,8 +41,8 @@
                         </div>
                         
                         <div class="col-md form-floating mb-3"> 
-                            <input type="password" name="pswd" class="form-control" id="floatingPassword" value="<?=  Helper::getData($_POST, 'pswd') ?>" placeholder="Password" required <?= $couristeUsersText ?>> 
-                            <label for="floatingPassword">Mot de passe</label> 
+                            <input type="password" name="pswd" class="form-control" id="floatingPassword2" value="<?=  Helper::getData($_POST, 'pswd') ?>" placeholder="Password" required <?= $couristeUsersText ?>> 
+                            <label for="floatingPassword2">Mot de passe</label> 
                         </div>
                     </div> 
                     <?php if($nbrCouristeUsers >= NBR_LIMITE_USER_COURISTE): ?>
