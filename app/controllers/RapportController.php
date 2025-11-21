@@ -183,7 +183,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalSuiviPdf);
                             Session::setFlash('success', "Rapport global de suivi des documents a été généré avec succès.");
                             Utils::redirect('rapport');
                         }
@@ -246,7 +246,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalEntrantPdf);
                             Session::setFlash('success', "Rapport global des documents entrants a été généré avec succès.");
                             Utils::redirect('rapport');
                         }
@@ -309,7 +309,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalSortantPdf);
                             Session::setFlash('success', "Rapport global des documents sortants a été généré avec succès.");
                             Utils::redirect('rapport');
                         }
@@ -373,7 +373,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalDocEnAttentePdf);
                             Session::setFlash('success', "Rapport global des documents en cours de traitement a été généré avec succès.");
                             Utils::redirect('rapport');
                         }
@@ -436,7 +436,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalDocClassePdf);
                             Session::setFlash('success', "Rapport global des documents classés a été généré avec succès.");
                             Utils::redirect('rapport');
                         }
@@ -499,7 +499,7 @@ class RapportController extends Controller
                         ];
                         if ($this->loggerModel->addLog($dataLogs)) 
                         {
-                            unlink($pathFileGlobalPdf);
+                            unlink($pathFileGlobalDocRedirectionsPdf);
                             Session::setFlash('success', "Rapport global des documents rédirigés a été généré avec succès.");
                             Utils::redirect('rapport');
                         }

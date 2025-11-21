@@ -26,7 +26,7 @@
                         <label for="floatingPassword">Mot de passe</label> 
                     </div>
 
-                    <button class="btn btn-info w-100 rounded-pill py-2" name="bukus_user_login" type="submit">Connexion</button> 
+                    <button class="w-100 text-center primary-btn" name="bukus_user_login" type="submit">Connexion</button> 
                 </form> 
             </main>
         </div>

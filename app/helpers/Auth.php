@@ -12,8 +12,8 @@ class Auth {
         if (!Session::get($key)) 
         {
             Session::setFlash('error', 'Veuillez vous connecter pour continuer');
-            if ($key === 'admin') Utils::redirect('admin/login');
-            else Utils::redirect('login');
+            if ($key === 'admin') Utils::redirect('/admin/login');
+            else Utils::redirect('/login');
             exit;
         }
     }

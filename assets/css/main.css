@@ -128,7 +128,17 @@ a {
 }
 
 p {
-	font-size: 15px;
+	font-size: 13.5px !important;
+}
+
+.card-body {
+  border: 1px solid rgba(13,202,240,0.23) !important;
+  transition: 0.25s ease-in;
+  transform: translateZ(0);
+}
+
+.card-body:hover {
+  transform: scale(1.03) translateZ(0);
 }
 
 .card-color-1 {

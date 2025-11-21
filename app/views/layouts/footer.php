@@ -47,6 +47,7 @@
 
     <!-- Scripts -->
     <!-- Bootstrap core JavaScript -->
+    <script src="<?= ASSETS ?>js/modules/function.js"></script>
     <script src="<?= ASSETS ?>js/modules/theme.js"></script>
     <script src="<?= ASSETS ?>js/modules/jquery.js"></script>
     <script src="<?= ASSETS ?>js/modules/bootstrap.bundle.min.js"></script>

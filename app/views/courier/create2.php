@@ -4,7 +4,7 @@
 ?>
 
 <section class="section-top">
-    <div class="container">
+    <div class="container mb-5">
         
         <?php include APP_PATH . 'templates/alertView.php'; ?>
 
@@ -103,7 +103,7 @@
                         </div>
                     </div>
                     
-                    <button class="btn btn-info w-100 rounded-pill py-2 mt-2" name="bukus_create2_courier" type="submit">Terminer</button> 
+                    <button class="w-100 text-center primary-btn mt-2" name="bukus_create2_courier" type="submit">Terminer</button> 
                 </form> 
             </main>
         </div>

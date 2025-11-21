@@ -48,7 +48,7 @@
                     <?php if($nbrCouristeUsers >= NBR_LIMITE_USER_COURISTE): ?>
                         <a href="../user" class="btn btn-dark text-info border-info  w-100 py-2">Voir la liste des utilisateurs</a> 
                     <?php else: ?>
-                        <button class="btn btn-info w-100 rounded-pill py-2" name="bukus_user_add" type="submit">Ajouter l'utilisateur</button>
+                        <button class="w-100 text-center primary-btn" name="bukus_user_add" type="submit">Ajouter l'utilisateur</button>
                     <?php endif; ?>
                 </form> 
             </main>

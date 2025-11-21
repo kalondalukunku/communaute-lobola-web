@@ -71,7 +71,7 @@
                             <?php if($courier->status === ARRAY_STATUS[3] || $courier->status === ARRAY_STATUS[4]): ?>
                                 <div class="meta-kv mt-2">Dossier classé: <span class="meta-val"><?= $courier->dossier_classee ?> h</span></div>
                             <?php endif; ?>
-                            <div class="meta-kv mt-2">Dernière modification: <span class="meta-val"><?= Helper::tempsEcoule($courier->updated_at) ?></span></div>
+                            <div class="meta-kv mt-2">Dernière modification: <span class="meta-val time_ago" data-time-ago="<?= $courier->updated_at ?>"></span></div>
                         </div>
                         <div class="col-md-6">
                             <div class="meta-kv">Objet: <span class="meta-val"><?= $courier->objet ?></span></div>
@@ -344,7 +344,7 @@
                             </div>
                         </div>  
                         
-                        <button class="btn btn-info border-dark rounded-pill py-2" name="bukus_classer_document" type="submit">Classer</button>
+                        <button class="primary-btn rounded-pill py-2" name="bukus_classer_document" type="submit">Classer</button>
                     </div> 
                     
                 </form>
@@ -377,7 +377,7 @@
                             </div>
                         </div>  
                         
-                        <button class="btn btn-secondary border-info text-info rounded-pill py-2" name="bukus_classer_document_sans_suite" type="submit">Classer sans suite</button>
+                        <button class="secondary-btn border-info text-info rounded-pill py-2" name="bukus_classer_document_sans_suite" type="submit">Classer sans suite</button>
                     </div> 
                     
                 </form>

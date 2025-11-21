@@ -14,16 +14,21 @@
     define('BASE_PATH', __DIR__ . '/');
     define('APP_PATH', BASE_PATH . 'app/');
     define('CONFIG_PATH', BASE_PATH . 'config/');
+    define('SECURITY_PATH', BASE_PATH . 'security/');
     define('STORAGE', BASE_PATH . 'storage/');
     define('ASSETS', BASE_URL . '/assets/');
     define('LIBS', BASE_URL . '/libs/');
     define('STORAGE_UPLOAD', STORAGE . 'uploads/');
+    define('STORAGE_GENERATED', STORAGE . 'generated/');
     define('STORAGE_UPLOAD_PDF', STORAGE_UPLOAD . 'pdf/');
     define('STORAGE_UPLOAD_RAPPORT', STORAGE_UPLOAD . 'rapports/');
     define('BASE_PATH_ICON', ASSETS . 'images/logo.png');
 
     // charger les fichiers de configuration
     require_once CONFIG_PATH . 'config.php';
+
+    // charger les fichiers de configuration
+    require_once SECURITY_PATH . 'ips.php';
 
     // charger les fichiers du MVC
     require_once APP_PATH . 'core/App.php';

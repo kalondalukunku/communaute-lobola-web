@@ -44,12 +44,8 @@ class SupervisorController extends Controller
 
             if($res === true)
             {
-                // echo "<script>
-                //     window.open('read?fl=file.pdf','_blank');
-                //     window.location.href = 'superviseur';
-                // </script>";
                 Utils::redirect('courier/view_pdf?fl=file.pdf');
-
+                unlink($pathFilePdf);
             }
         }
 

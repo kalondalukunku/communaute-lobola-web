@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>Visualisation du PDF</title>
     <link rel="stylesheet" href="<?= ASSETS ?>css/components/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= ASSETS ?>css/main.css">
+    <link rel="icon" href="<?= ASSETS ?>images/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <style>
         body { margin: 0; font-family: Arial, sans-serif; }
@@ -28,7 +30,7 @@
     
 						
     <div class="toolbar text-center">
-        <button class="btn btn-info border-dark w-50 mx-auto rounded-pill my-3" onclick="window.history.back()">← Retour</button>
+        <button class="primary-btn w-50 mx-auto rounded-pill my-3" onclick="window.history.back()">← Retour</button>
     </div>
     <!-- en ligne -->
     <!-- <iframe src="<?= $pathFilePdf; ?>"></iframe>  -->

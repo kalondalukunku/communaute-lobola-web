@@ -672,11 +672,8 @@ class CourierController extends Controller
                 ];
                 if ($this->loggerModel->addLog($dataLogs)) 
                 {
-                    Utils::redirect('?clear_db=1');
-                    Session::setFlash('success', 'Courrier ajouté avec succès. Complètez les informations manquantes !');
+                    Session::setFlash('success', 'Courrier compléter avec succès.');
                     ($_SESSION[SITE_NAME_SESSION_USER]['role'] === 'couriste') ? Utils::redirect('../../couriste/show/'. $courierId) : Utils::redirect('../show/'. $courierId) ;
-                
-                    
                 }
 
             } else {

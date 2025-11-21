@@ -4,7 +4,7 @@
 ?>
 
 <section class="section-top">
-    <div class="container">
+    <div class="container mb-5">
         
         <?php include APP_PATH . 'templates/alertView.php'; ?>
 

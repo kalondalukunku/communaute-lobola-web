@@ -54,7 +54,7 @@
                             </div> 
                         </div>
 
-                        <button class="btn btn-info w-100 rounded-pill py-2" name="bukus_send_courier_to" type="submit">Envoyer</button> 
+                        <button class="w-100 text-center primary-btn" name="bukus_send_courier_to" type="submit">Envoyer</button> 
                     </form> 
                     
             </main>

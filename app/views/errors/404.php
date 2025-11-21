@@ -10,7 +10,7 @@
                 <img src="<?= ASSETS ?>svg/404.svg" width="35%" alt="" srcset="">
             </div>
 
-            <a href="/" class="w-50 btn btn-info border-dark mx-auto rounded-pill">Retourner à l'acceuil</a>
+            <a href="/" class="w-50 primary-btn mx-auto">Retourner à l'acceuil</a>
         </div>
     </div>
 </section>

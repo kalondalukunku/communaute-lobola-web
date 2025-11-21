@@ -67,59 +67,59 @@ dropdownItems.forEach(item => {
 
 
 
-	// timer
-	function formatTimer(ms) {
-		const totalSeconds = Math.floor(ms / 1000);
-		const days = Math.floor(totalSeconds / (3600 * 24));
-		const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-		const minutes = Math.floor((totalSeconds % 3600) / 60);
-		const seconds = totalSeconds % 60;
-		// Format the output
-		return `${days}j ${hours}h ${minutes}m ${seconds}s`;
-	}
+// timer
+function formatTimer(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const days = Math.floor(totalSeconds / (3600 * 24));
+    const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    // Format the output
+    return `${days}j ${hours}h ${minutes}m ${seconds}s`;
+}
 
-	window.addEventListener('DOMContentLoaded', () => {
-		let divs = document.querySelectorAll('.date_limite');
-		
-		divs.forEach(div => {
-			const originalText = div.textContent.trim();
-			const dateStr = div.getAttribute('data-datetime');
-			const targetDate = new Date(dateStr.replace(' ', 'T'));
-			
-			if(isNaN(targetDate.getTime())) return;        
+window.addEventListener('DOMContentLoaded', () => {
+    let divs = document.querySelectorAll('.date_limite');
+    
+    divs.forEach(div => {
+        const originalText = div.textContent.trim();
+        const dateStr = div.getAttribute('data-datetime');
+        const targetDate = new Date(dateStr.replace(' ', 'T'));
+        
+        if(isNaN(targetDate.getTime())) return;        
 
-			function updateTimer() {   
-				const now = new Date();
-				const diff = targetDate - now;
+        function updateTimer() {   
+            const now = new Date();
+            const diff = targetDate - now;
 
-				if (diff <= 0 && diff != undefined) {
-					div.textContent = originalText;
-					
-				} else {
-					div.textContent = formatTimer(diff);
-				}
-			}  
-			// Update the timer every second
-			updateTimer();
-			setInterval(updateTimer, 1000);
-		})
-				
-	});
+            if (diff <= 0 && diff != undefined) {
+                div.textContent = originalText;
+                
+            } else {
+                div.textContent = formatTimer(diff);
+            }
+        }  
+        // Update the timer every second
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    })
+            
+});
 
 
-    window.addEventListener('DOMContentLoaded', () => {
-        // other
-        const selectTransmission = document.getElementById('selectTransmission');
-        const divInputsDate = document.getElementById('divInputsDate');
+window.addEventListener('DOMContentLoaded', () => {
+    // other
+    const selectTransmission = document.getElementById('selectTransmission');
+    const divInputsDate = document.getElementById('divInputsDate');
 
-        function toggleDates()
-        {
-            if (selectTransmission.value == 'ordre de service') divInputsDate.style.display = 'flex';
-            else divInputsDate.style.display = 'none';
-        }
-        toggleDates();
-        selectTransmission.addEventListener('change', toggleDates);		
-	});
+    function toggleDates()
+    {
+        if (selectTransmission.value == 'ordre de service') divInputsDate.style.display = 'flex';
+        else divInputsDate.style.display = 'none';
+    }
+    toggleDates();
+    selectTransmission.addEventListener('change', toggleDates);		
+});
 
 
 
@@ -293,20 +293,20 @@ dropdownItems.forEach(item => {
     /* ------------------------------
         IndexedDB : recharger au démarrage
     ------------------------------ */
-    function loadStoredFile() {
-        const txn = db.transaction("files", "readonly");
-        const store = txn.objectStore("files");
+    // function loadStoredFile() {
+    //     const txn = db.transaction("files", "readonly");
+    //     const store = txn.objectStore("files");
 
-        const request = store.get(1);
-        request.onsuccess = () => {
-            if (request.result) {
-                const file = request.result.file;
+    //     const request = store.get(1);
+    //     request.onsuccess = () => {
+    //         if (request.result) {
+    //             const file = request.result.file;
 
-                progressContainer.style.display = "block";
-                progressBar.style.width = "100%";
-                progressText.textContent = "100%";
+    //             progressContainer.style.display = "block";
+    //             progressBar.style.width = "100%";
+    //             progressText.textContent = "100%";
 
-                showFilePreview(file);
-            }
-        };
-    }
+    //             showFilePreview(file);
+    //         }
+    //     };
+    // }

@@ -1,112 +1,92 @@
-<?php
-    require_once APP_PATH . 'core/Model.php';
-    require_once APP_PATH . 'helpers/SendMail.php';
+<?php 
+    require_once APP_PATH . 'models/Security.php'; 
 
-    $models = new Model();
-    $pdo = $models->db;
-    $currentPath = $_SERVER['REQUEST_URI'];
- 
-    if($currentPath !== '/ntrusion')
-    {
-        if (session_status() === PHP_SESSION_NONE) session_start();
- 
-    
-        function getUserIP() {
-            return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        }
-    
-        function isMalicious($input) {
-            $patterns = [
-                '/select.+from/i',
-                '/union.+select/i',
-                '/<script.*?>/i',
-                '/(\.\.\/)+/i',
-                '/--/i',
-                '/drop\s+table/i',
-                '/insert\s+into/i',
-                '/onmouseover\s*=/i'
-            ];
-            foreach ($patterns as $pattern) {
-                if (preg_match($pattern, $input)) return $pattern;
-            }
-            return false;
-        }
-    
-        function logToDB($pdo, $ip, $pattern, $payload) {
-            $stmt = $pdo->prepare("INSERT INTO ips_logs (ip_address, user_agent, attack_type, payload) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$ip, $_SERVER['HTTP_USER_AGENT'] ?? 'N/A', $pattern, $payload]);
-        }
-    
-        function sendAlert($ip, $pattern, $payload) {
-            $subject = "⚠️ Intrusion détectée depuis $ip";
-            $message = "🚨 Nouvelle tentative d'intrusion\n\nIP: $ip\nPattern détecté: $pattern\nPayload: $payload\n\nDate: ".date('d/m/Y H:i');
-            mail(ADMIN_EMAIL, $subject, $message);
-            // send_email(ADMIN_EMAIL, $subject, $message);
-        }
-    
-        function isBlocked($pdo, $ip) {
-            $stmt = $pdo->prepare("SELECT blocked_at FROM ips_logs WHERE ip_address = ? ORDER BY blocked_at DESC LIMIT 1");
-            $stmt->execute([$ip]);
-            $last = $stmt->fetch();
-            if ($last) {
-                header("Location: /intrusion");
-                exit;
-            }
-        }   
-    
-        // ⚙️ Exécution
-        $allowed = ['fl','ci'];
-        $ip = getUserIP();
-        isBlocked($pdo, $ip);
-    
-        foreach ($_GET as $key => $value) {
-            if (is_array($value)) continue;
-            if (ctype_digit($value) || preg_match('/^[a-zA-Z0-9_-]+$/', $value)) continue;
-    
-            $pattern = isMalicious($value);
-            if ($pattern) {
-                logToDB($pdo, $ip, $pattern, $value);
-                sendAlert($ip, $pattern, $value);
-                header("Location: /intrusion");
-                exit;
-            }
-        }
-    
-        // 🔎 Analyse POST
-        // foreach ($_POST as $key => $value) {
-        //   if (is_array($value)) continue;
-      
-        //   $pattern = isMalicious($value);
-        //   if ($pattern) {
-        //     logToDB($pdo, $ip, $pattern, $value);
-        //     sendAlert($ip, $pattern, $value);
-        //     header("Location: /intrusion");
-        //     exit;
-        //   }
-        // }    
-        // 📂 Analyse FILES
-        foreach ($_FILES as $key => $file) {
-            if (!isset($file['name']) || !isset($file['type'])) continue;
-    
-            $filename = $file['name'];
-            $filetype = $file['type'];
-    
-            // Exemple de détection sur le nom de fichier
-            $pattern = isMalicious($filename);
-            if ($pattern) {
-                logToDB($pdo, $ip, $pattern, $filename);
-                sendAlert($ip, $pattern, $filename);
-                header("Location: /intrusion");
-                exit;
-            }
-            // Exemple de détection sur le type MIME
-            if (!in_array($filetype, ['image/jpeg', 'image/png', 'application/pdf'])) {
-                logToDB($pdo, $ip, 'type_mime_non_autorisé', $filetype);
-                sendAlert($ip, 'type_mime_non_autorisé', $filetype);
-                header("Location: /intrusion");
-                exit;   
-            }
-        }    
-    
+    $security = new Security();
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+
+
+    // Vérifier si IP déjà bloquée
+    if ($security->isBlocked($ip)) {
+        $security->blockAndRedirect();
     }
-    
+
+
+    // Détection simple d'injection ou tentative suspecte
+    $suspicious_patterns = [
+        // SQL injection (mot-clé + commentaires inline)
+        'SQL_INJECTION' => "/('|\")|(--|;)|\\b(SELECT|INSERT|DELETE|UPDATE|DROP|UNION|OR|AND|CREATE|ALTER)\\b/i",
+
+        // XSS basique (tags + javascript: + handlers)
+        'XSS' => "/(<script\b[^>]*>.*?<\\/script>)|(<[^>]+\\s(on\\w+)\\s*=)|javascript:|<iframe\\b/i",
+
+        // LFI / RFI / path traversal / accès fichiers sensibles
+        'LFI_RFI' => "/(\\.{2}\\/)|(\\b(passwd|shadow|etc\\/passwd)\\b)|((php|data|file|zip|http|https):\\/\\/)/i",
+
+        // Command injection (backticks, pipes, & etc)
+        'CMD_INJECTION' => "/[`\\|\\$\\&\\;]|\\b(exec|system|shell_exec|passthru|popen)\\b/i"
+    ];
+
+
+    $sources = array_merge($_GET, $_POST);
+
+    // aussi vérifier les keys (certaines attaques ciblent le nom du paramètre)
+    foreach ($sources as $key => $value) {
+
+        // vérifier la clé
+        if (is_string($key)) {
+            foreach ($suspicious_patterns as $type => $pattern) {
+                if (preg_match($pattern, $key)) {
+                    $security->logAttack($ip, $userAgent, $type . ' (param name)', $key);
+                    $security->blockAndRedirect();
+                }
+            }
+        }
+
+        // vérifier la valeur (si c'est une string)
+        if (is_string($value) && $value !== '') {
+            foreach ($suspicious_patterns as $type => $pattern) {
+                if (preg_match($pattern, $value)) {
+                    $security->logAttack($ip, $userAgent, $type, $value);
+                    $security->blockAndRedirect();
+                }
+            }
+        }
+
+        // si c'est un tableau (e.g. checkbox[]), on le parcourt récursivement
+        if (is_array($value)) {
+            $flatten = new RecursiveIteratorIterator(new RecursiveArrayIterator($value));
+            foreach ($flatten as $subvalue) {
+                if (is_string($subvalue)) {
+                    foreach ($suspicious_patterns as $type => $pattern) {
+                        if (preg_match($pattern, $subvalue)) {
+                            $security->logAttack($ip, $userAgent, $type, $subvalue);
+                            $security->blockAndRedirect();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    /* ================================
+    BLOQUER SI ERREUR 403 APACHE
+    ================================ */
+    http_response_code(200);
+    set_error_handler(function() use ($security, $ip, $userAgent, $requestUri) {
+        if (http_response_code() === 403) {
+            $security->logAttack($ip, $userAgent, 'Forbidden Access Attempt', $requestUri);
+            $security->blockAndRedirect();
+        }
+    });
+
+
+?>
+
+<?php
+// require_once 'ips.php';
+// http_response_code(403);
+?>
