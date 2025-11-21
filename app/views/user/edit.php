@@ -12,7 +12,7 @@
             <main class="form-signin m-auto"> 
                 <form method="post">
 
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Modifier l'utilisateur</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Modifier l'utilisateur</h1> 
                     <p class="text-center mb-4">
                         Modifiez les informations de l'utilisateur ci-dessous, puis enregistrez les changements.
                     </p>
@@ -45,7 +45,7 @@
             <main class="form-signin m-auto"> 
                 <form method="post">
 
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Supprimer l'utilisateur</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Supprimer l'utilisateur</h1> 
                     <p class="text-center mb-4">
                         Modifiez les informations de l'utilisateur ci-dessous, puis enregistrez les changements.
                     </p>                

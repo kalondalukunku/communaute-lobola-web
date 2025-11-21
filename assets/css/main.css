@@ -331,7 +331,7 @@ td:hover {
     padding: 12px 26px;
     border-radius: 25px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     transition: 0.25s ease;
 }
 
@@ -349,7 +349,7 @@ td:hover {
     padding: 12px 26px;
     border-radius: 25px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     transition: 0.25s ease;
 }
 
@@ -358,7 +358,7 @@ td:hover {
   border: 1px solid rgba(13,202,240,0.8);
   color: var(--bs-body-color);
   padding: 12px 26px;
-  font-size: 15px;
+  font-size: 14px;
   border-radius: 999px;
   transition: 0.25s ease;
 }
@@ -453,6 +453,7 @@ td:hover {
 
 /* table section */
 .section-title { color: var(--bs-cyan); margin-top:38px; margin-bottom:18px; font-weight:700; font-size:20px; }
+.section-title-2 { color: var(--bs-cyan); margin-top:38px; margin-bottom:18px; font-weight:700; font-size:28px; }
 
 .table-wrap {
   background: transparent;
@@ -579,9 +580,6 @@ table tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 /* Responsive improvements */
 @media (max-width: 991px) {
-    .modern-navbar {
-        /* background: #fff; */
-    }
     .modern-link::after {
         display: none;
     }

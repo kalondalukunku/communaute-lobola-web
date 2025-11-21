@@ -9,7 +9,7 @@
         <?php include APP_PATH . 'templates/alertView.php'; ?>
         
         <div class="row my-5">
-            <a href="/user/add" class="btn btn-info w-75 mx-auto rounded-pill mb-4">Ajouter un utilisateur</a>
+            <a href="/user/add" class="primary-btn w-75 text-center mx-auto mb-5">Ajouter un utilisateur</a>
 
             <div class="table-responsive">
                 <table class="table table-striped" id="orderTable" style="font-size: 14px;">

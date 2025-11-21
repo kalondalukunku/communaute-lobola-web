@@ -9,7 +9,7 @@
         <?php include APP_PATH . 'templates/alertView.php'; ?>
 
         <div class="row my-5">
-            <a href="courier/create" class="btn btn-info w-75 mx-auto rounded-pill mb-4">Ajouter un courier</a>
+            <a href="/courier/create" class="primary-btn w-75 text-center mx-auto mb-5">Ajouter un courier</a>
 
             <div class="table-responsive">
                 <table class="table" id="orderTable" style="font-size: 14px;">

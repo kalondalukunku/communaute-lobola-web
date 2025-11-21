@@ -12,7 +12,7 @@
             <main class="form-signin m-auto"> 
                 <form method="post" enctype="multipart/form-data">
 
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Complétez le courrier</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Complétez le courrier</h1> 
                     <p class="text-center mb-4">
                         Veuillez renseigner les informations complémentaires du courrier pour finaliser son enregistrement
                     </p>

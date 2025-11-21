@@ -15,7 +15,7 @@
                     <div class="text-center">
                         <img class="mb-3" src="<?= ASSETS ; ?>images/logo.png" alt="" width="72" height="57"> 
                     </div>
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Connexion</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Connexion</h1> 
                     <div class="form-floating mb-2"> 
                         <input type="text" name="connect" class="form-control" id="floatingInput" value="<?= $data['connect'] ?? '' ; ?>" placeholder="name@example.com" required> 
                         <label for="floatingInput">Nom ou adresse mail</label> 

@@ -15,7 +15,7 @@
                         <a class="text-inherit border-bottom border-info" href="/">Acceuil</a> / 
                         <a class="text-info" href="<?= RETOUR_EN_ARRIERE ?>">Classer pour le <?= $courierRedirect->nom_personne_redirigee ?></a> 
                     </p>
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Courier de : <?= $courier->provenance ?></h1> 
+                    <h1 class="section-title-2 text-center mt-2">Courier de : <?= $courier->provenance ?></h1> 
 
                     
                     <form method="post" enctype="multipart/form-data"> 

@@ -12,7 +12,7 @@
             <main class="form-signin m-auto"> 
                 <form method="post" enctype="multipart/form-data">
 
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Ajouter un couriste</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Ajouter un couriste</h1> 
                     <p class="text-center mb-4">
                         Veuillez insérer le nom complet du couriste, son adresse mail et le mot de passe pour lui accorder l'accès limité 
                         dans le logiciel.
@@ -46,7 +46,7 @@
                         </div>
                     </div> 
                     <?php if($nbrCouristeUsers >= NBR_LIMITE_USER_COURISTE): ?>
-                        <a href="../user" class="btn btn-dark text-info border-info  w-100 py-2">Voir la liste des utilisateurs</a> 
+                        <a href="../user" class="d-block btn-ghost text-center">Voir la liste des utilisateurs</a> 
                     <?php else: ?>
                         <button class="w-100 text-center primary-btn" name="bukus_user_add" type="submit">Ajouter l'utilisateur</button>
                     <?php endif; ?>

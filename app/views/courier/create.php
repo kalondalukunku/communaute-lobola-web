@@ -12,7 +12,7 @@
             <main class="form-signin m-auto"> 
                 <form method="post" enctype="multipart/form-data">
 
-                    <h1 class="h3 mb-4 text-center fw-bold text-info">Ajouter un courrier</h1> 
+                    <h1 class="section-title-2 text-center mt-2">Ajouter un courrier</h1> 
                     <p class="text-center mb-4">
                         Veuillez d'abord téléverser le fichier PDF du courrier, séléctionner sa catégorie et son type.
                         Vous serez ensuite rédirigé vers la page suivante pour compléter les informations détaillées.

@@ -15,17 +15,10 @@
 
     // Détection simple d'injection ou tentative suspecte
     $suspicious_patterns = [
-        // SQL injection (mot-clé + commentaires inline)
-        'SQL_INJECTION' => "/('|\")|(--|;)|\\b(SELECT|INSERT|DELETE|UPDATE|DROP|UNION|OR|AND|CREATE|ALTER)\\b/i",
-
-        // XSS basique (tags + javascript: + handlers)
-        'XSS' => "/(<script\b[^>]*>.*?<\\/script>)|(<[^>]+\\s(on\\w+)\\s*=)|javascript:|<iframe\\b/i",
-
-        // LFI / RFI / path traversal / accès fichiers sensibles
-        'LFI_RFI' => "/(\\.{2}\\/)|(\\b(passwd|shadow|etc\\/passwd)\\b)|((php|data|file|zip|http|https):\\/\\/)/i",
-
-        // Command injection (backticks, pipes, & etc)
-        'CMD_INJECTION' => "/[`\\|\\$\\&\\;]|\\b(exec|system|shell_exec|passthru|popen)\\b/i"
+        'SQL Injection' => '/(\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bDELETE\b|\bUPDATE\b|\bOR\b.+\=|\bAND\b.+\=)/i',
+        'XSS' => '/(<script\b[^>]*>.*?<\/script>|onerror=|onload=)/i',
+        'Directory Traversal' => '/\.\.\/|\.\.\\\\/',
+        'Command Injection' => '/(;|\||`|\$\( )/',
     ];
 
 
