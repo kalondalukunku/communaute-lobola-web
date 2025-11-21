@@ -32,7 +32,7 @@
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="nav-link modern-link <?= Helper::setActive('settings') ?>" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link modern-link <?= Helper::setActive('settings') ?>" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer !important;">
                                     Paramètres
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-down" viewBox="0 0 16 16">
                                         <path fill-rule="evenodd" d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
@@ -44,13 +44,13 @@
                                     aria-labelledby="settingsDropdown">
 
                                     <!-- <li>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="/" href="#">
                                             <i class="bi bi-person me-2"></i>
                                             Profil
                                         </a>
                                     </li> -->
                                     <li>
-                                        <a class="dropdown-item" href="/user">
+                                        <a class="dropdown-item" href="/user" >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-lines-fill me-2 my-auto" viewBox="0 0 16 16">
                                                 <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
                                             </svg>
@@ -58,7 +58,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="/user/editpswd">
+                                        <a class="dropdown-item" href="/user/editpswd" >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen me-2 my-auto" viewBox="0 0 16 16">
                                                 <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z"/>
                                             </svg>
@@ -66,13 +66,13 @@
                                         </a>
                                     </li>
                                     <!-- <li>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="/" href="#">
                                             <i class="bi bi-shield-check me-2"></i>
                                             Sécurité
                                         </a>
                                     </li> -->
                                     <!-- <li>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="/" href="#">
                                             <i class="bi bi-bell me-2"></i>
                                             Notifications
                                         </a>
@@ -81,7 +81,7 @@
                                     <li><hr class="dropdown-divider"></li>
 
                                     <li class="px-3">
-                                        <a class="dropdown-item text-center text-danger border border-danger rounded-pill" href="/logout">
+                                        <a class="dropdown-item  href="/"text-center text-danger border border-danger rounded-pill" href="/logout">
                                             Déconnexion
                                         </a>
                                     </li>

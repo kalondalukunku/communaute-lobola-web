@@ -80,11 +80,18 @@ class CourierController extends Controller
         $pathMainCourierFilePdf = str_replace('.enc','', BASE_PATH . $courier->fichier_enc);
         $pathMainCourierFileEnc = BASE_PATH . $courier->fichier_enc;
 
-        $pathMainRapportFilePdf = str_replace('.enc','', $courier->rapport_path);
-        $pathMainRapportFileEnc = $courier->rapport_path;
+        if($courier->rapport_path !== null)
+        {
+            $pathMainRapportFilePdf = str_replace('.enc','', $courier->rapport_path);
+            $pathMainRapportFileEnc = $courier->rapport_path;
+        }
 
-        $pathMainRapportJoinFilePdf = str_replace('.enc','', $this->rapportTransmissionModel->find($courierId)->fichier_enc);
-        $pathMainRapportJoinFileEnc = $courier->fichier_enc;
+        $rapportTransmission = $this->rapportTransmissionModel->find($courierId);
+        if($rapportTransmission)
+        {
+            $pathMainRapportJoinFilePdf = str_replace('.enc','', $rapportTransmission->fichier_enc);
+            $pathMainRapportJoinFileEnc = $courier->fichier_enc;
+        }
 
         $data = [
             'courier' => $courier,

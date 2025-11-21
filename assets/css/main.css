@@ -510,7 +510,6 @@ table tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 /* underline animation */
 .modern-link::after {
-    content: '';
     position: absolute;
     bottom: -3px;
     left: 0;

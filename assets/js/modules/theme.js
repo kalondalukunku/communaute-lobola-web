@@ -2,7 +2,7 @@ const body = document.body;
 const html = document.documentElement;
 const dataTheme = html.getAttribute('data-bs-theme');
 
-const dropdownItems = document.querySelectorAll('.dropdown-item');
+const dropdownItems = document.querySelectorAll('.di-theme');
 const listTheme = document.getElementById('listTheme');
 const btnListTheme = listTheme.querySelectorAll('button');
 const svgThemeLight = document.getElementById('svgThemeLight');
