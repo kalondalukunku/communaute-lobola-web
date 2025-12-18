@@ -17,4 +17,14 @@ class Database {
         }
         return self::$pdo;
     }
+
+    public static function decodeData(array $data) {
+        return array_map(function($value) {
+            if (is_string($value)) {
+                // Transforme les &#039; et autres entités en caractères réels
+                return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            }
+            return $value;
+        }, $data);
+    }
 }

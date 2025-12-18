@@ -203,9 +203,21 @@ class Helper {
         return htmlentities($tableData[$field]);
     }
 
-    public static function getSelectedValue(string $field, string $value) 
+    public static function getSelectedValue(string $field, string $value, ?string $databaseValue = null) 
     {
-        if(isset($_POST[$field]) && $_POST[$field] === $value) return 'selected';
+        $postedValue = $_POST[$field] ?? '';
+        
+        if ($postedValue === $value) return 'selected';
+        
+        if($databaseValue !== null && $databaseValue == $value) return 'selected';
+
+    
+        return "";
+    }
+
+    public static function getCheckedValue(string $field, string $value) 
+    {
+        if(isset($_POST[$field]) && $_POST[$field] === $value) return 'checked';
     
         return null;
     }
@@ -216,5 +228,85 @@ class Helper {
         if (mb_strlen($data) > $max) return false;
 
         return true;
+    }
+
+    public static function docIsUrgent($priority) 
+    {
+        if($priority === 'urgent') return 'urgent';
+        return '';
+    }
+
+    public static function userCorrespondant($user)
+    {
+        return $user === $_SESSION[SITE_NAME_SESSION_USER]['nom'] ? '(Vous)' : '';
+    }
+
+    public static function getFirstLetter(string $string): string
+    {
+        // Vérifie si la chaîne est vide avant d'essayer de la traiter
+        if (empty($string)) {
+            return '';
+        }
+
+        // Utilise mb_substr pour la sécurité UTF-8 (longueur de 1 à partir du début, index 0)
+        // Assurez-vous que l'encodage par défaut est défini, souvent 'UTF-8'
+        return mb_substr($string, 0, 1);
+    }
+
+    public static function returnStatutPsnStyle($statut)
+    {
+        switch ($statut) {
+            case ARRAY_PERSONNEL_STATUT_EMPLOI[0]:
+                return 'gray';
+                break;
+            case ARRAY_PERSONNEL_STATUT_EMPLOI[1]:
+                return 'green';
+                break;
+            case ARRAY_PERSONNEL_STATUT_EMPLOI[2]:
+                return 'yellow';
+                break;
+            case ARRAY_PERSONNEL_STATUT_EMPLOI[3]:
+                return 'blue';
+                break;
+            case ARRAY_PERSONNEL_STATUT_EMPLOI[4]:
+                return 'red';
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+    }
+
+    public static function returnEstObligatoireStyle($est_obligatoire)
+    {
+        switch ($est_obligatoire) {
+            case ARRAY_ISREQUIRED[0]:
+                return 'green';
+                break;
+            case ARRAY_ISREQUIRED[1]:
+                return 'red';
+                break;
+        }
+    }
+
+    public static function formatMontantDevise(int|float $montant): string 
+    {
+        $montant_positif = abs($montant);
+
+        $montant_formatte = number_format(
+            $montant_positif,  // Nombre à formater
+            0,                 // Nombre de décimales
+            '',                // Séparateur décimal (non utilisé ici)
+            '.'                // Séparateur de milliers (le point)
+        );
+
+        $resultat = $montant_formatte . SITE_DEVISE;
+
+        if ($montant < 0) {
+            return '- ' . $resultat;
+        }
+
+        return $resultat;
     }
 }

@@ -1,14 +1,16 @@
 <?php
 // Site infos
-define('SITE_NAME','Ankhing Bukus');
+define('SITE_NAME','Mosali');
+// define('SITE_NAME_BY','Ankhing Mosali');
 define('SITE_NAME_SESSION', str_replace(' ', '_', SITE_NAME));
 define('SITE_NAME_SESSION_USER', strtolower(SITE_NAME_SESSION . '_user'));
 define('SITE_EMAIL','CSAK');
 define('SITE_PHONE','CSAK');
+define('SITE_DEVISE','CDF');
 
 // connexion MySql
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'kuria');
+define('DB_NAME', 'mutu');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
@@ -22,7 +24,7 @@ define('MAIL_FROM_NAME', SITE_NAME);
 // repertoires
 define('LIBS_PATH',  BASE_PATH .'libs/');
 define('PDFJS_VIEW_PATH',  LIBS_PATH .'pdfJs/web/viewer.html');
-define('FILE_VIEW_FOLDER_PATH', BASE_PATH . 'assets/uploads/courier/');
+define('FILE_VIEW_FOLDER_PATH', BASE_PATH . 'assets/uploads/document/');
 define('UPLOAD_RAPPORT_FOLDER_PATH', STORAGE_GENERATED . 'rapports/');
 define('UPLOAD_RAPPORT_FOLDER_PATH_GLOBAL',UPLOAD_RAPPORT_FOLDER_PATH .'global/');
 define('UPLOAD_RAPPORT_FOLDER_PATH_GLOBAL_SUIVI',UPLOAD_RAPPORT_FOLDER_PATH .'global_suivi/');
@@ -34,7 +36,7 @@ define('UPLOAD_RAPPORT_FOLDER_PATH_DOC_REDIRECTIONS',UPLOAD_RAPPORT_FOLDER_PATH 
 define('UPLOAD_RAPPORT_FOLDER_PATH_DOC_ACTIVITE_USER',UPLOAD_RAPPORT_FOLDER_PATH .'global_doc_activite_user/');
 
 //options de securité
-define('CLEF_CHIFFRAGE_PDF', 'ANKHINGBUKUS');
+define('CLEF_CHIFFRAGE_PDF', 'ANKHINGMOSALI');
 define('TEMPS_DESSAIE', 15);
 define('ENABLE_SSL', true);
 
@@ -46,13 +48,21 @@ define('COMPANY_NAME_', str_replace(" ",'_', strtoupper(COMPANY_NAME)));
 define('MAX_UPLOAD_SIZE', 256000);
 
 // others
-define('ARRAY_STATUS', ['en cours','non traité','traité','classé sans suite','classé']);
-define('ARRAY_CATEGORIES', ['entrant','sortant']);
-define('ARRAY_TYPE',['interne','externe']);
-define('ARRAY_PRIORITY',['normal','urgent']);
-define('ARRAY_TRANSMISSION',['normal','ordre de service','feuille de route']);
-define('ARRAY_ROLE_USER',['admin','superviseur','couriste']);
-define('ARRAY_TYPE_RAPPORT',['global','global suivi','global entrant','global sortant']);
-define('NBR_LIMITE_USER_COURISTE', 3);
+define('ARRAY_ROLE_USER',['Administrateur RH','Manager','Employé']);
+define('ARRAY_MARIAL_STATUS', ['Célibataire','Marié(e)','Divorcé(e)','Veuf(ve)']);
+define('ARRAY_DEPARTMENTS', ['Ressources humaine','Finances','Informatique','Sécretariat général','Communication','Marketing','Comptabilité']);
+define('ARRAY_PRIMES', ['Prime administratif','Prime de fonction','Prime professionnel']);
+define('ARRAY_PERSONNEL_STATUT_EMPLOI', ['Inactif','Actif','En Conge','Retraité']);
+define('ARRAY_NAME_FILE_DOC', ['mosali_doc_identity','mosali_doc_diploma','mosali_doc_contract']);
+define('ARRAY_SCOLARISE', ['Oui','Non']);
+define('ARRAY_ISREQUIRED', ['Oui','Non']);
+define('ARRAY_SEXE', ['M','F']);
+define('ARRAY_STUDY_LEVEL', ['Primaire','Secondaire','Universitaire Licence','Universitaire Master','Universitaire Doctorat','Formation Professionnelle','Certification']);
+define('ARRAY_IDENTITY_PIECES',["Carte électorale",'Passport',"Permis de conduire"]);
+define('ARRAY_DOC_CATEGORY',["Documents d'État Civil et d'Identité",'Documents de Formation et de Compétences',"Documents Professionnels et Sociaux","Certificats Spécifiques et Attestations","Documents de Propriété et Financiers"]);
+define('ARRAY_TYPE_ACTION_HISTO_DOC',['Upload','Remplacement','Suppression_Logique','Rejet']);
+// define('ARRAY_TRANSMISSION',['normal','ordre de service','feuille de route']);
+// define('ARRAY_HISTORIQUE_USER',['ajout', 'transmission sg', 'transmission direction', 'lecture','retour transmission','telechargement','traitement', 'commentaire','mise à jour','changement destinataire','classement','classement sans suite','restauration']);
+// define('ARRAY_DOC_STATE', ['ajoute','transmis_sg', 'transmis_dr', 'recu_sg','recu_bureau_dr','valide','rejete','archive']);
+// define('ARRAY_TYPE_RAPPORT',['global','global suivi','global entrant','global sortant']);
 define('RETOUR_EN_ARRIERE',$_SERVER['HTTP_REFERER'] ?? 'javascript:history.back()');
-define('STYLE_TDS',"style='cursor: pointer; background-color:#0DCAF02b !important; border-radius: 5px'");

@@ -9,7 +9,7 @@ class LoginController extends Controller {
         $cacheKey = 'user_connexion';
         if (Session::isLogged('user')) Utils::redirect('/');
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_user_login'])) $this->auth($_POST, $cacheKey);
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_user_login'])) $this->auth($_POST, $cacheKey);
         $this->view('login/index');
     }
 
@@ -33,8 +33,9 @@ class LoginController extends Controller {
         }
 
         $user = $userModel->loginUser($connect, $cacheKey);
+        var_dump($user);
 
-        if ($user && password_verify($pswd, $user->pswd)) 
+        if ($user && password_verify($pswd, $user->pswd) && $user->statut_compte === 'Actif') 
         {
             Session::set('user', $user);
             Session::setFlash('success', 'Connecté.');

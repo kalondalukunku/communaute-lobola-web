@@ -1,0 +1,234 @@
+<?php 
+  include APP_PATH . 'views/layouts/header.php'; 
+?>
+</head>
+<section class="flex flex-col mt-[3.5rem]">
+    
+    <?php 
+        include APP_PATH . 'views/layouts/navbar.php';
+        include APP_PATH . 'templates/alertView.php'; 
+    ?>
+    
+    <!-- Zone de Contenu Principale (Plein Écran) -->
+    <div class="flex-1 p-4 sm:p-8">
+        
+        <!-- Header du Contenu -->
+        <header class="mb-2 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h1 class="text-xl font-bold text-gray-900 mb-4 md:mb-0">
+                📋 Fiches du Personnel (<?= $totalrecords ?> Actifs)
+            </h1>
+            <div class="flex items-center space-x-3">
+                <!-- Bouton d'Action Primaire (Orange) -->
+                <a href="addtpdcs" class="flex items-center space-x-2 bg-[var(--color-primary)] text-sm text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150 transform hover:scale-[1.01]">
+                    <i class="fas fa-folder-plus"></i>
+                    <span>Ajouter un type des documents</span>
+                </a>
+            </div>
+        </header>
+        
+        <!-- Bar d'Outils et Filtres -->
+        <div class="card-container p-4 mb-6 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center">
+            
+            <!-- Recherche Globale -->
+            <div class="w-full md:w-1/3 relative">
+                <form action="" method="get">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="q" value="<?= $_GET['q'] ?? '' ?>" placeholder="Rechercher par Nom, ID, ou Fonction..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[var(--color-primary)] transition duration-150">
+                </form>
+            </div>
+
+            <!-- Filtre Statut -->
+            <div class="inline-flex flex-wrap gap-1 end-0 rounded-xl bg-white p-1 shadow-md border border-gray-200">
+                <?php
+                    $full_uri = $_SERVER['REQUEST_URI'] ?? '/';
+                    $path_only = parse_url($full_uri, PHP_URL_PATH);
+                    $clean_path = rtrim($path_only, '/');
+                    
+                    $psnStatus = [
+                        'all' => 'Tous',
+                        'oui' => 'Oui',
+                        'non' => 'Non',
+                    ];
+
+                    $current_status = $_GET['isrqrd'] ?? null;
+
+                    foreach ($psnStatus as $key => $label) 
+                    {
+                        $is_active = ($current_status === $key);
+
+                        $active_class = $is_active
+                            ? 'bg-blue-600 text-white shadow-lg filter-btn' // Active
+                            : 'text-gray-600 hover:bg-gray-100 filter-btn'; // Inactive
+
+                        $new_params = $_GET;
+
+                        $new_params['isrqrd'] = $key;
+
+                        if(isset($new_params['page'])) unset($new_params['page']);
+
+                        $url_params = http_build_query($new_params);
+
+                        echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium rounded-lg {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
+                    }
+                    ?>
+            </div>
+        </div>
+
+        <?php if(count($alltypesdocs) > 0): ?>
+            <!-- Tableau des Personnels (Vue Principale) -->
+            <div class="card-container overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Libellé
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                                Validité
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Obligation
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        
+                            <?php foreach($alltypesdocs as $typedoc): ?>
+                                <tr class="typedoc-row">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
+                                                <i class="fas fa-file-contract"></i>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900"><?= $typedoc->nom_type ?></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                                        <div class="text-sm text-gray-900"><?= $typedoc->duree_validite_jours ?? "--" ?></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="px-3 inline-flex text-xs leading-5 font-semibold rounded-full bg-<?= Helper::returnStatutPsnStyle($typedoc->statut_emploi) ?>-100 text-<?= Helper::returnStatutPsnStyle($typedoc->statut_emploi) ?>-800">
+                                            <?= $typedoc->est_obligatoire ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                                        <a href="shwtpdcs/<?= $typedoc->type_doc_id ?>" class="text-[var(--color-secondary)] hover:text-blue-700" title="Voir Fiche">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="edttpdcs/<?= $typedoc->type_doc_id ?>" class="text-gray-500 hover:text-[var(--color-primary)]" title="Éditer">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="text-red-500 hover:text-red-700" title="Archiver">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-lg border border-gray-100">
+            <p class='text-sm text-gray-600'>Page <?= $currentPage ?> sur <?= $totalPages ?> (<?= $totalrecords ?> enregistrements)</p>
+
+            <div class="flex space-x-2">
+                <?php
+                /**
+                 * Génère un lien de pagination stylisé (pour page ou pour icône)
+                 * @param int $page_num La page vers laquelle pointer
+                 * @param string $label Le contenu affiché (numéro ou icône SVG)
+                 * @param bool $is_active Si c'est la page actuelle
+                 * @param bool $is_disabled Si le lien est désactivé (début/fin)
+                 */
+                function generatePaginationElement(int $page_num, string $label, bool $is_active = false, bool $is_disabled = false): string {
+                    global $current_status;
+                    
+                    // Classes de base pour les numéros de page et les icônes
+                    $base_class = 'h-7 px-4 py-2 text-xs border rounded-xl transition font-medium flex items-center justify-center';
+
+                    if ($is_disabled) {
+                        // Élément désactivé (span, pas de lien)
+                        $class = $base_class . ' text-gray-400 bg-gray-100 cursor-not-allowed';
+                        return "<span class='{$class}'>{$label}</span>";
+                    }
+
+                    // Prépare les paramètres de l'URL
+                    $url_params = http_build_query(array_merge($_GET, ['status' => $current_status, 'page' => $page_num]));
+                    
+                    if ($is_active) {
+                        // Style Actif: Votre --color-secondary
+                        $class = $base_class . ' bg-white text-[var(--color-secondary)] border-[var(--color-secondary)] shadow-md';
+                    } else {
+                        // Style Inactif: gris, hover
+                        $class = $base_class . ' text-gray-600 border-gray-300 hover:bg-gray-200';
+                    }
+                    
+                    return "<a href=\"?{$url_params}\" class='{$class}'>{$label}</a>";
+                }
+
+                // --- 1. Bouton/Icône Précédent ---
+                $prev_page = $currentPage - 1;
+                $is_prev_disabled = $currentPage <= 1;
+                $prev_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>';
+                
+                echo generatePaginationElement($prev_page, $prev_icon, false, $is_prev_disabled);
+
+                // --- 2. Liens des pages (affichage simple : 1 2 3 ... X) ---
+                $display_limit = 5; // Nombre maximum de numéros de page à afficher
+                $start_page = max(1, $currentPage - floor($display_limit / 2));
+                $end_page = min($totalPages, $currentPage + floor($display_limit / 2));
+
+                // Ajuster si on arrive trop près de la fin
+                if ($end_page - $start_page < $display_limit - 1) {
+                    $start_page = max(1, $totalPages - $display_limit + 1);
+                    $end_page = min($totalPages, $totalPages);
+                }
+
+                if ($start_page > 1) {
+                    echo generatePaginationElement(1, '1');
+                    if ($start_page > 2) {
+                        echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+                    }
+                }
+
+                for ($i = $start_page; $i <= $end_page; $i++) {
+                    echo generatePaginationElement(
+                        $i, 
+                        (string)$i, 
+                        $i === $currentPage
+                    );
+                }
+
+                if ($end_page < $totalPages) {
+                    if ($end_page < $totalPages - 1) {
+                        echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+                    }
+                    echo generatePaginationElement($totalPages, (string)$totalPages);
+                }
+
+                // --- 3. Bouton/Icône Suivant ---
+                $next_page = $currentPage + 1;
+                $is_next_disabled = $currentPage >= $totalPages;
+                $next_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>';
+
+                echo generatePaginationElement($next_page, $next_icon, false, $is_next_disabled);
+                ?>
+            </div>
+        </div>
+
+        <?php else: ?>
+            <h1 class="text-md text-center font-bold text-gray-900 pt-8 mb-4 md:mb-0">
+                📋 Aucun type des documents trouvé !
+            </h1>
+        <?php endif; ?>
+    </div>
+</section>
+
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>

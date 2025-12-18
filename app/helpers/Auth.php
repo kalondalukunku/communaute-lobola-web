@@ -26,15 +26,15 @@ class Auth {
 
     public static function isRole($role, $role2 = null)
     {
-        if ($role2 !== null)
-        {
-            if($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role2) Utils::redirect('/');
-        } 
-        else {
-            if($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[0]) Utils::redirect('/');
-            elseif($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[1]) Utils::redirect('/supervisor');
-            elseif($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[2]) Utils::redirect('/courier/create');
-        }
+        // if ($role2 !== null)
+        // {
+        //     if($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role2) Utils::redirect('/');
+        // } 
+        // else {
+        //     if($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[0]) Utils::redirect('/');
+        //     elseif($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[1]) Utils::redirect('/dr');
+        //     elseif($_SESSION[SITE_NAME_SESSION_USER]['role'] !== $role && $_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[2]) Utils::redirect('/agt');
+        // }
         
     }
 }

@@ -1,17 +1,40 @@
-<?php if (Session::hasFlash('success')): ?>
-    <div class="aw-75 alert alert-success text-center fs-7 p-3 mx-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill mb-1" viewBox="0 0 16 16">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-        </svg>
-        <?= htmlspecialchars(Session::getFlash('success')) ?>        
-    </div>
-<?php endif; ?>
-
-<?php if (Session::hasFlash('error')): ?>
-    <div class="w-75 alert alert-danger text-center fs-7 p-3 mx-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill mb-1" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-        </svg>
-        <?= htmlspecialchars(Session::getFlash('error')) ?>        
-    </div>
-<?php endif; ?>
+<?php if (!empty($_SESSION['flash'])): ?>
+        <?php foreach ($_SESSION['flash'] as $type => $message): ?>
+            <?php 
+                $icon = '';
+                $title = '';
+                
+                // Détermine l'icône et le titre en fonction de la clé ($type)
+                switch ($type) {
+                    case 'success':
+                        $icon = 'fas fa-check-circle';
+                        $title = 'Succès';
+                        break;
+                    case 'error':
+                        $icon = 'fas fa-times-circle';
+                        $title = 'Erreur';
+                        break;
+                    case 'warning':
+                        $icon = 'fas fa-exclamation-triangle';
+                        $title = 'Attention';
+                        break;
+                    default:
+                        // Pour les types non reconnus, utilise l'information par défaut
+                        $icon = 'fas fa-info-circle';
+                        $title = 'Information';
+                        break;
+                }
+            ?>
+            <!-- Génère le message avec le type et la classe 'show' -->
+            <div class="flash-message max-w-lg <?= htmlspecialchars($type); ?> mx-auto show mt-8">
+                <i class="<?= htmlspecialchars($icon); ?> text-xl flex-shrink-0"></i>
+                <div class="flex-grow">
+                    <p class="flash-title"><?= htmlspecialchars($title); ?></p>
+                    <!-- Utilise la variable $message de la boucle foreach -->
+                    <p class="flash-text"><?= htmlspecialchars($message); ?></p>
+                </div>
+            </div>
+            <!-- Supprime le message après l'affichage -->
+            <?php unset($_SESSION['flash'][$type]); ?>
+        <?php endforeach; ?>
+    <?php endif; ?>

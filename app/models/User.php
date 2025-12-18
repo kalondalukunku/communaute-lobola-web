@@ -1,15 +1,23 @@
 <?php
 class User extends Model {
 
-    protected $table = 'users';
+    protected $table = 'utilisateurs';
 
     public function loginUser($connect, $cacheKey) 
     {
         if($data = Cache::get($cacheKey)) return $data;
 
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE nom = :nom OR email = :email LIMIT 1");
+        $stmt = $this->db->prepare(
+                                    "SELECT 
+                                        U.*,
+                                        R.nom_role
+                                    FROM {$this->table} U
+                                    INNER JOIN
+                                        roles AS R
+                                    ON U.role_id = R.role_id 
+                                    WHERE email = :email 
+                                    LIMIT 1");
         $stmt->execute([
-            'nom'   => $connect,
             'email' => $connect
         ]);
         $user = $stmt->fetch(PDO::FETCH_OBJ);
@@ -30,6 +38,14 @@ class User extends Model {
                 VALUES (:user_id, :nom, :email, :pswd, :role)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($data);
+    }
+
+    public function insert(array $datas)
+    {
+        $keys = array_keys($datas);
+        $query = "INSERT INTO $this->table (". implode(", ", $keys) .") VALUES(:". implode(", :", $keys) .")";
+        $q = $this->db->prepare($query);
+        return $q->execute($datas);
     }
 
     public function update(array $datas, string $where = 'id')
@@ -112,6 +128,18 @@ class User extends Model {
 
         $q = $this->db->prepare($query);
         $q->execute($params);
+        return $q->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getAllDataSelect($select)
+    {
+        return $this->db->query("SELECT $select FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getAllUsersRoleDirecteur()
+    {
+        $q = $this->db->prepare("SELECT direction FROM $this->table WHERE role = :role");
+        $q->execute(['role' => 'directeur']);
         return $q->fetchAll(PDO::FETCH_OBJ);
     }
 }

@@ -310,3 +310,14 @@ window.addEventListener('DOMContentLoaded', () => {
     //         }
     //     };
     // }
+
+    const fichier = "<?= $pathFilePdf ?>";
+
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            fetch("/dr/deleteFileView?file=" + encodeURIComponent(fichier))
+                .then(res => res.text())
+                .then(console.log)
+                .catch(console.error);
+        }, 1000);
+    });

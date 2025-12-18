@@ -1,108 +1,70 @@
-        <!-- Navbar Premium -->
-        <nav class="navbar navbar-expand-lg modern-navbar fixed-top">
-            <div class="container">
+<nav class="fixed top-0 inset-x-0 z-40 h-16 bg-[var(--color-secondary)] shadow-lg flex items-center justify-between px-4 sm:px-8">
+        
+    <!-- Logo et Titre Principal -->
+    <div class="text-white text-xl font-bold flex items-center space-x-2 flex-shrink-0">
+        <i class="fas fa-network-wired text-[var(--color-primary)]"></i>
+        <span class="uppercase"><?= SITE_NAME ?></span>
+    </div>
 
-                <!-- Logo -->
-                <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                    <i class="bi bi-cursor-fill me-2 fs-4 text-info"></i>
-                    Ankhing <span class="text-info">Bukus</span>
-                </a>
-
-                <!-- Toggler -->
-                <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navMenu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Menu -->
-                <div class="collapse navbar-collapse" id="navMenu">
-                    <ul class="navbar-nav ms-auto gap-3 align-items-lg-center">
-
-                        <?php if($_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[0]): ?>
-                            <li class="nav-item">
-                                <a class="nav-link modern-link <?= Helper::setActive('') ?><?= Helper::setActive('/index') ?>" href="/">
-                                    Global
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link modern-link <?= Helper::setActive('rapport') ?>" href="/rapport">
-                                    Rapport
-                                </a>
-                            </li>
-
-                            <li class="nav-item dropdown">
-                                <a class="nav-link modern-link <?= Helper::setActive('settings') ?>" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer !important;">
-                                    Paramètres
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-down" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd" d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
-                                        <path fill-rule="evenodd" d="M1.646 2.646a.5.5 0 0 1 .708 0L8 8.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
-                                    </svg>
-                                </a>
-                                
-                                <ul class="dropdown-menu dropdown-menu-end modern-dropdown shadow-sm"
-                                    aria-labelledby="settingsDropdown">
-
-                                    <!-- <li>
-                                        <a class="dropdown-item" href="/" href="#">
-                                            <i class="bi bi-person me-2"></i>
-                                            Profil
-                                        </a>
-                                    </li> -->
-                                    <li>
-                                        <a class="dropdown-item" href="/user" >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-lines-fill me-2 my-auto" viewBox="0 0 16 16">
-                                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
-                                            </svg>
-                                            Liste des utilisateurs
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="/user/editpswd" >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen me-2 my-auto" viewBox="0 0 16 16">
-                                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z"/>
-                                            </svg>
-                                            Modifier le mot de passe
-                                        </a>
-                                    </li>
-                                    <!-- <li>
-                                        <a class="dropdown-item" href="/" href="#">
-                                            <i class="bi bi-shield-check me-2"></i>
-                                            Sécurité
-                                        </a>
-                                    </li> -->
-                                    <!-- <li>
-                                        <a class="dropdown-item" href="/" href="#">
-                                            <i class="bi bi-bell me-2"></i>
-                                            Notifications
-                                        </a>
-                                    </li> -->
-
-                                    <li><hr class="dropdown-divider"></li>
-
-                                    <li class="px-3">
-                                        <a class="dropdown-item btn-danger text-center text-danger border border-danger rounded-pill" href="/logout">
-                                            Déconnexion
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            
-                        <?php elseif($_SESSION[SITE_NAME_SESSION_USER]['role'] === ARRAY_ROLE_USER[2]): ?>
-                            <li class="nav-item">
-                                <a class="nav-link modern-link <?= Helper::setActive('courier/create') ?>" href="/courier/create">
-                                    Ajouter un courier
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="btn btn-danger rounded-pill px-4 shadow-sm hover-grow" href="/logout">
-                                    Déconnexion
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                    </ul>
-                </div>
-            </div>
+    <!-- Liens de Navigation (Centrés ou à Gauche) -->
+    <div class="hidden lg:flex flex-1 justify-center space-x-1">
+        <nav class="flex space-x-1 custom-scrollbar overflow-x-auto text-sm">
+            <!-- ACCENT sur la gestion du personnel -->
+            <a href="/" class="flex items-center space-x-2 p-3 rounded-xl text-white bg-blue-900/50 transition duration-150 font-medium whitespace-nowrap">
+                <i class="fas fa-users w-5"></i>
+                <span>Fiches Personnel</span>
+            </a>
+            <a href="/dcs" class="flex items-center space-x-2 p-3 rounded-xl <?= Helper::setActive('/dcs') ?> text-gray-300 hover:text-white hover:bg-blue-900/50 transition duration-150 whitespace-nowrap">
+                <i class="fas fa-folder-open w-5"></i>
+                <span>Gestion des Documents</span>
+            </a>
+            <a href="/rpt" class="flex items-center space-x-2 p-3 rounded-xl text-gray-300 hover:text-white hover:bg-blue-900/50 transition duration-150 whitespace-nowrap">
+                <i class="fas fa-file-invoice w-5"></i>
+                <span>Rapports RH</span>
+            </a>
+            <a href="#" class="flex items-center space-x-2 p-3 rounded-xl text-gray-300 hover:text-white hover:bg-blue-900/50 transition duration-150 whitespace-nowrap">
+                <i class="fas fa-calendar-alt w-5"></i>
+                <span>Congés & Absences</span>
+            </a>
+            <a href="/stg" class="flex items-center space-x-2 p-3 rounded-xl text-gray-300 hover:text-white hover:bg-blue-900/50 transition duration-150 whitespace-nowrap">
+                <i class="fas fa-cog w-5"></i>
+                <span>Paramètres</span>
+            </a>
         </nav>
+    </div>
+
+    <!-- Profil et Actions (À Droite) -->
+    <div class="flex items-center space-x-4 flex-shrink-0">
+        <!-- Bouton de notification -->
+        <button class="text-white hover:text-[var(--color-primary)] p-2 rounded-full transition duration-150" title="Notifications">
+            <i class="fas fa-bell"></i>
+        </button>
+        
+        <!-- Menu Profil/Déconnexion -->
+        <div id="profileMenuButton" class="relative cursor-pointer group">
+            <img class="h-10 w-10 rounded-full object-cover border-2 border-[var(--color-primary)] transition duration-150 group-hover:opacity-80" 
+                    src="https://placehold.co/100x100/1565C0/FFFFFF?text=J.D" 
+                    alt="Photo de profil" 
+                    onerror="this.onerror=null; this.src='https://placehold.co/100x100/1565C0/FFFFFF?text=J.D'">
+            
+            <!-- Dropdown Menu -->
+            <div id="profileDropdown" class="absolute right-0 mt-3 w-48 bg-white card-container shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 transform scale-95 group-hover:scale-100 origin-top-right">
+                <div class="p-4 text-sm border-b border-gray-100">
+                    <p class="font-semibold text-gray-900">Jean Dupont</p>
+                    <p class="text-xs text-gray-500">Responsable RH</p>
+                </div>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-user-circle mr-2"></i> Mon Profil
+                </a>
+                <a href="#" onclick="logout();" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-xl">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
+                </a>
+            </div>
+        </div>
+
+        <!-- Mobile Hamburger (pour les liens de navigation principaux si nécessaires) -->
+        <button id="mobileMenuToggle" class="lg:hidden p-2 text-white hover:text-[var(--color-primary)] rounded-full transition duration-150">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</nav>

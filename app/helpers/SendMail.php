@@ -11,70 +11,37 @@ class SendMail {
 
     public function __construct() {
         $this->mail = new PHPMailer(true);
+    }
 
-        try {
-            // Configuration SMTP depuis config
-            $this->mail->isSMTP();
-            $this->mail->Host = 'smtp.gmail.com';
-            $this->mail->SMTPAuth = true;
-            $this->mail->Username = MAIL_USER;
-            $this->mail->Password = MAIL_PASS;
-            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $this->mail->Port = 465;
-            $this->mail->CharSet = 'UTF-8';
-            $this->mail->Encoding = 'base64';
+    public function sendEmail($to, $subject, $message, $image = null)
+    {
+        $this->mail->SMTPDebug = 0;
+        $this->mail->isSMTP();
+        $this->mail->Host = 'smtp.hostinger.com';
+        $this->mail->SMTPAuth = true; 
+        $this->mail->Username = ADMIN_EMAIL;
+        $this->mail->Password = 'contact@ANKH01'; // Mettre le mot de passe réel ici
+        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $this->mail->Port = 465;
+        $this->mail->CharSet = 'UTF-8';
+        $this->mail->Encoding = 'base64';
 
-            $this->mail->CharSet = 'UTF-8';
-            $this->mail->isHTML(true);
-            $this->mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
-
-        } catch (Exception $e) {
-            $this->logError("Erreur configuration mailer : " . $e->getMessage());
-            die("Erreur configuration mailer : " . $e->getMessage());
+        $this->mail->setFrom(ADMIN_EMAIL, SITE_NAME);
+        $this->mail->addAddress($to);
+        $this->mail->addReplyTo(ADMIN_EMAIL, SITE_NAME);
+        if($image != null) {
+            $this->mail->addAttachment($image, 'ANKHING BUKUS logo');
         }
-    }
 
-    public function addTo($email, $name = '') {
-        $this->mail->addAddress($email, $name);
-    }
-
-    public function addCC($email, $name = '') {
-        $this->mail->addCC($email, $name);
-    }
-
-    public function addBCC($email, $name = '') {
-        $this->mail->addBCC($email, $name);
-    }
-
-    public function setSubject($subject) {
+        $this->mail->isHTML(true);
         $this->mail->Subject = $subject;
-    }
+        $this->mail->Body = $message;
+        $this->mail->setLanguage('fr','/optional/path/to/language/directory');
 
-    public function setBody($body) {
-        $this->mail->Body = $body;
-    }
-
-    public function setAltBody($altBody) {
-        $this->mail->AltBody = $altBody;
-    }
-
-    public function addAttachment($path, $name = '') {
-        $this->mail->addAttachment($path, $name);
-    }
-
-    public function send() {
-        try {
-            $this->mail->send();
+        if($this->mail->send()) {
             return true;
-        } catch (Exception $e) {
-            $this->logError("Erreur envoi mail : " . $this->mail->ErrorInfo);
-            return "Erreur lors de l'envoi : " . $this->mail->ErrorInfo;
+        }else {
+            return false;
         }
-    }
-
-    private function logError($message) {
-        $logFile = BASE_PATH . 'storage/logs/mail.log';
-        $date = date('Y-m-d H:i:s');
-        file_put_contents($logFile, "[$date] $message" . PHP_EOL, FILE_APPEND);
     }
 }
