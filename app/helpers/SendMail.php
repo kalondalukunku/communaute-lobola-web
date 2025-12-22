@@ -20,7 +20,7 @@ class SendMail {
         $this->mail->Host = 'smtp.hostinger.com';
         $this->mail->SMTPAuth = true; 
         $this->mail->Username = ADMIN_EMAIL;
-        $this->mail->Password = 'contact@ANKH01'; // Mettre le mot de passe réel ici
+        $this->mail->Password = 'support@ANKHMOSALI01'; // Mettre le mot de passe réel ici
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $this->mail->Port = 465;
         $this->mail->CharSet = 'UTF-8';

@@ -67,7 +67,6 @@
                     <!-- 5. Contenu de l'Onglet 3 : Documents Clés -->
                     <!-- --------------------------------- -->
                     <div id="personnel" class="tab-content active space-y-6">
-                            <h3 class="text-xl font-semibold text-[var(--color-secondary)] border-b pb-2">Téléchargement des Pièces Justificatives (Optionnel)</h3>
                             
                             <p class="text-sm text-gray-600">Veuillez télécharger les documents essentiels. Vous pourrez ajouter d'autres documents plus tard sur la fiche détaillée.</p>
 

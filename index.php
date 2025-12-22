@@ -8,7 +8,7 @@
     $domain = $_SERVER['HTTP_HOST'];
     $projetFolder = rtrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\', '/', __DIR__)), '/');
 
-    define('ADMIN_EMAIL', 'contact@ankhing.com');
+    define('ADMIN_EMAIL', 'support@mosali.ankhing.com');
 
     define('BASE_URL', $protocol . $domain . $projetFolder);
     define('BASE_PATH', __DIR__ . '/');

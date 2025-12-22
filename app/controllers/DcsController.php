@@ -1,12 +1,16 @@
 <?php
     require_once APP_PATH . 'models/Personnel.php';
     require_once APP_PATH . 'models/TypesDocument.php';
+    require_once APP_PATH . 'models/Document.php';
+    require_once APP_PATH . 'models/HistoriqueDocument.php';
     require_once APP_PATH . 'helpers/Logger.php';
 
 class DcsController extends Controller
 {
     private $PersonnelModel; 
     private $TypesDocumentModel;
+    private $DocumentModel;
+    private $HistoriqueDocumentModel;
     private $loggerModel;
 
 
@@ -15,6 +19,8 @@ class DcsController extends Controller
         Auth::requireLogin('user'); // protéger toutes les pages
         $this->PersonnelModel = new Personnel();
         $this->TypesDocumentModel = new TypesDocument();
+        $this->DocumentModel = new Document();
+        $this->HistoriqueDocumentModel = new HistoriqueDocument();
         $this->loggerModel = new Logger();
     }
 
@@ -22,82 +28,165 @@ class DcsController extends Controller
     {
         Auth::isRole(ARRAY_ROLE_USER[0]); // SG uniquement
 
-        // $allCouriers = $this->DocumentModel->all();
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $isrqrdGet = basename($_GET['isrqrd'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
+
+        $results = $this->DocumentModel->allDcs2($psnPg, null, $this->DocumentModel->default_per_page, $search);
+        $alldocs = $results['alldocs'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
 
         $data = [
             'title' => SITE_NAME . ' | Documents',
             'description' => 'Gestion des documents',
-            // 'allCouriers' => $allCouriers,
-            // 'Courier' => $this->DocumentModel,
+            'alldocs' => $alldocs,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
         ];
+
+        foreach($alldocs as $d)
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$d->doc_id]))
+            {
+                $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($d->chemin_fichier_stockage));
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.pdf";
+
+                $res = $this->DocumentModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_PDF);
+
+                if($res === true)
+                {
+                    Utils::redirect('dcs/vwfl?fl=file.pdf');
+                    unlink($pathFilePdf);
+                }
+            }
+        }
+            
 
         $this->view('dcs/index', $data);
     }
 
-    public function add() 
+    public function adddc($personnelID) 
     {
         $cacheKey = 'user_connexion';
 
+        $Personnel = $this->PersonnelModel->getPersonnelDetails('personnel_id', $personnelID);
+        if(!$Personnel) Utils::redirect('/');
+
+        if(!$_GET['tpdc']) Utils::redirect('/');
+        
+        $typeDocId = $_GET['tpdc'];
+
+        $typeDoc = $this->TypesDocumentModel->find($typeDocId);
+        if(!$typeDoc) Utils::redirect('../dcs');
+
         $data = [
-            // 'nbrCouristeUsers' => $nbrCouristeUsers,
-            // 'couristeUsersText' => $couristeUsersText,
+            'Personnel' => $Personnel,
+            'typeDoc' => $typeDoc,
         ];
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_add_psn_step_one']))
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_add_doc']))
         {
-            $firstName = Utils::sanitize(trim($_POST['firstName'] ?? ''));
-            $lastName = Utils::sanitize(trim($_POST['lastName'] ?? ''));
-            $dateOfBirth = Utils::sanitize(trim($_POST['dateOfBirth'] ?? ''));
-            $maritalStatus = Utils::sanitize(trim($_POST['maritalStatus'] ?? ''));
-            $address = Utils::sanitize(trim($_POST['address'] ?? ''));
-            $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
-            $personalEmail = Utils::sanitize(trim($_POST['personalEmail'] ?? ''));
+            if (!empty($_FILES['mosali_doc_psn']['name']))
+            {
+                $file = $_FILES['mosali_doc_psn'];
+                $allowedTypes = ['application/pdf'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('psn/add3', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('psn/add3', $data);
+                    return;
+                }
             
-            if($firstName === '' || $lastName === '' || $dateOfBirth === '' || $maritalStatus === '' || $phone === '' || $address === '' || $personalEmail === '')
-            {
-                Session::setFlash('error', 'Remplissez correctement le formulaire.');
-                $this->view('dcs/edttpdcs',  $data);
-                return;
-            }
-            if(!in_array($maritalStatus, ARRAY_MARIAL_STATUS)) 
-            {
-                Session::setFlash('error', "Entrée correctement l'état civil du personnel.");
-                $this->view('dcs/addtpdcs',  $data);
-                return;
-            }
-            //verifier si l'email existe deja
-            // if(in_array($personalEmail, $dbEmails))
-            // {
-            //     Session::setFlash('error', "Cette adresse mail existe déjà.");
-            //     $this->view('dcs/addtpdcs',  $data);
-            //     return;
-            // }
+                $pathDossier = $this->DocumentModel->cheminDossierPdf($typeDoc->nom_type, $personnelID);
+                $nomFichier = $this->DocumentModel->generteNomFichierPdf($typeDoc->nom_type);
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+                $pathFileEnc = $fichierPath .".enc";
 
-            $personnelID = Utils::generateUuidV4();
+                $date_telechargement = date('Y-m-d H:i:s');
+                
+                if($typeDoc->duree_validite_jours !== null) 
+                    $date_expiration = Utils::ajouterJoursAujourdhui($typeDoc->duree_validite_jours);
+                else
+                    $date_expiration = null;
 
-            $dataAddPsnStpOne = [
-                'personnel_id'           => $personnelID,
-                'nom'               => $firstName,
-                'postnom'           => $lastName,
-                'date_naissance'    => $dateOfBirth,
-                'statut_marital'    => $maritalStatus,
-                'adresse'           => $address,
-                'telephone'         => $phone,
-                'email'             => $personalEmail,
-                'created_at'        => date('Y-m-d H:i:s')
-            ];
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('psn/add3',  $data);
+                        return;
+                    }
+                }
 
-            if($this->PersonnelModel->insert($dataAddPsnStpOne))
-            {
-                Session::setFlash('success', 'Personnel ajouté avec succès.');
-                Utils::redirect('add2/'. $personnelID);
+                $docID = Utils::generateUuidV4();
+                $dataAddDocPsn = [
+                    'doc_id'        => $docID,
+                    'personnel_id'  => $personnelID,
+                    'matricule'     => $Personnel->matricule,
+                ];
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $res = $this->DocumentModel->chiffreePdf($uploadPath, $pathFileEnc, CLEF_CHIFFRAGE_PDF);
+
+                        if ($res === true)
+                        {
+                            $dataAddDocPsn['type_doc_id']              = $typeDoc->type_doc_id;
+                            $dataAddDocPsn['date_telechargement']      = $date_telechargement;
+                            $dataAddDocPsn['date_expiration']          = $date_expiration;
+                            $dataAddDocPsn['nom_fichier_original']     = $typeDoc->nom_type;
+                            $dataAddDocPsn['chemin_fichier_stockage']  = $pathFileEnc;
+
+                            $res = $this->DocumentModel->insert($dataAddDocPsn);
+                            if($res)
+                            {
+                                $dataAddDocPsnDcsHisto = [
+                                    'doc_id'        => $docID,
+                                    'version_id'     => 1,
+                                    'date_action'     => date('Y-m-d H:i:s'),
+                                    'type_action'     => ARRAY_TYPE_ACTION_HISTO_DOC[0],
+                                    'chemin_fichier_stockage'     => $pathFileEnc,
+                                    'user_id'     => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
+                                ];
+                                $ress = $this->HistoriqueDocumentModel->insert($dataAddDocPsnDcsHisto);
+                                if($ress) unlink($uploadPath);
+                            }
+                        }
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('psn/add3', ['data' => $data]);
+                    return;
+                }
             }
-            else {
-                Session::setFlash('error', "Echec de l'ajout d'un personnel");
+
+            if($ress)
+            {
+                Session::setFlash('success', "Le document $typeDoc->nom_type du personnel $Personnel->nom a été ajouté avec succès.");
+                Utils::redirect("../../psn/shw/".$personnelID);
             }
         }
 
-        $this->view('dcs/add', $data);
+        $this->view('dcs/adddc', $data);
     }
 
     public function addtpdcs() 
@@ -349,5 +438,26 @@ class DcsController extends Controller
         ];
 
         $this->view('dcs/shw', $data);
+    }
+
+    public function vwfl()
+    {
+        require BASE_PATH . 'security/ips.php';
+    
+        $name = basename($_GET['fl']);
+        $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name;
+        $urlFile = ASSETS .'uploads/document/'. $name;
+
+        if (!file_exists($pathFilePdf)) {
+            Utils::redirect(RETOUR_EN_ARRIERE);
+            exit;
+        }
+
+        $data = [
+            'urlFile' => $urlFile,
+            'pathFilePdf' => $pathFilePdf,
+        ];
+
+        $this->view('dcs/vwfl', $data);
     }
 }

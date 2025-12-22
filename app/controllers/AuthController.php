@@ -1,6 +1,7 @@
 <?php
-require_once APP_PATH .'models/User.php';
+require_once APP_PATH . 'models/User.php';
 require_once APP_PATH . 'helpers/Logger.php';
+require_once APP_PATH . 'helpers/SendMail.php';
 
 class AuthController extends Controller {
 
@@ -25,7 +26,7 @@ class AuthController extends Controller {
     //     $this->view('auth/index');
     // }
 
-    public function uActivation() 
+    public function uatvt() 
     {
         Session::start();
         $cacheKey = 'user_activation';
@@ -34,7 +35,7 @@ class AuthController extends Controller {
             $token = $_GET['tk'];
 
             $user = $this->userModel->getUsers('token', $token);
-            if (!$user || $user->statut === 'active') {
+            if (!$user || $user->statut_compte === ARRAY_USER[0]) {
                 Session::setFlash('error', "Lien d'activation invalide.");
                 Utils::redirect('/');
                 return;
@@ -44,7 +45,7 @@ class AuthController extends Controller {
                 'user' => $user,
             ];
 
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_pswd_user_edit']))
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_auth_us']))
             {
                 $new_pswd = Utils::sanitize(trim($_POST['new_pswd'] ?? ''));
                 $confirm_pswd = Utils::sanitize(trim($_POST['confirm_pswd'] ?? ''));
@@ -52,7 +53,7 @@ class AuthController extends Controller {
                 if($new_pswd === '' || $confirm_pswd === '')
                 {
                     Session::setFlash('error', 'Remplissez correctement le formulaire.');
-                    $this->view('auth/uActivation',  $data);
+                    $this->view('auth/uatvt',  $data);
                     return;
                 }
                 
@@ -62,41 +63,46 @@ class AuthController extends Controller {
                     !Helper::lengthValidation($confirm_pswd, 8, 16)
                 ) {
                     Session::setFlash('error', "Tous les mot de passe doit être compris entre 8 à 16 caratères.");
-                    $this->view('auth/uActivation',  $data);
+                    $this->view('auth/uatvt',  $data);
                     return;
                 }
                 if($new_pswd !== $confirm_pswd)
                 {
-                    Session::setFlash('error', "Les deux nouveaux mot de passe ne se correspondent pas.");
-                    $this->view('auth/uActivation',  $data);
+                    Session::setFlash('error', "Les deux mot de passe ne se correspondent pas.");
+                    $this->view('auth/uatvt',  $data);
                     return;
                 }
 
                 $pswd = password_hash($new_pswd, PASSWORD_ARGON2I);
 
                 $dataUpdate = [
-                    'pswd'      => $pswd,
-                    'token'     => null,
-                    'statut'    => "active",
-                    'user_id'   => $user->user_id,
+                    'pswd'              => $pswd,
+                    'token'             => null,
+                    'token_expiration'  => null,
+                    'statut_compte'     => ARRAY_USER[0],
+                    'user_id'           => $user->user_id,
                 ];
 
                 if($this->userModel->update($dataUpdate, 'user_id'))
                 {
-                    $dataLogs = [
-                        'user_id'       => $user->user_id,
-                        'action'        => "Activation du compte réussi",
-                        'resultat'      => '1',
-                        'date_action'   => date('Y-m-d H:i:s'),
-                    ];
-                    if($this->loggerModel->addLog($dataLogs))
-                    {
+                    // $dataLogs = [
+                    //     'user_id'       => $user->user_id,
+                    //     'action'        => "Activation du compte réussi",
+                    //     'resultat'      => '1',
+                    //     'date_action'   => date('Y-m-d H:i:s'),
+                    // ];
+                    // if($this->loggerModel->addLog($dataLogs))
+                    // {
                         $lien_connexion = BASE_URL . '/login';
                         ob_start();
                         include APP_PATH . 'templates/email/activationCompte2.php';
                         $messageBody = ob_get_clean();
 
-                        if($this->sendEmailModel->sendEmail($user->email, 'Compte activé avec succès - '. SITE_NAME, $messageBody))
+                        if($this->sendEmailModel->sendEmail(
+                            $user->email, 
+                            'Compte activé avec succès - '. SITE_NAME,
+                            $messageBody
+                        ))
                         {
                             Session::setFlash('success', 'Compte activé avec succès. Veuillez vous connecter.');
                             Utils::redirect('/login');
@@ -105,11 +111,11 @@ class AuthController extends Controller {
                             Session::setFlash('error', "Echec de l'envoi de l'email d'activation.");
                             Utils::redirect('../sg/users');
                         }
-                    } 
-                    else {
-                        Session::setFlash('error', "Echec de l'activation du compte.");
-                        Utils::redirect('/');
-                    }
+                    // } 
+                    // else {
+                    //     Session::setFlash('error', "Echec de l'activation du compte.");
+                    //     Utils::redirect('/');
+                    // }
                 }
             }
         } else {
@@ -117,6 +123,6 @@ class AuthController extends Controller {
             Utils::redirect('/');
         }
 
-        $this->view('auth/uActivation');
+        $this->view('auth/uatvt');
     }
 }

@@ -265,33 +265,85 @@ function confirmDelete() {
 // 	}
 // });
 
-// Fonction pour ouvrir le modal de modification de rôle
-function openRoleModal(userId, userName) {
-	document.getElementById('modalUserName').textContent = userName;
-	document.getElementById('modalUserId').textContent = userId;
-	document.getElementById('roleModal').classList.remove('hidden');
+const overlay = document.getElementById('modalOverlay');
+const content = document.getElementById('modalContent');
+
+function openModal() {
+	overlay.classList.remove('hidden');
+	setTimeout(() => {
+		overlay.classList.add('opacity-100');
+		content.classList.remove('scale-90');
+		content.classList.add('scale-100');
+	}, 10);
 }
 
-// Fonction pour fermer le modal
-function closeRoleModal() {
-	document.getElementById('roleModal').classList.add('hidden');
+function closeModal() {
+	overlay.classList.remove('opacity-100');
+	content.classList.remove('scale-100');
+	content.classList.add('scale-90');
+	setTimeout(() => {
+		overlay.classList.add('hidden');
+	}, 300);
 }
 
-// Fonction simulée pour sauvegarder le changement de rôle
-function saveRoleChange() {
-	const userId = document.getElementById('modalUserId').textContent;
-	const newRole = document.getElementById('newRole').value;
-	const userName = document.getElementById('modalUserName').textContent;
+
+
+const menuButton = document.getElementById('menu-button');
+const dropdownMenu = document.getElementById('dropdown-menu');
+const chevronIcon = document.getElementById('chevron-icon');
+
+// Fonction pour basculer le menu
+function toggleMenu() {
+	const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
 	
-	// Simulation d'une action réussie (remplacez par un appel API réel)
-	console.log(`Changement de rôle enregistré : Utilisateur ${userId} (${userName}) est maintenant ${newRole}.`);
-	
-	// Affichage d'une confirmation dans la console (pas d'alert() dans l'UI)
-	// Dans une vraie application, on mettrait à jour le tableau ici.
-	
-	// Fermer le modal après l'action
-	closeRoleModal();
+	if (isExpanded) {
+		closeMenu();
+	} else {
+		openMenu();
+	}
 }
+
+function openMenu() {
+	menuButton.setAttribute('aria-expanded', 'true');
+	dropdownMenu.classList.add('show');
+	chevronIcon.classList.add('rotate-180');
+}
+
+function closeMenu() {
+	menuButton.setAttribute('aria-expanded', 'false');
+	dropdownMenu.classList.remove('show');
+	chevronIcon.classList.remove('rotate-180');
+}
+
+// Listener sur le bouton
+menuButton.addEventListener('click', (e) => {
+	e.stopPropagation();
+	toggleMenu();
+});
+
+// Fermer si on clique ailleurs dans le document
+document.addEventListener('click', (event) => {
+	if (!dropdownMenu.contains(event.target)) {
+		closeMenu();
+	}
+});
+
+// Fermer avec la touche Échap
+document.addEventListener('keydown', (event) => {
+	if (event.key === 'Escape') {
+		closeMenu();
+	}
+});
+
+// Fermer si on clique n'importe où en dehors du conteneur
+window.addEventListener('click', (e) => {
+	const container = document.getElementById('dropdownContainer');
+	if (!container.contains(e.target)) {
+		closeDropdown();
+	}
+});
+
+
 
 // Pour gérer les liens de navigation (simulés ici car les fichiers ne sont pas créés)
 // Vous pouvez retirer cette fonction si vous liez réellement les pages.

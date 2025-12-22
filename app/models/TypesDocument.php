@@ -51,6 +51,11 @@ class TypesDocument extends Model
         $stmt->execute(['type_doc_id' => $typeDocID]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
+    
+    public function getElement($element) 
+    {
+        return $this->db->query("SELECT $element FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+    }
 
     public function findByName($nameTypeDoc)
     {

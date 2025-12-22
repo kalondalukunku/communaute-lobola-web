@@ -58,7 +58,7 @@
                         $is_active = ($current_status === $key);
 
                         $active_class = $is_active
-                            ? 'bg-blue-600 text-white shadow-lg filter-btn' // Active
+                            ? 'bg-[var(--color-primary)] text-white shadow-lg filter-btn' // Active
                             : 'text-gray-600 hover:bg-gray-100 filter-btn'; // Inactive
 
                         $new_params = $_GET;
@@ -139,87 +139,7 @@
             <p class='text-sm text-gray-600'>Page <?= $currentPage ?> sur <?= $totalPages ?> (<?= $totalrecords ?> enregistrements)</p>
 
             <div class="flex space-x-2">
-                <?php
-                /**
-                 * Génère un lien de pagination stylisé (pour page ou pour icône)
-                 * @param int $page_num La page vers laquelle pointer
-                 * @param string $label Le contenu affiché (numéro ou icône SVG)
-                 * @param bool $is_active Si c'est la page actuelle
-                 * @param bool $is_disabled Si le lien est désactivé (début/fin)
-                 */
-                function generatePaginationElement(int $page_num, string $label, bool $is_active = false, bool $is_disabled = false): string {
-                    global $current_status;
-                    
-                    // Classes de base pour les numéros de page et les icônes
-                    $base_class = 'h-7 px-4 py-2 text-xs border rounded-xl transition font-medium flex items-center justify-center';
-
-                    if ($is_disabled) {
-                        // Élément désactivé (span, pas de lien)
-                        $class = $base_class . ' text-gray-400 bg-gray-100 cursor-not-allowed';
-                        return "<span class='{$class}'>{$label}</span>";
-                    }
-
-                    // Prépare les paramètres de l'URL
-                    $url_params = http_build_query(array_merge($_GET, ['status' => $current_status, 'page' => $page_num]));
-                    
-                    if ($is_active) {
-                        // Style Actif: Votre --color-secondary
-                        $class = $base_class . ' bg-white text-[var(--color-secondary)] border-[var(--color-secondary)] shadow-md';
-                    } else {
-                        // Style Inactif: gris, hover
-                        $class = $base_class . ' text-gray-600 border-gray-300 hover:bg-gray-200';
-                    }
-                    
-                    return "<a href=\"?{$url_params}\" class='{$class}'>{$label}</a>";
-                }
-
-                // --- 1. Bouton/Icône Précédent ---
-                $prev_page = $currentPage - 1;
-                $is_prev_disabled = $currentPage <= 1;
-                $prev_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>';
-                
-                echo generatePaginationElement($prev_page, $prev_icon, false, $is_prev_disabled);
-
-                // --- 2. Liens des pages (affichage simple : 1 2 3 ... X) ---
-                $display_limit = 5; // Nombre maximum de numéros de page à afficher
-                $start_page = max(1, $currentPage - floor($display_limit / 2));
-                $end_page = min($totalPages, $currentPage + floor($display_limit / 2));
-
-                // Ajuster si on arrive trop près de la fin
-                if ($end_page - $start_page < $display_limit - 1) {
-                    $start_page = max(1, $totalPages - $display_limit + 1);
-                    $end_page = min($totalPages, $totalPages);
-                }
-
-                if ($start_page > 1) {
-                    echo generatePaginationElement(1, '1');
-                    if ($start_page > 2) {
-                        echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
-                    }
-                }
-
-                for ($i = $start_page; $i <= $end_page; $i++) {
-                    echo generatePaginationElement(
-                        $i, 
-                        (string)$i, 
-                        $i === $currentPage
-                    );
-                }
-
-                if ($end_page < $totalPages) {
-                    if ($end_page < $totalPages - 1) {
-                        echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
-                    }
-                    echo generatePaginationElement($totalPages, (string)$totalPages);
-                }
-
-                // --- 3. Bouton/Icône Suivant ---
-                $next_page = $currentPage + 1;
-                $is_next_disabled = $currentPage >= $totalPages;
-                $next_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>';
-
-                echo generatePaginationElement($next_page, $next_icon, false, $is_next_disabled);
-                ?>
+                <?php Helper::generatePaginationFull($currentPage, $totalPages); ?>
             </div>
         </div>
 

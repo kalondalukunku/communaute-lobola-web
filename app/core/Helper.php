@@ -24,19 +24,9 @@ class Helper {
 
     public static function setActive($url, $second = false)
     {
-        if($second !== false) return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? 'active' : '';
-        return Self::getUrlPart()[0] === $url ? 'active' : '';
-    }
-    
-    public function setActive2(string $path)
-    {
-        $var = str_replace(trim(BASE_PATH,'/'),'',substr($_SERVER['REQUEST_URI'], 1));
-        // var_dump($var, $path);
-        if($var == $path) {
-			return 'text-info';
-		}
-
-		return '';
+        if($second !== false) 
+            return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? "text-white bg-[var(--color-primary)] font-medium" : "text-gray-300 hover:text-white hover:bg-blue-900/50";
+        return Self::getUrlPart()[0] === $url ? "text-white bg-[var(--color-primary)]" : "text-gray-300 hover:text-white hover:bg-blue-900/50";
     }
 
     public static function tempsRestant($date) 
@@ -278,6 +268,18 @@ class Helper {
         }
     }
 
+    public static function returnStatutUsStyle($statut)
+    {
+        switch ($statut) {
+            case ARRAY_USER[0]:
+                return 'green';
+                break;
+            case ARRAY_USER[1]:
+                return 'red';
+                break;
+        }
+    }
+
     public static function returnEstObligatoireStyle($est_obligatoire)
     {
         switch ($est_obligatoire) {
@@ -308,5 +310,96 @@ class Helper {
         }
 
         return $resultat;
+    }
+
+    public static function generatePaginationElement(int $page_num, string $label, bool $is_active = false, bool $is_disabled = false): string 
+    {
+        global $current_status;
+        
+        // Classes de base pour les numéros de page et les icônes
+        $base_class = 'h-7 px-4 py-2 text-xs border rounded-xl transition font-medium flex items-center justify-center';
+
+        if ($is_disabled) {
+            // Élément désactivé (span, pas de lien)
+            $class = $base_class . ' text-gray-400 bg-gray-100 cursor-not-allowed';
+            return "<span class='{$class}'>{$label}</span>";
+        }
+
+        // Prépare les paramètres de l'URL
+        $url_params = http_build_query(array_merge($_GET, ['status' => $current_status, 'page' => $page_num]));
+        
+        if ($is_active) {
+            // Style Actif: Votre --color-secondary
+            $class = $base_class . ' text-white bg-[var(--color-primary)] shadow-md';
+        } else {
+            // Style Inactif: gris, hover
+            $class = $base_class . ' text-gray-600 border-gray-300 hover:bg-gray-200';
+        }
+        
+        return "<a href=\"?{$url_params}\" class='{$class}'>{$label}</a>";
+    }
+
+    public static function generatePaginationFull($currentPage,$totalPages)
+    {
+        $prev_page = $currentPage - 1;
+        $is_prev_disabled = $currentPage <= 1;
+        $prev_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>';
+        
+        echo Helper::generatePaginationElement($prev_page, $prev_icon, false, $is_prev_disabled);
+
+        // --- 2. Liens des pages (affichage simple : 1 2 3 ... X) ---
+        $display_limit = 5; // Nombre maximum de numéros de page à afficher
+        $start_page = max(1, $currentPage - floor($display_limit / 2));
+        $end_page = min($totalPages, $currentPage + floor($display_limit / 2));
+
+        // Ajuster si on arrive trop près de la fin
+        if ($end_page - $start_page < $display_limit - 1) {
+            $start_page = max(1, $totalPages - $display_limit + 1);
+            $end_page = min($totalPages, $totalPages);
+        }
+
+        if ($start_page > 1) {
+            echo Helper::generatePaginationElement(1, '1');
+            if ($start_page > 2) {
+                echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+            }
+        }
+
+        for ($i = $start_page; $i <= $end_page; $i++) {
+            echo Helper::generatePaginationElement(
+                $i, 
+                (string)$i, 
+                $i === $currentPage
+            );
+        }
+
+        if ($end_page < $totalPages) {
+            if ($end_page < $totalPages - 1) {
+                echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+            }
+            echo Helper::generatePaginationElement($totalPages, (string)$totalPages);
+        }
+
+        // --- 3. Bouton/Icône Suivant ---
+        $next_page = $currentPage + 1;
+        $is_next_disabled = $currentPage >= $totalPages;
+        $next_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>';
+
+        echo Helper::generatePaginationElement($next_page, $next_icon, false, $is_next_disabled);
+    }
+
+    public static function returnTxtVwDc1($statut_conformite, $validite = null)
+    {
+        $txt = $statut_conformite;
+        if($validite) $txt .= " - valable jusqu'au ". self::formatDate($validite);
+
+        return $txt;
+    }
+
+    public static function returnTxtVwDc2($niveau_etude, $etablissement, $annee_obtention, $ville, $pays)
+    {
+        $txt = "$niveau_etude - $etablissement ($annee_obtention) - $ville - $pays";
+
+        return $txt;
     }
 }

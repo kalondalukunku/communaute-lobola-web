@@ -89,8 +89,8 @@
                                     <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Service / Direction</label>
                                     <select id="department" name="department" required class="form-input">
                                         <option value="">Sélectionner...</option>
-                                        <?php foreach(ARRAY_DEPARTMENTS as $department): ?>
-                                            <option value="<?= $department ?>" <?= Helper::getSelectedValue('department', $department) ?> ><?= $department ?></option>
+                                        <?php foreach($departmentsDb as $department): ?>
+                                            <option value="<?= $department->nom_service ?>" <?= Helper::getSelectedValue('department', $department->nom_service) ?> ><?= $department->nom_service ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -126,10 +126,10 @@
                                     <label for="workEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Professionnel</label>
                                     <input type="email" id="workEmail" name="workEmail" value="<?=  Helper::getData($_POST, 'workEmail') ?>" class="form-input" placeholder="Ex: j.dupont@gouv.fr">
                                 </div>
-                                <div>
+                                <!-- <div>
                                     <label for="manager" class="block text-sm font-medium text-gray-700 mb-1">Supérieur Hiérarchique (Matricule)</label>
                                     <input type="text" id="manager" name="manager" value="<?=  Helper::getData($_POST, 'manager') ?>" class="form-input" placeholder="Ex: #RH1001">
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end">

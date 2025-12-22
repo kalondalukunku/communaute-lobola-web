@@ -61,8 +61,8 @@ define('ARRAY_STUDY_LEVEL', ['Primaire','Secondaire','Universitaire Licence','Un
 define('ARRAY_IDENTITY_PIECES',["Carte électorale",'Passport',"Permis de conduire"]);
 define('ARRAY_DOC_CATEGORY',["Documents d'État Civil et d'Identité",'Documents de Formation et de Compétences',"Documents Professionnels et Sociaux","Certificats Spécifiques et Attestations","Documents de Propriété et Financiers"]);
 define('ARRAY_TYPE_ACTION_HISTO_DOC',['Upload','Remplacement','Suppression_Logique','Rejet']);
-// define('ARRAY_TRANSMISSION',['normal','ordre de service','feuille de route']);
-// define('ARRAY_HISTORIQUE_USER',['ajout', 'transmission sg', 'transmission direction', 'lecture','retour transmission','telechargement','traitement', 'commentaire','mise à jour','changement destinataire','classement','classement sans suite','restauration']);
+define('ARRAY_USER',['Actif','Inactif']);
+define('ARRAY_DOC_CLES',["Pièce d'Identité", 'Diplôme Principal', 'Contrat de Travail',"Acte de mariage","Acte de naissance"]);
 // define('ARRAY_DOC_STATE', ['ajoute','transmis_sg', 'transmis_dr', 'recu_sg','recu_bureau_dr','valide','rejete','archive']);
 // define('ARRAY_TYPE_RAPPORT',['global','global suivi','global entrant','global sortant']);
 define('RETOUR_EN_ARRIERE',$_SERVER['HTTP_REFERER'] ?? 'javascript:history.back()');

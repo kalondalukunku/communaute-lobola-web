@@ -129,7 +129,7 @@ class Utils {
 
     public static function viewDoc($docPostViewId, $docPostViewFileEnc, $courierModel)
     {
-    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_view_doc_pdf'.$docPostViewId]))
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_view_doc_pdf'.$docPostViewId]))
         {
             $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($docPostViewFileEnc));
             $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.pdf";
@@ -142,23 +142,6 @@ class Utils {
                 unlink($pathFilePdf);
             }
         }
-    }
-
-    public static function ajouterJoursAujourdhui(int $nombreDeJours, string $format = 'Y-m-d'): string
-    {
-        // 1. Crée un objet DateTime représentant la date et l'heure actuelles.
-        $dateActuelle = new DateTime();
-
-        // 2. Crée une chaîne de modification pour ajouter le nombre de jours.
-        // Ex: "P365D" pour 365 jours.
-        $intervalle = "P" . abs($nombreDeJours) . "D";
-
-        // 3. Modifie la date en ajoutant l'intervalle.
-        // La méthode 'add' est recommandée pour ajouter des intervalles de temps.
-        $dateActuelle->add(new DateInterval($intervalle));
-
-        // 4. Retourne la date future formatée.
-        return $dateActuelle->format($format);
     }
 
     public static function hasDataChanged(array $dataArray, $object): bool
@@ -277,5 +260,21 @@ class Utils {
         
         // Retourne true si la date calculée est strictement inférieure à aujourd'hui
         return $date < $aujourdhui;
+    }
+
+    public static function calculerDateFuture(int $heuresAAjouter, string $format = 'Y-m-d H:i:s'): string 
+    {
+        $date = new DateTime();
+        $date->add(new DateInterval("PT{$heuresAAjouter}H"));
+        
+        return $date->format($format);
+    }
+
+    public static function dechiffreflpdf($classModel, $chemin_fichier_stockage, $namefile = "file.pdf")
+    {
+        $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($chemin_fichier_stockage));
+        $pathFilePdf = FILE_VIEW_FOLDER_PATH . $namefile;
+
+        return $classModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_PDF);
     }
 }

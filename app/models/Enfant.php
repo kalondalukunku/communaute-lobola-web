@@ -12,6 +12,15 @@ class Enfant extends Model {
         return $q->execute($datas);
     }
 
+    public function find($personnel_id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE personnel_id = :personnel_id");
+        $stmt->execute([
+            'personnel_id'      => $personnel_id
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public function findByTypeDoc($typeDocId, $personnel_id, $ordre_naissance)
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE type_doc_id = :type_doc_id AND personnel_id = :personnel_id AND ordre_naissance = :ordre_naissance");

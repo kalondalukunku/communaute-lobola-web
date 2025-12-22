@@ -9,6 +9,7 @@
     require_once APP_PATH . 'models/PieceIdentite.php';
     require_once APP_PATH . 'models/Conjoint.php';
     require_once APP_PATH . 'models/Enfant.php';
+    require_once APP_PATH . 'models/Rapport.php';
     require_once APP_PATH . 'helpers/Logger.php';
 
 class PsnController extends Controller 
@@ -24,6 +25,7 @@ class PsnController extends Controller
     private $ConjointModel;
     private $EnfantModel;
     private $loggerModel;
+    private $RapportModel;
 
     public function __construct()
     {
@@ -41,6 +43,7 @@ class PsnController extends Controller
         $this->ConjointModel = new Conjoint();
         $this->EnfantModel = new Enfant();
         $this->loggerModel = new Logger();  
+        $this->RapportModel = new Rapport();  
     }
 
     public function index() 
@@ -120,12 +123,14 @@ class PsnController extends Controller
             }
 
             $personnelID = Utils::generateUuidV4();
+            $personalEmail = Utils::sanitizeToNull($personalEmail);
 
             $dataAddPsnStpOne = [
                 'personnel_id'           => $personnelID,
                 'nom'               => $firstName,
                 'postnom'           => $lastName,
                 'date_naissance'    => $dateOfBirth,
+                'sexe'              => $sexe,
                 'statut_marital'    => $maritalStatus,
                 'adresse'           => $address,
                 'telephone'         => $phone,
@@ -152,6 +157,12 @@ class PsnController extends Controller
         
         $Personnel = $this->PersonnelModel->getPersonnel('personnel_id', $personnelID);
         if(!$Personnel) Utils::redirect('/');
+
+        $departmentsDb = $this->DepartementModel->getElement('nom_service');
+        foreach ($departmentsDb as $d) 
+        {
+            $departmentsDbs[] = $d->nom_service;
+        }
         
         //recuperer tous les emails
         $dbMatricules = $this->PersonnelModel->getElement('matricule');
@@ -162,7 +173,7 @@ class PsnController extends Controller
 
         $data = [
             'Personnel' => $Personnel,
-            // 'couristeUsersText' => $couristeUsersText,
+            'departmentsDb' => $departmentsDb,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_add_psn_step_two']))
@@ -175,8 +186,9 @@ class PsnController extends Controller
             $salaireBase = Utils::sanitize(trim($_POST['salaire_base'] ?? ''));
             $primeType = Utils::sanitize(trim($_POST['primeType'] ?? ''));
             $nbrChild = Utils::sanitize(trim($_POST['nbr_child'] ?? ''));
-            $workEmail = Utils::sanitize(trim($_POST['workEmail'] ?? ''));
-            $manager = Utils::sanitize(trim($_POST['manager'] ?? null));
+            $workEmail = Utils::sanitize(trim($_POST['workEmail'] ?? null));
+            $workEmail = Utils::sanitizeToNull($workEmail);
+            // $manager = Utils::sanitize(trim($_POST['manager'] ?? ''));
             
             if($employeeId === '' || $hireDate === '' || $jobTitle === '' || $department === '' || $grade === '' || $salaireBase === '')
             {
@@ -184,7 +196,7 @@ class PsnController extends Controller
                 $this->view('psn/add2',  $data);
                 return;
             }
-            if(!in_array($department, ARRAY_DEPARTMENTS)) 
+            if(!in_array($department, $departmentsDbs)) 
             {
                 Session::setFlash('error', "Entrée correctement le Service / Direction du personnel.");
                 $this->view('psn/add2',  $data);
@@ -212,20 +224,21 @@ class PsnController extends Controller
                 return;
             }
 
-            if($manager !== "")
-            {
-                if(!$this->PersonnelModel->getPersonnel('matricule', $manager))
-                {
-                    Session::setFlash('error', "Entrée correctement le matricule du Séperieur Hiérarchique de ce personnel.");
-                    $this->view('psn/add2',  $data);
-                    return;
-                }
+            // if($manager !== "")
+            // {
+            //     if(!$this->PersonnelModel->getPersonnel('matricule', $manager))
+            //     {
+            //         Session::setFlash('error', "Entrée correctement le matricule du Séperieur Hiérarchique de ce personnel.");
+            //         $this->view('psn/add2',  $data);
+            //         return;
+            //     }
                 
-            } else $manager = null;
+            // } else $manager = null;
 
             $posteActuelId = Utils::generateUuidV4();
             $dataAddPsnStpTwoPoste = [
                 'poste_occupe_id'       => $posteActuelId,
+                'personnel_id'          => $personnelID,
                 'matricule'             => $employeeId,
                 'nom_poste'             => $jobTitle,
                 'service_id'            => (int) $serviceDB->service_id,
@@ -246,8 +259,8 @@ class PsnController extends Controller
                     'type_prime'          => $primeType,
                     'grade'         => $grade,
                     'nbr_enfant'         => $nbrChild,
-                    'email_pro'             => $workEmail,
-                    'id_chef_hierarchique'  => $manager
+                    'email_pro'             => $workEmail
+                    // 'id_chef_hierarchique'  => $manager
                 ];
 
                 if($this->PersonnelModel->update($dataAddPsnStpTwo, 'personnel_id'))
@@ -271,21 +284,23 @@ class PsnController extends Controller
         $Personnel = $this->PersonnelModel->getPersonnel('personnel_id', $personnelID);
         if(!$Personnel) Utils::redirect('/');
         
-        //recuperer tous les emails
-        $dbMatricules = $this->PersonnelModel->getElement('matricule');
-        foreach ($dbMatricules as $dbMatricule) 
+        //recuperer tous les matricules
+        $dbNDocs = $this->PieceIdentiteModel->getElement('numero_document');
+        foreach ($dbNDocs as $dbNDoc) 
         {
-            $dbMatricules[] = $dbMatricule->matricule;
+            $dbNDocs[] = $dbNDoc->numero_document;
         }
 
-        $allTypesDocs = $this->TypesDocumentModel->all();
+        $firstDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[0]);
+        $secondDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[1]);
+        $thirdDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[2]);
+        $fourDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[3]);
+        $fiveDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[4]);
 
-        $firstDocumentsPsn = $this->DocumentModel->findByTypeDoc($allTypesDocs[0]->type_doc_id, $Personnel->matricule);
-        $secondDocumentsPsn = $this->DocumentModel->findByTypeDoc($allTypesDocs[1]->type_doc_id, $Personnel->matricule);
-        $thirdDocumentsPsn = $this->DocumentModel->findByTypeDoc($allTypesDocs[2]->type_doc_id, $Personnel->matricule);
-        $mariageDocumentsPsn = $this->ConjointModel->findByTypeDoc($allTypesDocs[7]->type_doc_id, $Personnel->personnel_id);
-
-        // var_dump($firstDocumentsPsn);
+        $firstDocumentsPsn = $this->DocumentModel->findByTypeDoc($firstDocCle->type_doc_id, $Personnel->matricule);
+        $secondDocumentsPsn = $this->DocumentModel->findByTypeDoc($secondDocCle->type_doc_id, $Personnel->matricule);
+        $thirdDocumentsPsn = $this->DocumentModel->findByTypeDoc($thirdDocCle->type_doc_id, $Personnel->matricule);
+        $mariageDocumentsPsn = $this->ConjointModel->findByTypeDoc($fourDocCle->type_doc_id, $Personnel->personnel_id);
 
         $data = [
             'Personnel' => $Personnel,
@@ -299,29 +314,28 @@ class PsnController extends Controller
         for ($i=1; $i <= $Personnel->nbr_enfant ; $i++) 
         { 
             $keyArray = "enfantDocumentPsn" . $i;
-            $enfantsDocumentsPsn = $this->EnfantModel->findByTypeDoc($allTypesDocs[8]->type_doc_id, $Personnel->personnel_id, $i);
+            $enfantsDocumentsPsn = $this->EnfantModel->findByTypeDoc($fiveDocCle->type_doc_id, $Personnel->personnel_id, $i);
             $data[$keyArray] = $enfantsDocumentsPsn;
             if($enfantsDocumentsPsn) $successDocEnfantUploaded += 1;
         }
 
         if($firstDocumentsPsn 
             && $secondDocumentsPsn 
-            && $thirdDocumentsPsn 
-            || $Personnel->nbr_enfant === null 
-            && $Personnel->nbr_enfant === $successDocEnfantUploaded) 
+            && $thirdDocumentsPsn ) 
         {
-            $dataAddPsnStpThreePsn = [
-                'statut_emploi' => ARRAY_PERSONNEL_STATUT_EMPLOI[1],
-                'personnel_id'       => $personnelID
-            ];
-
-            // if($this->PersonnelModel->update($dataAddPsnStpThreePsn, 'personnel_id')) Utils::redirect("../shw/". $personnelID); 
+            if($Personnel->nbr_enfant === 0 || $Personnel->statut_marital === ARRAY_MARIAL_STATUS[1] && $mariageDocumentsPsn && $Personnel->nbr_enfant > 0 && $Personnel->nbr_enfant === $successDocEnfantUploaded) Utils::redirect("../shw/". $personnelID);
+            if($Personnel->statut_emploi === ARRAY_PERSONNEL_STATUT_EMPLOI[0])
+            {
+                $dataAddPsnStpThreePsn = [
+                    'statut_emploi' => ARRAY_PERSONNEL_STATUT_EMPLOI[1],
+                    'personnel_id'       => $personnelID
+                ];
+                if($this->PersonnelModel->update($dataAddPsnStpThreePsn, 'personnel_id')) Utils::redirect("../shw/". $personnelID);
+            } 
         }
-    
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_add_psn_step_three_doc_1']))
         {  
-            $docID = Utils::generateUuidV4();
             $type_document = Utils::sanitize(trim($_POST['type_document'] ?? ''));
             $numero_document = Utils::sanitize(trim($_POST['numero_document'] ?? ''));
             $date_delivrance = Utils::sanitize(trim($_POST['date_delivrance'] ?? ''));
@@ -330,6 +344,13 @@ class PsnController extends Controller
             if($type_document === '' || $numero_document === '' || $date_delivrance === '' || $date_expiration === '')
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('psn/add3',  $data);
+                return;
+            }
+            //verifier si l'email existe deja
+            if(in_array($numero_document, $dbNDocs))
+            {
+                Session::setFlash('error', "Ce numéro de document existe déjà.");
                 $this->view('psn/add3',  $data);
                 return;
             }
@@ -348,25 +369,28 @@ class PsnController extends Controller
                 return;
             }
 
-            if($TypeDoc->duree_validite_jours !== null && Utils::isExpired($date_delivrance, $TypeDoc->duree_validite_jours) !== false)
+            if($firstDocCle->duree_validite_jours !== null && Utils::isExpired($date_delivrance, $firstDocCle->duree_validite_jours) !== false)
             {
                 Session::setFlash('error', "La pièce d'identité du personnel $Personnel->nom est déjà expiré.");
                 $this->view('psn/add3',  $data);
                 return;
             }
 
+            $docID = Utils::generateUuidV4();
+
             $dataAddPsnStpThreePieceID = [
-                'personnel_id'     => $personnelID,
-                'doc_id'        => $docID,
-                'type_document'     => $type_document,
-                'numero_document'     => $numero_document,
-                'date_delivrance'     => $date_delivrance,
-                'date_expiration'     => $date_expiration
+                'personnel_id'          => $personnelID,
+                'doc_id'                => $docID,
+                'type_document'         => $type_document,
+                'numero_document'       => $numero_document,
+                'date_delivrance'       => $date_delivrance,
+                'date_expiration'       => $date_expiration
             ];
 
             $dataAddPsnStpThree = [
-                'doc_id'        => $docID,
-                'matricule'     => $Personnel->matricule,
+                'doc_id'            => $docID,
+                'personnel_id'      => $personnelID,
+                'matricule'         => $Personnel->matricule
             ];
                 // verif file
             if (!empty($_FILES['mosali_doc_identity']['name']))
@@ -389,18 +413,15 @@ class PsnController extends Controller
                     return;
                 }
             
-                $pathDossier = $this->DocumentModel->cheminDossierPdf($allTypesDocs[0]->nom_type, $personnelID);
-                $nomFichier = $this->DocumentModel->generteNomFichierPdf($allTypesDocs[0]->nom_type);
+                $pathDossier = $this->DocumentModel->cheminDossierPdf($firstDocCle->nom_type, $personnelID);
+                $nomFichier = $this->DocumentModel->generteNomFichierPdf($firstDocCle->nom_type);
                 $fichierPath = $pathDossier ."/". $nomFichier;
                 $uploadPath = BASE_PATH . $fichierPath;
                 $pathFileEnc = $fichierPath .".enc";
 
                 $date_telechargement = date('Y-m-d H:i:s');
                 
-                if($allTypesDocs[0]->duree_validite_jours !== null) 
-                    $date_expiration = Utils::ajouterJoursAujourdhui($allTypesDocs[0]->duree_validite_jours);
-                else
-                    $date_expiration = null;
+                if($firstDocCle->duree_validite_jours === null) $date_expiration = null;
 
                 if(!is_dir($pathDossier)) {
                     if(!mkdir($pathDossier, 0777, true)) 
@@ -419,13 +440,13 @@ class PsnController extends Controller
 
                         if ($res === true)
                         {
-                            $dataAddPsnStpThree['type_doc_id']              = $allTypesDocs[0]->type_doc_id;
+                            $dataAddPsnStpThree['type_doc_id']              = $firstDocCle->type_doc_id;
                             $dataAddPsnStpThree['date_telechargement']      = $date_telechargement;
                             $dataAddPsnStpThree['date_expiration']          = $date_expiration;
-                            $dataAddPsnStpThree['nom_fichier_original']     = $allTypesDocs[0]->nom_type;
-                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $fichierPath;
+                            $dataAddPsnStpThree['nom_fichier_original']     = $firstDocCle->nom_type;
+                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $pathFileEnc;
 
-                            $res = $this->DocumentModel->insert($dataAddPsnStpThree);
+                            $res = $this->PieceIdentiteModel->insert($dataAddPsnStpThreePieceID);
                             if($res)
                             {
                                 $dataAddPsnStpThreeDcsHisto = [
@@ -433,7 +454,7 @@ class PsnController extends Controller
                                     'version_id'     => 1,
                                     'date_action'     => date('Y-m-d H:i:s'),
                                     'type_action'     => ARRAY_TYPE_ACTION_HISTO_DOC[0],
-                                    'chemin_fichier_stockage'     => $fichierPath,
+                                    'chemin_fichier_stockage'     => $pathFileEnc,
                                     'user_id'     => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
                                 ];
                                 $ress = $this->HistoriqueDocumentModel->insert($dataAddPsnStpThreeDcsHisto);
@@ -454,7 +475,7 @@ class PsnController extends Controller
                 return;
             }
 
-            if($ress === true && $this->PieceIdentiteModel->insert($dataAddPsnStpThreePieceID))
+            if($ress === true && $this->DocumentModel->insert($dataAddPsnStpThree))
             {
                 Session::setFlash('success', "La pièce d'identité du personnel $Personnel->nom a été ajouté avec succès.");
                 Utils::redirect($personnelID);
@@ -466,7 +487,6 @@ class PsnController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_add_psn_step_three_doc_2']))
         {       
-            $docID = Utils::generateUuidV4();
             $niveau_etude = Utils::sanitize(trim($_POST['niveau_etude'] ?? ''));
             $intitule_diplome = Utils::sanitize(trim($_POST['intitule_diplome'] ?? ''));
             $etablissement = Utils::sanitize(trim($_POST['etablissement'] ?? ''));
@@ -487,19 +507,21 @@ class PsnController extends Controller
                 return;
             }
 
+            $docID = Utils::generateUuidV4();
             $dataAddPsnStpThreeDiplome = [
-                'personnel_id'     => $Personnel->personnel_id,
-                'doc_id'        => $docID,
-                'niveau_etude'     => $niveau_etude,
-                'intitule_diplome'     => $intitule_diplome,
+                'personnel_id'      => $Personnel->personnel_id,
+                'doc_id'            => $docID,
+                'niveau_etude'      => $niveau_etude,
+                'intitule_diplome'  => $intitule_diplome,
                 'etablissement'     => $etablissement,
-                'ville'     => $ville,
-                'pays'     => $pays,
-                'annee_obtention'     => $annee_obtention,
+                'ville'             => $ville,
+                'pays'              => $pays,
+                'annee_obtention'   => $annee_obtention,
             ];
 
             $dataAddPsnStpThree = [
                 'doc_id'        => $docID,
+                'personnel_id'  => $personnelID,
                 'matricule'     => $Personnel->matricule,
             ];
                 // verif file
@@ -523,18 +545,15 @@ class PsnController extends Controller
                     return;
                 }
             
-                $pathDossier = $this->DocumentModel->cheminDossierPdf($allTypesDocs[1]->nom_type, $personnelID);
-                $nomFichier = $this->DocumentModel->generteNomFichierPdf($allTypesDocs[1]->nom_type);
+                $pathDossier = $this->DocumentModel->cheminDossierPdf($secondDocCle->nom_type, $personnelID);
+                $nomFichier = $this->DocumentModel->generteNomFichierPdf($secondDocCle->nom_type);
                 $fichierPath = $pathDossier ."/". $nomFichier;
                 $uploadPath = BASE_PATH . $fichierPath;
                 $pathFileEnc = $fichierPath .".enc";
 
                 $date_telechargement = date('Y-m-d H:i:s');
                 
-                if($allTypesDocs[1]->duree_validite_jours !== null) 
-                    $date_expiration = Utils::ajouterJoursAujourdhui($allTypesDocs[1]->duree_validite_jours);
-                else
-                    $date_expiration = null;
+                if($secondDocCle->duree_validite_jours === null) $date_expiration = null;
 
                 if(!is_dir($pathDossier)) {
                     if(!mkdir($pathDossier, 0777, true)) 
@@ -553,13 +572,13 @@ class PsnController extends Controller
 
                         if ($res === true)
                         {
-                            $dataAddPsnStpThree['type_doc_id']              = $allTypesDocs[1]->type_doc_id;
+                            $dataAddPsnStpThree['type_doc_id']              = $secondDocCle->type_doc_id;
                             $dataAddPsnStpThree['date_telechargement']      = $date_telechargement;
                             $dataAddPsnStpThree['date_expiration']          = $date_expiration;
-                            $dataAddPsnStpThree['nom_fichier_original']     = $allTypesDocs[1]->nom_type;
-                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $fichierPath;
+                            $dataAddPsnStpThree['nom_fichier_original']     = $secondDocCle->nom_type;
+                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $pathFileEnc;
 
-                            $res = $this->DocumentModel->insert($dataAddPsnStpThree);
+                            $res = $this->DiplomeModel->insert($dataAddPsnStpThreeDiplome);
                             if($res)
                             {
                                 $dataAddPsnStpThreeDcsHisto = [
@@ -567,7 +586,7 @@ class PsnController extends Controller
                                     'version_id'     => 1,
                                     'date_action'     => date('Y-m-d H:i:s'),
                                     'type_action'     => ARRAY_TYPE_ACTION_HISTO_DOC[0],
-                                    'chemin_fichier_stockage'     => $fichierPath,
+                                    'chemin_fichier_stockage'     => $pathFileEnc,
                                     'user_id'     => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
                                 ];
                                 $ress = $this->HistoriqueDocumentModel->insert($dataAddPsnStpThreeDcsHisto);
@@ -588,7 +607,7 @@ class PsnController extends Controller
                 return;
             }
 
-            if($ress === true && $this->DiplomeModel->insert($dataAddPsnStpThreeDiplome))
+            if($ress === true && $this->DocumentModel->insert($dataAddPsnStpThree))
             {
                 Session::setFlash('success', "Le diplôme principal du personnel $Personnel->nom a été ajouté avec succès.");
                 Utils::redirect($personnelID);
@@ -603,6 +622,7 @@ class PsnController extends Controller
             $docID = Utils::generateUuidV4();
             $dataAddPsnStpThree = [
                 'doc_id'        => $docID,
+                'personnel_id'  => $personnelID,
                 'matricule'     => $Personnel->matricule,
             ];
                 // verif file
@@ -626,18 +646,15 @@ class PsnController extends Controller
                     return;
                 }
             
-                $pathDossier = $this->DocumentModel->cheminDossierPdf($allTypesDocs[2]->nom_type, $personnelID);
-                $nomFichier = $this->DocumentModel->generteNomFichierPdf($allTypesDocs[2]->nom_type);
+                $pathDossier = $this->DocumentModel->cheminDossierPdf($thirdDocCle->nom_type, $personnelID);
+                $nomFichier = $this->DocumentModel->generteNomFichierPdf($thirdDocCle->nom_type);
                 $fichierPath = $pathDossier ."/". $nomFichier;
                 $uploadPath = BASE_PATH . $fichierPath;
                 $pathFileEnc = $fichierPath .".enc";
 
                 $date_telechargement = date('Y-m-d H:i:s');
                 
-                if($allTypesDocs[2]->duree_validite_jours !== null) 
-                    $date_expiration = Utils::ajouterJoursAujourdhui($allTypesDocs[2]->duree_validite_jours);
-                else
-                    $date_expiration = null;
+                if($thirdDocCle->duree_validite_jours === null) $date_expiration = null;
 
                 if(!is_dir($pathDossier)) {
                     if(!mkdir($pathDossier, 0777, true)) 
@@ -656,11 +673,11 @@ class PsnController extends Controller
 
                         if ($res === true)
                         {
-                            $dataAddPsnStpThree['type_doc_id']              = $allTypesDocs[2]->type_doc_id;
+                            $dataAddPsnStpThree['type_doc_id']              = $thirdDocCle->type_doc_id;
                             $dataAddPsnStpThree['date_telechargement']      = $date_telechargement;
                             $dataAddPsnStpThree['date_expiration']          = $date_expiration;
-                            $dataAddPsnStpThree['nom_fichier_original']     = $allTypesDocs[2]->nom_type;
-                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $fichierPath;
+                            $dataAddPsnStpThree['nom_fichier_original']     = $thirdDocCle->nom_type;
+                            $dataAddPsnStpThree['chemin_fichier_stockage']  = $pathFileEnc;
 
                             $res = $this->DocumentModel->insert($dataAddPsnStpThree);
                             if($res)
@@ -670,7 +687,7 @@ class PsnController extends Controller
                                     'version_id'     => 1,
                                     'date_action'     => date('Y-m-d H:i:s'),
                                     'type_action'     => ARRAY_TYPE_ACTION_HISTO_DOC[0],
-                                    'chemin_fichier_stockage'     => $fichierPath,
+                                    'chemin_fichier_stockage'     => $pathFileEnc,
                                     'user_id'     => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
                                 ];
                                 $ress = $this->HistoriqueDocumentModel->insert($dataAddPsnStpThreeDcsHisto);
@@ -715,8 +732,10 @@ class PsnController extends Controller
                 return;
             }
 
+            $conjointID = Utils::generateUuidV4();
             $dataAddPsnStpThreeConjoint = [
-                'personnel_id'     => $Personnel->personnel_id,
+                'conjoint_id'  => $conjointID,
+                'personnel_id'  => $personnelID,
                 'nom_complet'     => $nom_complet,
                 'profession'     => $profession,
                 'date_naissance'     => $date_naissance,
@@ -743,18 +762,15 @@ class PsnController extends Controller
                     return;
                 }
             
-                $pathDossier = $this->DocumentModel->cheminDossierPdf($allTypesDocs[7]->nom_type, $personnelID);
-                $nomFichier = $this->DocumentModel->generteNomFichierPdf($allTypesDocs[7]->nom_type);
+                $pathDossier = $this->DocumentModel->cheminDossierPdf($fourDocCle->nom_type, $personnelID);
+                $nomFichier = $this->DocumentModel->generteNomFichierPdf($fourDocCle->nom_type);
                 $fichierPath = $pathDossier ."/". $nomFichier;
                 $uploadPath = BASE_PATH . $fichierPath;
                 $pathFileEnc = $fichierPath .".enc";
 
                 $date_telechargement = date('Y-m-d H:i:s');
                 
-                if($allTypesDocs[2]->duree_validite_jours !== null) 
-                    $date_expiration = Utils::ajouterJoursAujourdhui($allTypesDocs[7]->duree_validite_jours);
-                else
-                    $date_expiration = null;
+                if($thirdDocCle->duree_validite_jours === null) $date_expiration = null;
 
                 if(!is_dir($pathDossier)) {
                     if(!mkdir($pathDossier, 0777, true)) 
@@ -773,11 +789,11 @@ class PsnController extends Controller
 
                         if ($ress === true)
                         {
-                            $dataAddPsnStpThreeConjoint['type_doc_id']              = $allTypesDocs[7]->type_doc_id;
+                            $dataAddPsnStpThreeConjoint['type_doc_id']              = $fourDocCle->type_doc_id;
                             $dataAddPsnStpThreeConjoint['date_telechargement']      = $date_telechargement;
                             $dataAddPsnStpThreeConjoint['date_expiration']          = $date_expiration;
-                            $dataAddPsnStpThreeConjoint['nom_fichier_original']     = $allTypesDocs[7]->nom_type;
-                            $dataAddPsnStpThreeConjoint['chemin_fichier_stockage']  = $fichierPath;
+                            $dataAddPsnStpThreeConjoint['nom_fichier_original']     = $fourDocCle->nom_type;
+                            $dataAddPsnStpThreeConjoint['chemin_fichier_stockage']  = $pathFileEnc;
                             unlink($uploadPath);
                         }
                     }
@@ -794,7 +810,13 @@ class PsnController extends Controller
                 return;
             }
 
-            if($ress === true && $this->ConjointModel->insert($dataAddPsnStpThreeConjoint))
+            $ress = $this->ConjointModel->insert($dataAddPsnStpThreeConjoint);
+            $dataAddPsnStpThree = [
+                'conjoint_actuel_id'  => $conjointID,
+                'personnel_id'  => $personnelID
+            ];
+
+            if($ress === true && $this->PersonnelModel->update($dataAddPsnStpThree, 'personnel_id'))
             {
                 Session::setFlash('success', "L'acte de mariage de $nom_complet, mari(e) du personnel $Personnel->nom a été ajouté avec succès.");
                 Utils::redirect($personnelID);
@@ -840,13 +862,15 @@ class PsnController extends Controller
                     return;
                 }
 
+                $enfantID = Utils::generateUuidV4();
                 $dataAddPsnStpThreeEnfant = [
-                    'personnel_id'     => $Personnel->personnel_id,
-                    'nom_complet_enfant'     => $nom_complet,
-                    'sexe'     => $sexe,
-                    'ordre_naissance'     => $i,
-                    'scolarise'     => $scolarise,
-                    'date_naissance'     => $date_naissance,
+                    'enfant_id'             => $enfantID,
+                    'personnel_id'          => $personnelID,
+                    'nom_complet_enfant'    => $nom_complet,
+                    'sexe'                  => $sexe,
+                    'ordre_naissance'       => $i,
+                    'scolarise'             => $scolarise,
+                    'date_naissance'        => $date_naissance,
                 ];
                 // verif file
                 if (!empty($_FILES['mosali_doc_enfant']['name']))
@@ -869,18 +893,15 @@ class PsnController extends Controller
                         return;
                     }
                 
-                    $pathDossier = $this->DocumentModel->cheminDossierPdf(str_replace(" ","_",$allTypesDocs[8]->nom_type), $personnelID);
-                    $nomFichier = $this->DocumentModel->generteNomFichierPdf(str_replace(" ","_",$allTypesDocs[8]->nom_type) . "_ENFANT_");
+                    $pathDossier = $this->DocumentModel->cheminDossierPdf(str_replace(" ","_",$fiveDocCle->nom_type), $personnelID);
+                    $nomFichier = $this->DocumentModel->generteNomFichierPdf(str_replace(" ","_",$fiveDocCle->nom_type) . "_ENFANT_");
                     $fichierPath = $pathDossier ."/". $nomFichier;
                     $uploadPath = BASE_PATH . $fichierPath;
                     $pathFileEnc = $fichierPath .".enc";
 
                     $date_telechargement = date('Y-m-d H:i:s');
                     
-                    if($allTypesDocs[2]->duree_validite_jours !== null) 
-                        $date_expiration = Utils::ajouterJoursAujourdhui($allTypesDocs[8]->duree_validite_jours);
-                    else
-                        $date_expiration = null;
+                    if($thirdDocCle->duree_validite_jours === null) $date_expiration = null;
 
                     if(!is_dir($pathDossier)) {
                         if(!mkdir($pathDossier, 0777, true)) 
@@ -899,11 +920,11 @@ class PsnController extends Controller
 
                             if ($ress === true)
                             {
-                                $dataAddPsnStpThreeEnfant['type_doc_id']              = $allTypesDocs[8]->type_doc_id;
+                                $dataAddPsnStpThreeEnfant['type_doc_id']              = $fiveDocCle->type_doc_id;
                                 $dataAddPsnStpThreeEnfant['date_telechargement']      = $date_telechargement;
                                 $dataAddPsnStpThreeEnfant['date_expiration']          = $date_expiration;
-                                $dataAddPsnStpThreeEnfant['nom_fichier_original']     = $allTypesDocs[8]->nom_type;
-                                $dataAddPsnStpThreeEnfant['chemin_fichier_stockage']  = $fichierPath;
+                                $dataAddPsnStpThreeEnfant['nom_fichier_original']     = $fiveDocCle->nom_type;
+                                $dataAddPsnStpThreeEnfant['chemin_fichier_stockage']  = $pathFileEnc;
                                 unlink($uploadPath);
                             }
                         }
@@ -938,72 +959,93 @@ class PsnController extends Controller
     {
         $cacheKey = 'user_connexion';
         
-        $Personnel = $this->PersonnelModel->getPersonnel('personnel_id', $personnelID);
+        $Personnel = $this->PersonnelModel->getPersonnelDetails('personnel_id', $personnelID);
         if(!$Personnel) Utils::redirect('/');
 
         $departmentDb = $this->DepartementModel->findByid($Personnel->service_id);
+        $departmentsDb = $this->DepartementModel->getElement('nom_service');
+        foreach ($departmentsDb as $d) 
+        {
+            $departmentsDbs[] = $d->nom_service;
+        }
+        
+        $firstDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[0]);
+        $secondDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[1]);
+        $thirdDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[2]);
+        $fourDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[3]);
+        $fiveDocCle = $this->TypesDocumentModel->findByName(ARRAY_DOC_CLES[4]);
+
+        $firstDocumentsPsn = $this->DocumentModel->findByTypeDoc($firstDocCle->type_doc_id, $Personnel->matricule);
+        $secondDocumentsPsn = $this->DocumentModel->findByTypeDoc($secondDocCle->type_doc_id, $Personnel->matricule);
+        $thirdDocumentsPsn = $this->DocumentModel->findByTypeDoc($thirdDocCle->type_doc_id, $Personnel->matricule);
+        $mariageDocumentsPsn = $this->ConjointModel->findByTypeDoc($fourDocCle->type_doc_id, $Personnel->personnel_id);
 
         $data = [
             'Personnel' => $Personnel,
-            'firstName' => $Personnel->nom,
-            'lastName' => $Personnel->postnom,
-            'dateOfBirth' => $Personnel->date_naissance,
-            'maritalStatus' => $Personnel->statut_marital,
-            'address' => $Personnel->adresse,
-            'phone' => $Personnel->telephone,
-            'employeeId' => $Personnel->matricule,
-            'hireDate' => $Personnel->date_naissance,
-            'jobTitle' => $Personnel->poste_actuel,
-            'department' => $departmentDb->nom_service,
-            'primeType' => $Personnel->type_prime,
-            'grade' => $Personnel->grade,
-            'workEmail' => $Personnel->email_pro,
-            // 'manager' => $Personnel->email,
+            'departmentsDb' => $departmentsDb,
+            'firstDocumentsPsn' => $firstDocumentsPsn,
+            'secondDocumentsPsn' => $secondDocumentsPsn,
+            'thirdDocumentsPsn' => $thirdDocumentsPsn,
+            'mariageDocumentsPsn' => $mariageDocumentsPsn,
         ];
+
+        $successDocEnfantUploaded = 0;
+        for ($i=1; $i <= $Personnel->nbr_enfant ; $i++) 
+        { 
+            $keyArray = "enfantDocumentPsn" . $i;
+            $enfantsDocumentsPsn = $this->EnfantModel->findByTypeDoc($fiveDocCle->type_doc_id, $Personnel->personnel_id, $i);
+            $data[$keyArray] = $enfantsDocumentsPsn;
+            if($enfantsDocumentsPsn) $successDocEnfantUploaded += 1;
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_edt_psn_step_one']))
         {
-            $firstName = Utils::sanitize(trim($_POST['firstName'] ?? ''));
-            $lastName = Utils::sanitize(trim($_POST['lastName'] ?? ''));
             $dateOfBirth = Utils::sanitize(trim($_POST['dateOfBirth'] ?? ''));
-            $maritalStatus = Utils::sanitize(trim($_POST['maritalStatus'] ?? ''));
+            $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
+            $maritalStatus = Utils::sanitize(trim($_POST['maritalstatus'] ?? ''));
             $address = Utils::sanitize(trim($_POST['address'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
             $personalEmail = Utils::sanitize(trim($_POST['personalEmail'] ?? ''));
             
-            if($firstName === '' || $lastName === '' || $dateOfBirth === '' || $maritalStatus === '' || $phone === '' || $address === '' || $personalEmail === '')
+            if($dateOfBirth === '' || $phone === '' || $address === '' || $sexe === '' || $maritalStatus === '')
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
-                $this->view('psn/add',  $data);
+                $this->view('psn/edt',  $data);
                 return;
             }
             if(!in_array($maritalStatus, ARRAY_MARIAL_STATUS)) 
             {
-                Session::setFlash('error', "Entrée correctement l'état civil du personnel.");
-                $this->view('psn/add',  $data);
+                Session::setFlash('error', "Choisissez correctement l'état civil du personnel.");
+                $this->view('psn/edt',  $data);
+                return;
+            }
+            if(!in_array($sexe, ARRAY_SEXE)) 
+            {
+                Session::setFlash('error', "Choisissez correctement le sexe du personnel.");
+                $this->view('psn/edt',  $data);
                 return;
             }
 
+            $personalEmail = Utils::sanitizeToNull($personalEmail);
             // Rassemblement des données soumises dans un tableau pour une boucle facile
             $submitted_data = [
-                'firstName' => $firstName,
-                'lastName' => $lastName,
-                'dateOfBirth' => $dateOfBirth,
-                'maritalStatus' => $maritalStatus,
-                'address' => $address,
-                'phone' => $phone,
-                'personalEmail' => $personalEmail,
+                'date_naissance' => $dateOfBirth,
+                'sexe' => $sexe,
+                'statut_marital' => $maritalStatus,
+                'adresse' => $address,
+                'telephone' => $phone,
+                'email' => $personalEmail,
             ];
 
-            $is_identical = Utils::hasPersonnelDataChanged($data, $submitted_data);
+            $is_identical = Utils::hasDataChanged($submitted_data, $Personnel);
+            // $is_identical = Utils::hasPersonnelDataChanged($data, $submitted_data);
 
             if($is_identical)
             {
                     $dataEdtPsnStpOne = [
-                        'personnel_id'           => $personnelID,
-                        'nom'               => $firstName,
-                        'postnom'           => $lastName,
+                        'personnel_id'      => $personnelID,
                         'date_naissance'    => $dateOfBirth,
+                        'sexe'              => $sexe,
                         'statut_marital'    => $maritalStatus,
                         'adresse'           => $address,
                         'telephone'         => $phone,
@@ -1022,7 +1064,7 @@ class PsnController extends Controller
             else Utils::redirect('../shw/'. $personnelID);
         }
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_add_psn_step_two']))
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_edt_psn_step_two']))
         {
             $employeeId = Utils::sanitize(trim($_POST['employeeId'] ?? ''));
             $hireDate = Utils::sanitize(trim($_POST['hireDate'] ?? ''));
@@ -1030,8 +1072,9 @@ class PsnController extends Controller
             $department = Utils::sanitize(trim($_POST['department'] ?? ''));
             $primeType = Utils::sanitize(trim($_POST['primeType'] ?? ''));
             $grade = Utils::sanitize(trim($_POST['grade'] ?? ''));
-            $workEmail = Utils::sanitize(trim($_POST['workEmail'] ?? ''));
-            $manager = Utils::sanitize(trim($_POST['manager'] ?? ''));
+            $salaire_base = Utils::sanitize(trim($_POST['salaire_base'] ?? ''));
+            $workEmail = Utils::sanitize(trim($_POST['workEmail'] ?? ""));
+            $nbr_child = (int) Utils::sanitize(trim($_POST['nbr_child'] ?? ""));
             
             if($employeeId === '' || $hireDate === '' || $jobTitle === '' || $department === '' || $grade === '' || $primeType === '')
             {
@@ -1039,41 +1082,84 @@ class PsnController extends Controller
                 $this->view('psn/add',  $data);
                 return;
             }
-            if(!in_array($department, ARRAY_DEPARTMENTS)) 
+            if(!in_array($department, $departmentsDbs)) 
             {
                 Session::setFlash('error', "Entrée correctement le Service / Direction du personnel.");
-                $this->view('psn/add',  $data);
+                $this->view('psn/edt',  $data);
                 return;
             }
             if(!in_array($primeType, ARRAY_PRIMES)) 
             {
                 Session::setFlash('error', "Entrée correctement le type contrat du personnel.");
-                $this->view('psn/add',  $data);
+                $this->view('psn/edt',  $data);
                 return;
             }
+
+            $workEmail = Utils::sanitizeToNull($workEmail);
+            $nbr_child = Utils::sanitizeToNull($nbr_child);
+            
+            $serviceDB = $this->DepartementModel->find($department);
+            if(!$serviceDB)
+            {
+                Session::setFlash('error', "Choisissez correctement le Service / Direction valide.");
+                $this->view('psn/edt',  $data);
+                return;
+            }
+
+            $posteDB = $this->PosteModel->findByName($personnelID, $jobTitle);
+            $poste_db = $posteDB->nom_poste ?? null;
             
             $submitted_data = [
-                'employeeId' => $employeeId,
-                'hireDate' => $hireDate,
-                'jobTitle' => $jobTitle,
-                'department' => $department,
-                'primeType' => $primeType,
+                'matricule' => $employeeId,
+                'date_engagement' => $hireDate,
+                'nom_poste' => $poste_db,
+                'nom_service' => $serviceDB->nom_service,
+                'salaire_base' => $salaire_base,
+                'type_prime' => $primeType,
+                'nbr_enfant' => $nbr_child,
                 'grade' => $grade,
-                'workEmail' => $workEmail,
+                'email_pro' => $workEmail,
             ];
 
-            $is_identical = Utils::hasPersonnelDataChanged($data, $submitted_data);
+            $is_identical = Utils::hasDataChanged($submitted_data, $Personnel);
 
             if($is_identical)
             {
+                if(!$posteDB)
+                {
+                    $posteActuelId = Utils::generateUuidV4();
+                    $dataAddPsnStpTwoPoste = [
+                        'poste_occupe_id'       => $posteActuelId,
+                        'personnel_id'          => $personnelID,
+                        'matricule'             => $employeeId,
+                        'nom_poste'             => $jobTitle,
+                        'service_id'            => (int) $serviceDB->service_id,
+                        'date_debut'            => date("Y-m-d")
+                    ];
+
+                    $res = $this->PosteModel->insert($dataAddPsnStpTwoPoste);
+
+                    if($res)
+                    {
+                        $posteDB2 = $this->PosteModel->findByName($personnelID, $Personnel->nom_poste);
+                        $this->PosteModel->update([
+                            'date_fin' => date("Y-m-d"), 
+                            'poste_occupe_id' => $posteDB2->poste_occupe_id
+                        ], 'poste_occupe_id');
+                    }
+                }
+                else $posteActuelId = $posteDB->poste_occupe_id;
+
                 $dataEdtPsnStpTwo = [
                     'personnel_id'               => $personnelID,
                     'matricule'             => $employeeId,
                     'date_engagement'           => $hireDate,
-                    'poste_actuel'          => $jobTitle,
+                    'poste_actuel'          => $posteActuelId,
                     'service_id'            => $departmentDb->service_id,
                     'type_prime'          => $primeType,
                     'grade'         => $grade,
+                    'salaire_base' => $salaire_base,
+                    'nbr_enfant' => $nbr_child,
                     'email_pro'             => $workEmail
                     // 'id_chef_hierarchique'  => $ChefServiceID
                 ];
@@ -1099,19 +1185,258 @@ class PsnController extends Controller
         
         $Personnel = $this->PersonnelModel->getPersonnelDetails('personnel_id', $personnelID);
         if(!$Personnel) Utils::redirect('/');
+        if(
+            $Personnel->statut_marital === ARRAY_MARIAL_STATUS[1] 
+            && $Personnel->conjoint_actuel_id === null
+            || (int) $Personnel->nbr_enfant !== count($this->EnfantModel->find($personnelID))
+        ) Utils::redirect('../add3/'. $personnelID);
 
         $anciennete = Utils::getAnciennte($Personnel->date_engagement);
-        $pieceIdentite = $this->PieceIdentiteModel->find($personnelID)[0];
+        $piecesIdentite = $this->PieceIdentiteModel->find($personnelID);
+        $pieceIdentite = end($piecesIdentite);
         $diplomes = $this->DiplomeModel->find($personnelID);
+        $postes = $this->PosteModel->find($personnelID);
+        $dernierPoste = array_pop($postes);
+
+        if(count($piecesIdentite) < 1 || count($diplomes) < 1) Utils::redirect("../add3/". $personnelID) ;
+
+        $typesDb = $this->TypesDocumentModel->getElement('nom_type');
+        foreach ($typesDb as $t) 
+        {
+            $typesDbs[] = $t->nom_type;
+        }
 
         $data = [
             'Personnel' => $Personnel,
             'pieceIdentite' => $pieceIdentite,
             'diplomes' => $diplomes,
+            'postes' => $postes,
+            'dernierPoste' => $dernierPoste,
             'anciennete' => $anciennete,
+            'typesDbs' => $typesDbs,
         ];
 
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_psn_add_dcs_step_one']))
+        {
+            $type = Utils::sanitize(trim($_POST['type'] ?? ''));
+
+            if($type === '')
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('psn/shw',  $data);
+                return;
+            }
+
+            $typeDb = $this->TypesDocumentModel->findByName($type);
+
+            if(!in_array($type, $typesDbs) || !$typeDb) 
+            {
+                Session::setFlash('error', "Entrée correctement le rôle de l'utilisateur.");
+                $this->view('psn/shw',  $data);
+                return;
+            }
+
+            Utils::redirect("../../dcs/adddc/". $personnelID ."?tpdc=". $typeDb->type_doc_id);
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$pieceIdentite->doc_id]))
+        {
+            $doc = $this->DocumentModel->find($pieceIdentite->doc_id);
+            $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage);
+
+            if($res === true)
+            {
+                Utils::redirect('../../dcs/vwfl?fl=file.pdf');
+                unlink($pathFilePdf);
+            }
+        }
+
+        foreach ($diplomes as $d) 
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$d->doc_id]))
+            {
+                $doc = $this->DocumentModel->find($d->doc_id);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage);
+
+                if($res === true)
+                {
+                    Utils::redirect('../../dcs/vwfl?fl=file.pdf');
+                    unlink($pathFilePdf);
+                }
+            }
+        }
+        
+
         $this->view('psn/shw', $data);
+    }
+
+    public function shwdc($personnelID) 
+    {
+        $cacheKey = 'user_connexion';
+        
+        $Personnel = $this->PersonnelModel->getPersonnelDetails('personnel_id', $personnelID);
+        if(!$Personnel) Utils::redirect('/');
+        if(
+            $Personnel->statut_marital === ARRAY_MARIAL_STATUS[1] 
+            && $Personnel->conjoint_actuel_id === null
+            || (int) $Personnel->nbr_enfant !== count($this->EnfantModel->find($personnelID))
+        ) Utils::redirect('../add3/'. $personnelID);
+
+        $anciennete = Utils::getAnciennte($Personnel->date_engagement);
+        $allDcsPsn = $this->DocumentModel->getAllDcPsn($personnelID);
+        $allMaris = $this->ConjointModel->find($personnelID);
+        $allEnfants = $this->EnfantModel->find($personnelID);
+
+        if(count($allDcsPsn) < 1) Utils::redirect("../add3/". $personnelID);
+
+        $typesDb = $this->TypesDocumentModel->getElement('nom_type');
+        foreach ($typesDb as $t) 
+        {
+            $typesDbs[] = $t->nom_type;
+        }
+
+        $data = [
+            'Personnel'     => $Personnel,
+            'allDcsPsn'     => $allDcsPsn,
+            'anciennete'    => $anciennete,
+            'allMaris'      => $allMaris,
+            'allEnfants'    => $allEnfants,
+            'typesDbs'      => $typesDbs,
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_psn_add_dcs_step_one']))
+        {
+            $type = Utils::sanitize(trim($_POST['type'] ?? ''));
+
+            if($type === '')
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('psn/shw',  $data);
+                return;
+            }
+
+            $typeDb = $this->TypesDocumentModel->findByName($type);
+
+            if(!in_array($type, $typesDbs) || !$typeDb) 
+            {
+                Session::setFlash('error', "Entrée correctement le rôle de l'utilisateur.");
+                $this->view('psn/shw',  $data);
+                return;
+            }
+
+            Utils::redirect("../../dcs/adddc/". $personnelID ."?tpdc=". $typeDb->type_doc_id);
+        }
+
+        foreach ($allDcsPsn as $d) 
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$d->doc_id]))
+            {
+                $doc = $this->DocumentModel->find($d->doc_id);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage);
+
+                if($res === true)
+                {
+                    Utils::redirect('../../dcs/vwfl?fl=file.pdf');
+                    unlink($pathFilePdf);
+                }
+            }
+
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_dwfl'.$d->doc_id]))
+            {
+                $nmfl = Utils::sanitize(trim($_POST['nmfl'] ?? ''));
+                if($nmfl === '')
+                {
+                    Session::setFlash('error', 'Une erreur est survenue.');
+                    $this->view('psn/shwdc',  $data);
+                    return;
+                }
+                $name_file = strtolower(str_replace([" ","'"], "_", $Personnel->nom .'_'. $Personnel->postnom .'_-_'. $nmfl . '.pdf'));
+
+                $doc = $this->DocumentModel->find($d->doc_id);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage, $name_file);
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name_file;
+
+                if($res === true && file_exists($pathFilePdf))
+                {
+                    $this->RapportModel->download_file($pathFilePdf);
+                }
+            }
+        }
+
+        foreach ($allMaris as $m) 
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl_cjt'.$m->conjoint_id]))
+            {
+                $doc = $this->ConjointModel->findByTypeDoc($m->type_doc_id, $personnelID);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage);
+
+                if($res === true)
+                {
+                    Utils::redirect('../../dcs/vwfl?fl=file.pdf');
+                    unlink($pathFilePdf);
+                }
+            }
+
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_dwfl_cjt'.$m->conjoint_id]))
+            {
+                $nmfl = Utils::sanitize(trim($_POST['nmfl'] ?? ''));
+                if($nmfl === '')
+                {
+                    Session::setFlash('error', 'Une erreur est survenue.');
+                    $this->view('psn/shwdc',  $data);
+                    return;
+                }
+                $name_file = strtolower(str_replace([" ","'"], "_", $Personnel->nom .'_'. $Personnel->postnom .'_&_'. $m->nom_complet .'_-_'. $nmfl . '.pdf'));
+
+                $doc = $this->ConjointModel->findByTypeDoc($m->type_doc_id, $personnelID);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage, $name_file);
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name_file;
+
+                if($res === true && file_exists($pathFilePdf))
+                {
+                    $this->RapportModel->download_file($pathFilePdf);
+                }
+            }
+        }
+
+        foreach ($allEnfants as $e) 
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl_eft'.$e->enfant_id]))
+            {
+                $doc = $this->EnfantModel->findByTypeDoc($e->type_doc_id, $personnelID, $e->ordre_naissance);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage);
+
+                if($res === true)
+                {
+                    Utils::redirect('../../dcs/vwfl?fl=file.pdf');
+                    unlink($pathFilePdf);
+                }
+            }
+
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_dwfl_eft'.$e->enfant_id]))
+            {
+                $nmfl = Utils::sanitize(trim($_POST['nmfl'] ?? ''));
+                if($nmfl === '')
+                {
+                    Session::setFlash('error', 'Une erreur est survenue.');
+                    $this->view('psn/shwdc',  $data);
+                    return;
+                }
+                $name_file = strtolower(str_replace([" ","'"], "_", $Personnel->nom .'_'. $Personnel->postnom .'_-_'. $e->nom_complet_enfant .'_-_'. $nmfl .'_-_enfant_'. $e->ordre_naissance .'.pdf'));
+
+                $doc = $this->EnfantModel->findByTypeDoc($e->type_doc_id, $personnelID, $e->ordre_naissance);
+                $res = Utils::dechiffreflpdf($this->DocumentModel, $doc->chemin_fichier_stockage, $name_file);
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name_file;
+
+                if($res === true && file_exists($pathFilePdf))
+                {
+                    $this->RapportModel->download_file($pathFilePdf);
+                }
+            }
+        }
+        
+
+        $this->view('psn/shwdc', $data);
     }
 
     public function edit($personnelID) 

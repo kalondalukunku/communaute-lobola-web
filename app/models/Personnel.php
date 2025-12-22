@@ -132,12 +132,20 @@ class Personnel extends Model {
     {
         $sql = "SELECT
                     P.*,
-                    S.nom_service
+                    S.nom_service,
+                    PO.nom_poste,
+                    C.nom_complet AS nom_conjoint
                 FROM
                     $this->table AS P
-                INNER JOIN
+                LEFT JOIN
                     services AS S
                     ON P.service_id = S.service_id
+                LEFT JOIN 
+                    postes_occupes AS PO
+                    ON P.poste_actuel = poste_occupe_id
+                LEFT JOIN 
+                    conjoints AS C
+                    ON P.conjoint_actuel_id = conjoint_id
                 WHERE
                     P.$by = :$by";
 

@@ -35,10 +35,10 @@
                              src="https://placehold.co/300x300/e2e8f0/64748b?text=Photo" 
                              alt="Aperçu Photo"
                              onerror="this.onerror=null; this.src='https://placehold.co/300x300/e2e8f0/64748b?text=Photo'">
-                        <input type="file" id="avatarUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+                        <!-- <input type="file" id="avatarUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*"> -->
                         <div class="absolute text-sm font-medium text-gray-500 group-hover:text-[var(--color-primary)] transition duration-150">
-                             <i class="fas fa-camera text-xl mb-1"></i><br>
-                             Ajouter
+                            <!-- <i class="fas fa-camera text-xl mb-1"></i><br> -->
+                            <!-- Ajouter -->
                         </div>
                     </div>
                     
@@ -77,11 +77,11 @@
                                 
                                 <div>
                                     <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                                    <input type="text" id="firstName" name="firstName" value="<?=  Helper::getData($_POST, 'firstName') ?>" required class="form-input" placeholder="Ex: Jean">
+                                    <input type="text" id="firstName" name="firstName" value="<?=  Helper::getData($_POST, 'firstName') ?>" required class="form-input" placeholder="Ex: Kingunza">
                                 </div>
                                 <div>
                                     <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Postnom & Prénom</label>
-                                    <input type="text" id="lastName" name="lastName" value="<?=  Helper::getData($_POST, 'lastName') ?>" required class="form-input" placeholder="Ex: Kingunza Nkela">
+                                    <input type="text" id="lastName" name="lastName" value="<?=  Helper::getData($_POST, 'lastName') ?>" required class="form-input" placeholder="Ex: Nkela Jean">
                                 </div>
                                 
                                 <div>
