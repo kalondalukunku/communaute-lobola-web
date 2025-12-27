@@ -23,6 +23,100 @@ class Personnel extends Model {
     {
         return $this->db->query("SELECT * FROM {$this->table} ORDER BY created_at DESC")->fetchAll(PDO::FETCH_OBJ);
     }
+    
+    public function allWhere($where, $param)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE $where = :$where ORDER BY created_at DESC");
+        $stmt->execute([$where => $param]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getPresencesToday()
+    {
+        // On définit la date du jour (YYYY-MM-DD)
+        $today = date('Y-m-d');
+
+        $sql = "SELECT * FROM {$this->table} 
+                WHERE personnel_id NOT IN (
+                    SELECT personnel_id 
+                    FROM presence 
+                    WHERE DATE(date_presence) = :today
+                ) 
+                ORDER BY nom ASC";
+
+        $stmt = $this->db->prepare($sql);
+        
+        // On passe le paramètre comme dans votre exemple original
+        $stmt->execute(['today' => $today]);
+
+        // On retourne le résultat sous forme d'objets pour rester cohérent avec votre code
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function allPresences(int $page = 1, ?int $per_page = null, ?string $search = null): array
+    {
+        // Configuration de la pagination
+        $limit = $per_page ?? $this->default_per_page;
+        $page = max(1, $page);
+        $offset = ($page - 1) * $limit;
+
+        // Date du jour pour le filtre d'absence
+        $today = date('Y-m-d');
+
+        // Initialisation des conditions et paramètres
+        // On commence par la condition d'exclusion : l'ID ne doit pas être dans les présences du jour
+        $conditions = ["P.personnel_id NOT IN (SELECT personnel_id FROM presence WHERE DATE(date_presence) = :today)"];
+        $params = ['today' => $today];
+
+        // Filtre sur la recherche (nom, postnom, matricule)
+        if (!empty($search)) {
+            $conditions[] = "(P.nom LIKE :search OR P.postnom LIKE :search OR P.matricule LIKE :search)";
+            $params['search'] = "%$search%";
+        }
+
+        // Construction de la clause WHERE
+        $whereClause = " WHERE " . implode(" AND ", $conditions);
+
+        // 1. Requête pour le nombre total d'absents
+        $sql_count = "SELECT COUNT(*) FROM {$this->table} AS P" . $whereClause;
+        $q_count = $this->db->prepare($sql_count);
+        $q_count->execute($params);
+        $total_records = (int) $q_count->fetchColumn();
+
+        // 2. Requête pour les données des personnels absents
+        // On sélectionne les colonnes nécessaires de la table personnel (P)
+        $sql = "SELECT P.* FROM {$this->table} AS P" . 
+                $whereClause . 
+                " ORDER BY P.nom ASC LIMIT {$limit} OFFSET {$offset}";
+        
+        $q = $this->db->prepare($sql);
+
+        // Liaison dynamique des paramètres (Recherche et Date)
+        foreach ($params as $key => $value) {
+            $q->bindValue($key, $value, PDO::PARAM_STR);
+        }
+
+        $q->execute();
+        $precences = $q->fetchAll(PDO::FETCH_OBJ);
+
+        // Retourne les données paginées et les métadonnées (même structure que allUsers)
+        return [
+            'allPresences'  => $precences,
+            'total_records' => $total_records,
+            'current_page'  => $page,
+            'per_page'      => $limit,
+            'total_pages'   => ceil($total_records / $limit),
+            'search_query'  => $search
+        ];
+    }
+
+    public function sommeSalaire()
+    {
+        $query = "SELECT SUM(salaire_base) AS total FROM {$this->table}";
+        $result = $this->db->query($query)->fetchColumn();
+        
+        return $result ? $result : 0;
+    }
 
     public function allPersonnelsWithService(string $statut, int $page = 1, ?int $per_page = null, ?string $search = null): array
     {

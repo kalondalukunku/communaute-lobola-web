@@ -2,12 +2,19 @@
 class Document extends Model {
     
     protected $table = "documents_personnel";
-    public $default_per_page = 5;
+    public $default_per_page = 10;
 
     public function all()
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} ORDER BY created_at DESC");
         $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    
+    public function allWhere($where, $param)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE $where = :$where ORDER BY created_at DESC");
+        $stmt->execute([$where => $param]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -155,119 +162,98 @@ class Document extends Model {
         if(file_put_contents($filePdf,$decrypted)) return true;                
     }
 
-    public function allDcs(int $page = 1, ?string $is_required = null, ?int $per_page = null, ?string $search = null): array
-    {
-        $limit = $per_page ?? $this->default_per_page;
-        $page = max(1, $page);
-        $offset = ($page - 1) * $limit;
-
-        // Initialisation des conditions et des paramètres
-        $conditions = [];
-        $params = [];
-
-        // Filtre sur le caractère obligatoire
-        if ($is_required !== null) {
-            $conditions[] = "D.statut_conformite = :statut_conformite";
-            $params['statut_conformite'] = $is_required;
-        }
-
-        // Filtre sur la recherche (nom du document par exemple)
-        if (!empty($search)) {
-            $conditions[] = "D.nom_fichier_original LIKE :search"; // Adaptez 'nom_fichier_original_doc' selon votre colonne réelle
-            $params['search'] = "%$search%";
-        }
-
-        // Construction de la clause WHERE
-        $whereClause = !empty($conditions) ? " WHERE " . implode(" AND ", $conditions) : "";
-
-        // 1. Requête pour le nombre total d'enregistrements
-        $sql_count = "SELECT COUNT(*) FROM $this->table AS D" . $whereClause;
-        $q_count = $this->db->prepare($sql_count);
-        $q_count->execute($params);
-        $total_records = (int) $q_count->fetchColumn();
-
-        // 2. Requête pour les enregistrements de la page actuelle
-        $sql = "SELECT D.* FROM $this->table AS D" . $whereClause;
-        $sql .= " ORDER BY D.created_at ASC LIMIT {$limit} OFFSET {$offset}";
-        
-        $q = $this->db->prepare($sql);
-
-        // Liaison dynamique de tous les paramètres présents
-        foreach ($params as $key => $value) {
-            $q->bindValue($key, $value, PDO::PARAM_STR);
-        }
-
-        $q->execute();
-        $alldocs = $q->fetchAll(PDO::FETCH_OBJ);
-
-        // Retourne les données paginées et les métadonnées
-        return [
-            'alldocs'       => $alldocs,
-            'total_records' => $total_records,
-            'current_page'  => $page,
-            'per_page'      => $limit,
-            'total_pages'   => ceil($total_records / $limit),
-            'search_query'  => $search
-        ];
-    }
-
     public function allDcs2(int $page = 1, ?string $is_required = null, ?int $per_page = null, ?string $search = null): array
     {
         $limit = $per_page ?? $this->default_per_page;
         $page = max(1, $page);
         $offset = ($page - 1) * $limit;
 
-        // Initialisation des conditions et des paramètres
-        $conditions = [];
         $params = [];
-
-        // Filtre sur le caractère obligatoire
-        if ($is_required !== null) {
-            $conditions[] = "D.statut_conformite = :statut_conformite";
-            $params['statut_conformite'] = $is_required;
-        }
-
-        // Filtre sur la recherche (nom du fichier ou nom du personnel)
+        $condD = ""; // Condition pour Documents
+        $condC = ""; // Condition pour Conjoints
+        $condE = ""; // Condition pour Enfants
+        
         if (!empty($search)) {
-            // Recherche étendue au nom et postnom du personnel
-            $conditions[] = "(D.nom_fichier_original LIKE :search OR P.nom LIKE :search OR P.postnom LIKE :search)";
             $params['search'] = "%$search%";
+            // Chaque bloc ne doit filtrer que sur ses propres alias
+            $condD = " AND (P.nom LIKE :search OR P.postnom LIKE :search OR D.nom_fichier_original LIKE :search)";
+            $condC = " AND (P.nom LIKE :search OR P.postnom LIKE :search OR C.nom_fichier_original LIKE :search OR C.nom_complet LIKE :search)";
+            $condE = " AND (P.nom LIKE :search OR P.postnom LIKE :search OR E.nom_fichier_original LIKE :search OR E.nom_complet_enfant LIKE :search)";
         }
 
-        // Construction de la clause WHERE
-        $whereClause = !empty($conditions) ? " WHERE " . implode(" AND ", $conditions) : "";
+        $sql_base = "
+            SELECT 
+                D.doc_id as id, 
+                NULL as nom,
+                D.nom_fichier_original as libelle, 
+                D.chemin_fichier_stockage,
+                D.date_telechargement,
+                'document' as source_type, 
+                D.created_at, 
+                P.nom as personnel_nom, 
+                P.postnom as personnel_postnom,
+                D.personnel_id
+            FROM documents_personnel AS D
+            INNER JOIN personnel AS P ON D.personnel_id = P.personnel_id
+            WHERE 1=1 " . (!empty($is_required) ? " AND D.statut_conformite = :statut" : "") . $condD . "
+            
+            UNION ALL
+            
+            SELECT 
+                C.conjoint_id as id, 
+                C.nom_complet as nom,
+                C.nom_fichier_original as libelle, 
+                C.chemin_fichier_stockage,
+                C.date_telechargement,
+                'conjoint' as source_type, 
+                C.created_at, 
+                P.nom as personnel_nom, 
+                P.postnom as personnel_postnom,
+                C.personnel_id
+            FROM conjoints AS C
+            INNER JOIN personnel AS P ON C.personnel_id = P.personnel_id
+            WHERE 1=1 " . $condC . "
+            
+            UNION ALL
+            
+            SELECT 
+                E.enfant_id as id, 
+                E.nom_complet_enfant as nom,
+                E.nom_fichier_original as libelle, 
+                E.chemin_fichier_stockage,
+                E.date_telechargement,
+                'enfant' as source_type, 
+                E.created_at, 
+                P.nom as personnel_nom, 
+                P.postnom as personnel_postnom,
+                E.personnel_id
+            FROM enfants AS E
+            INNER JOIN personnel AS P ON E.personnel_id = P.personnel_id
+            WHERE 1=1 " . $condE;
 
-        // Définition de la jointure
-        $joinClause = " INNER JOIN personnel AS P ON D.personnel_id = P.personnel_id";
+        if (!empty($is_required)) {
+            $params['statut'] = $is_required;
+        }
 
-        // 1. Requête pour le nombre total d'enregistrements (avec jointure pour la cohérence des filtres)
-        $sql_count = "SELECT COUNT(*) FROM $this->table AS D" . $joinClause . $whereClause;
+        // 1. Calcul du total combiné
+        $sql_count = "SELECT COUNT(*) FROM ($sql_base) AS total";
         $q_count = $this->db->prepare($sql_count);
         $q_count->execute($params);
         $total_records = (int) $q_count->fetchColumn();
 
-        // 2. Requête pour les enregistrements de la page actuelle
-        // On récupère toutes les colonnes de D et spécifiquement nom/postnom de P
-        $sql = "SELECT D.*, P.nom AS personnel_nom, P.postnom AS personnel_postnom 
-                FROM $this->table AS D" . 
-                $joinClause . 
-                $whereClause;
+        // 2. Récupération des données paginées
+        $sql_final = $sql_base . " ORDER BY created_at ASC LIMIT {$limit} OFFSET {$offset}";
+        $q = $this->db->prepare($sql_final);
         
-        $sql .= " ORDER BY D.created_at ASC LIMIT {$limit} OFFSET {$offset}";
-        
-        $q = $this->db->prepare($sql);
-
-        // Liaison dynamique de tous les paramètres présents
         foreach ($params as $key => $value) {
-            $q->bindValue($key, $value, PDO::PARAM_STR);
+            $q->bindValue($key, $value);
         }
 
         $q->execute();
-        $alldocs = $q->fetchAll(PDO::FETCH_OBJ);
+        $alldata = $q->fetchAll(PDO::FETCH_OBJ);
 
-        // Retourne les données paginées et les métadonnées
         return [
-            'alldocs'       => $alldocs,
+            'alldocs'       => $alldata,
             'total_records' => $total_records,
             'current_page'  => $page,
             'per_page'      => $limit,

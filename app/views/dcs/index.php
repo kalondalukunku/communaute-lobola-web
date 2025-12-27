@@ -71,7 +71,7 @@
                                                 <i class="fas fa-file-contract"></i>
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900"><?= str_replace([' ',"'"], '_', strtolower($doc->nom_fichier_original .'_'. date('Y', strtotime($doc->date_telechargement)))) ?>.pdf</div>
+                                                <div class="text-sm font-medium text-gray-900"><?= str_replace([' ',"'"], '_', strtolower($doc->libelle .'_'. date('Y', strtotime($doc->date_telechargement)))) ?><?= $doc->nom ? '_'. str_replace(' ','_',$doc->nom) : ''  ?>.pdf</div>
                                             </div>
                                         </div>
                                     </td>
@@ -80,12 +80,12 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                                         <span class="inline-flex text-sm leading-5 font-semibold rounded-full">
-                                            <?= $doc->nom_fichier_original ?>
+                                            <?= $doc->libelle ?>
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                         <form method="post">
-                                            <button type="submit" name="mosali_vwfl<?= $doc->doc_id ?>">
+                                            <button type="submit" name="mosali_vwfl<?= $doc->id ?>">
                                                 <a href="" class="text-[var(--color-primary)] hover:text-blue-700" title="Voir Fiche">
                                                     <i class="fas fa-eye"></i>
                                                 </a>

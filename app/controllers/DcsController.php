@@ -52,7 +52,7 @@ class DcsController extends Controller
 
         foreach($alldocs as $d)
         {
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$d->doc_id]))
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_vwfl'.$d->id]))
             {
                 $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($d->chemin_fichier_stockage));
                 $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.pdf";
@@ -120,10 +120,7 @@ class DcsController extends Controller
 
                 $date_telechargement = date('Y-m-d H:i:s');
                 
-                if($typeDoc->duree_validite_jours !== null) 
-                    $date_expiration = Utils::ajouterJoursAujourdhui($typeDoc->duree_validite_jours);
-                else
-                    $date_expiration = null;
+                if($typeDoc->duree_validite_jours === null) $date_expiration = null;
 
                 if(!is_dir($pathDossier)) {
                     if(!mkdir($pathDossier, 0777, true)) 

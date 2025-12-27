@@ -1,5 +1,6 @@
 <?php 
-  include APP_PATH . 'views/layouts/header.php'; 
+    $title = "Tableau de Bord Analytique RH";
+    include APP_PATH . 'views/layouts/header.php'; 
 ?>
 
 <section class="flex flex-col mt-[3.5rem]">
@@ -18,11 +19,11 @@
                 Tableau de Bord Analytique RH
             </h1>
             <div class="flex space-x-3">
-                <button class="flex items-center space-x-2 border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-xl hover:bg-gray-100 transition duration-150">
+                <button class="flex items-center space-x-2 border border-gray-300 text-sm text-gray-700 font-semibold py-2 px-4 rounded-xl hover:bg-gray-100 transition duration-150">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Période: Année 2025</span>
                 </button>
-                <button class="flex items-center space-x-2 bg-[var(--color-primary)] text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150">
+                <button class="flex items-center space-x-2 bg-[var(--color-primary)] text-sm text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150">
                     <i class="fas fa-file-export"></i>
                     <span>Exporter (PDF)</span>
                 </button>
@@ -35,11 +36,11 @@
             <!-- KPI 1: Conformité Documentaire -->
             <div class="card-container p-6 border-l-4 border-green-500 hover:shadow-lg transition duration-300">
                 <div class="flex justify-between items-center">
-                    <p class="text-sm font-medium text-gray-500 uppercase">Conformité Documentaire</p>
-                    <i class="fas fa-check-double text-2xl text-green-500"></i>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Effectif Total Personnel</p>
+                    <i class="fas fa-users text-2xl text-green-500"></i>
                 </div>
                 <div class="mt-1 flex items-baseline justify-between">
-                    <p class="text-4xl font-extrabold text-gray-900">92<span class="text-2xl">%</span></p>
+                    <p class="text-4xl font-extrabold text-gray-900"><?= count($allPsn) ?><span class="text-2xl"></span></p>
                 </div>
                 <div class="text-xs mt-1 text-green-600">
                     <i class="fas fa-arrow-up"></i> +2.1% (cible 95%)
@@ -49,11 +50,11 @@
             <!-- KPI 2: Taux de Rotation (Turnover) -->
             <div class="card-container p-6 border-l-4 border-red-500 hover:shadow-lg transition duration-300">
                 <div class="flex justify-between items-center">
-                    <p class="text-sm font-medium text-gray-500 uppercase">Taux de Rotation Annuel</p>
-                    <i class="fas fa-sign-out-alt text-2xl text-red-500"></i>
+                    <p class="text-sm font-medium text-gray-500 uppercase">Effectif Total document</p>
+                    <i class="fas fa-file text-2xl text-red-500"></i>
                 </div>
                 <div class="mt-1">
-                    <p class="text-4xl font-extrabold text-gray-900">8.5<span class="text-2xl">%</span></p>
+                    <p class="text-4xl font-extrabold text-gray-900"><?= count($allDcs) ?><span class="text-2xl"></span></p>
                 </div>
                  <div class="text-xs mt-1 text-red-600">
                     <i class="fas fa-arrow-up"></i> Hausse de 1.1% ce trimestre
@@ -81,7 +82,7 @@
                     <i class="fas fa-dollar-sign text-2xl text-[var(--color-primary)]"></i>
                 </div>
                 <div class="mt-1">
-                    <p class="text-4xl font-extrabold text-gray-900">3.2 M<span class="text-2xl">€</span></p>
+                    <p class="text-4xl font-extrabold text-gray-900"><?= Helper::formatNumberShort($salaireTotal) ?><span class="text-2xl"></span></p>
                 </div>
                 <div class="text-xs mt-1 text-gray-500">
                     Stable par rapport au mois précédent.

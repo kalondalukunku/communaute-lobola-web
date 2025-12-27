@@ -1,5 +1,6 @@
 <?php
     require_once APP_PATH . 'models/Personnel.php';
+    require_once APP_PATH . 'models/Presence.php';
     require_once APP_PATH . 'models/Departement.php';
     require_once APP_PATH . 'models/TypesDocument.php';
     require_once APP_PATH . 'models/Document.php';
@@ -15,6 +16,7 @@
 class PsnController extends Controller 
 {    
     private $PersonnelModel;   
+    private $PresenceModel;   
     private $DepartementModel;   
     private $TypesDocumentModel;   
     private $DocumentModel;
@@ -24,8 +26,8 @@ class PsnController extends Controller
     private $PieceIdentiteModel;
     private $ConjointModel;
     private $EnfantModel;
-    private $loggerModel;
     private $RapportModel;
+    private $loggerModel;
 
     public function __construct()
     {
@@ -33,6 +35,7 @@ class PsnController extends Controller
         Auth::isRole(ARRAY_ROLE_USER[0]);
         
         $this->PersonnelModel = new Personnel();
+        $this->PresenceModel = new Presence();
         $this->DepartementModel = new Departement();
         $this->TypesDocumentModel = new TypesDocument();
         $this->DocumentModel = new Document();
@@ -42,20 +45,13 @@ class PsnController extends Controller
         $this->PieceIdentiteModel = new PieceIdentite();
         $this->ConjointModel = new Conjoint();
         $this->EnfantModel = new Enfant();
-        $this->loggerModel = new Logger();  
         $this->RapportModel = new Rapport();  
+        $this->loggerModel = new Logger();    
     }
 
     public function index() 
     {
-        $cacheKey = 'user_administraction';
-        // $allUsers = $this->PersonnelModel->getPersonnelCouristeSuperviseur();
-
-        $data = [
-            // 'allUsers' => $allUsers,
-        ];
-
-        $this->view('psn/index', $data);
+        Utils::redirect('/');
     }
 
     public function add() 
@@ -894,7 +890,7 @@ class PsnController extends Controller
                     }
                 
                     $pathDossier = $this->DocumentModel->cheminDossierPdf(str_replace(" ","_",$fiveDocCle->nom_type), $personnelID);
-                    $nomFichier = $this->DocumentModel->generteNomFichierPdf(str_replace(" ","_",$fiveDocCle->nom_type) . "_ENFANT_");
+                    $nomFichier = $this->DocumentModel->generteNomFichierPdf(str_replace(" ","_",$fiveDocCle->nom_type) . "_ENFANT_N°".$i."_");
                     $fichierPath = $pathDossier ."/". $nomFichier;
                     $uploadPath = BASE_PATH . $fichierPath;
                     $pathFileEnc = $fichierPath .".enc";
@@ -1198,7 +1194,7 @@ class PsnController extends Controller
         $postes = $this->PosteModel->find($personnelID);
         $dernierPoste = array_pop($postes);
 
-        if(count($piecesIdentite) < 1 || count($diplomes) < 1) Utils::redirect("../add3/". $personnelID) ;
+        if(count($piecesIdentite) < 1 || count($diplomes) < 1 || !$Personnel->nom_conjoint) Utils::redirect("../add3/". $personnelID);
 
         $typesDb = $this->TypesDocumentModel->getElement('nom_type');
         foreach ($typesDb as $t) 
@@ -1434,96 +1430,28 @@ class PsnController extends Controller
                 }
             }
         }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_dw_all_dcs']))
+        {
+            $name_zip = strtolower(Utils::formatNamePsn($Personnel) .'.zip');
+            $entreprise = COMPANY_NAME_;
+            $pathDossier = 'storage/uploads/pdf/' . "{$entreprise}/{$personnelID}";
+            $result = DossierDownload::download_encrypted_folder_as_zip($pathDossier, $this->DocumentModel, $Personnel, $name_zip);
+
+            if($result)
+            {
+                Session::setFlash('success', 'Téléchargement des documents réussi.');
+                Utils::redirect($personnelID);
+            }
+            else {
+                Session::setFlash('error', 'Echec lors du téléchargement des documents.');
+                $this->view('psn/shwdc',  $data);
+                return;
+            }
+        }
         
 
         $this->view('psn/shwdc', $data);
-    }
-
-    public function edit($personnelID) 
-    {
-        $cacheKey = 'user_connexion';
-        
-        $user = $this->PersonnelModel->getPersonnel('personnel_id', $personnelID);
-
-        $data = [
-            'user' => $user,
-        ];
-
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_user_edit']))
-        {
-            $nom = Utils::sanitize(trim($_POST['nom'] ?? ''));
-            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
-
-            if($nom !== $user->nom || $email !== $user->email) 
-            {
-                $dataEditUser = [
-                    'nom'           => $nom,
-                    'email'         => $email,
-                    'personnel_id'       => $personnelID,
-                    'updated_at'    => date('Y-m-d H:i:s'),
-                ];
-                if($this->PersonnelModel->update($dataEditUser, 'personnel_id'))
-                {
-                    $dataLogs = [
-                        'personnel_id'       => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
-                        'action'        => "Modification d'un utilisateur réussi",
-                        'courier_id'    => null,
-                        'resultat'      => '1',
-                        'date_action'   => date('Y-m-d H:i:s'),
-                    ];
-                    if ($this->loggerModel->addLog($dataLogs)) 
-                    {
-                        Session::setFlash('success', 'Utilisateur modifié avec succès.');
-                        Utils::redirect('../../user');
-                    }
-                }
-                else {
-                    $dataLogs = [
-                        'personnel_id'       => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
-                        'action'        => "Echec de modification d'un utilisateur",
-                        'courier_id'    => null,
-                        'resultat'      => '0',
-                        'date_action'   => date('Y-m-d H:i:s'),
-                    ];
-                    $this->loggerModel->addLog($dataLogs);
-                    Session::setFlash('error', "Echec de modification d'un utilisateur");
-                    Utils::redirect('../../user');
-                }
-            }
-        }
-
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_user_delete']))
-        {
-            if($this->PersonnelModel->delete($personnelID))
-            {
-                $dataLogs = [
-                    'personnel_id'       => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
-                    'action'        => "Suppression d'un utilisateur réussi",
-                    'courier_id'    => null,
-                    'resultat'      => '1',
-                    'date_action'   => date('Y-m-d H:i:s'),
-                ];
-                if ($this->loggerModel->addLog($dataLogs)) 
-                {
-                    Session::setFlash('success', 'Utilisateur supprimé avec succès.');
-                    Utils::redirect('../../user');
-                }
-            } 
-            else {
-                $dataLogs = [
-                    'personnel_id'       => $_SESSION[SITE_NAME_SESSION_USER]['user_id'],
-                    'action'        => "Echec de Suppression d'un utilisateur",
-                    'courier_id'    => null,
-                    'resultat'      => '0',
-                    'date_action'   => date('Y-m-d H:i:s'),
-                ];
-                $this->loggerModel->addLog($dataLogs);
-                Session::setFlash('error', "Echec de Suppression d'un utilisateur");
-                Utils::redirect('../../user');
-            }
-        }
-
-        $this->view('user/edit', $data);
     }
 
     public function editpswd() 
@@ -1620,5 +1548,49 @@ class PsnController extends Controller
         }
 
         $this->view('user/editpswd', $data);
+    }
+
+    public function prsc()
+    {
+        $psnPg = (int) basename($_GET['page'] ?? 1);
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+
+        $results = $this->PersonnelModel->allPresences($psnPg, $this->PresenceModel->default_per_page, $search);
+        $allPresences = $results['allPresences'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
+
+        $data = [
+            'allPresences'        => $allPresences,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
+        ];
+
+        foreach($allPresences as $psn)
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_prsc_retard_'. $psn->personnel_id ]))
+            {
+                $dataPrscRtd = [
+                    'personnel_id' => $psn->personnel_id,
+                    'joue' => date('d'),
+                    'mois' => date('m'),
+                    'annee' => date('Y'),
+                    'statut' => ARRAY_STATUT_PRESENCE[1],
+                ];
+
+                if($this->PresenceModel->insert($dataPrscRtd))
+                {
+                    Session::setFlash('success', 'Présence éffectué avec succès.');
+                    Utils::redirect('prsc');
+                }
+            }
+        }
+
+        $this->view('psn/prsc', $data);
     }
 }

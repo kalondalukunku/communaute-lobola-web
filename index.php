@@ -38,7 +38,7 @@
     require_once APP_PATH . 'core/Helper.php';
 
     // charger les helpers si besoin
-    $helpers = ['Session','Auth','Utils', 'SendMail'];
+    $helpers = ['Session','Auth','Utils', 'SendMail','DossierDownload'];
     foreach ($helpers as $helper)
     {
         $file = APP_PATH . "helpers/$helper.php";

@@ -1,20 +1,16 @@
 <?php
-require_once APP_PATH .'models/Document.php';
+require_once APP_PATH . 'models/Document.php';
+require_once APP_PATH . 'models/Personnel.php';
 require_once APP_PATH . 'models/Rapport.php';
-require_once APP_PATH . 'models/RapportTransmission.php';
 require_once APP_PATH . 'models/Pdf.php';
-require_once APP_PATH . 'models/CourierEdit.php';
-require_once APP_PATH . 'models/Redirection.php';
 require_once APP_PATH . 'helpers/Logger.php';
 
 class RptController extends Controller
 {
     private $DocumentModel;
+    private $PersonnelModel;
     private $rapportModel;
-    private $rapportTransmissionModel;
     private $pdfModel;
-    private $courierEditModel;
-    private $redirectionModel;
     private $loggerModel;
 
     private $nbrCourierNoTraite;
@@ -23,11 +19,9 @@ class RptController extends Controller
     {
         Auth::requireLogin('user'); // protéger toutes les pages
         $this->DocumentModel = new Document();
+        $this->PersonnelModel = new Personnel();
         $this->rapportModel = new Rapport();
-        $this->rapportTransmissionModel = new RapportTransmission();
         $this->pdfModel = new PDF();
-        $this->courierEditModel = new CourierEdit();
-        $this->redirectionModel = new Redirection();
         $this->loggerModel = new Logger();
     }
 
@@ -35,14 +29,15 @@ class RptController extends Controller
     {
         Auth::isRole(ARRAY_ROLE_USER[0]); // SG uniquement
 
-        // $allCouriers = $this->courierModel->all();
-        $numero = 1;
+        $allPsn = $this->PersonnelModel->allWhere("statut_emploi", ARRAY_PERSONNEL_STATUT_EMPLOI[1]);
+        $allDcs = $this->DocumentModel->allWhere("statut_conformite", "Conforme");
+        $salaireTotal = $this->PersonnelModel->sommeSalaire();
 
         $data = [
-            'title' => SITE_NAME . ' | Documents',
-            'description' => 'Gestion des documents',
-            // 'allCouriers' => $allCouriers,
-            // 'Courier' => $this->courierModel,
+            'description'   => 'Gestion des documents',
+            'allPsn'        => $allPsn,
+            'allDcs'        => $allDcs,
+            'salaireTotal'  => $salaireTotal,
         ];
 
         $this->view('rpt/index', $data);
@@ -64,10 +59,7 @@ class RptController extends Controller
             // 'dcs' => $dcs,
             // 'Courier' => $this->courierModel,
             'Rapport' => $this->rapportModel,
-            'RapportTransmission' => $this->rapportTransmissionModel,
             'Pdf' => $this->pdfModel,
-            'CourierEdit' => $this->courierEditModel,
-            'Redirection' => $this->redirectionModel,
         ];
 
         $this->view('rpt/shw', $data);

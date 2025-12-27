@@ -1,7 +1,7 @@
 <?php 
-                                $title = "Tableau de bord";
-                                include APP_PATH . 'views/layouts/header.php'; 
-                                include APP_PATH . 'views/layouts/navbar_admin.php'; 
+        $title = "Tableau de bord";
+        include APP_PATH . 'views/layouts/header.php'; 
+        include APP_PATH . 'views/layouts/navbar_admin.php'; 
 ?>
 
 <div class="container-fluid py-4" style="background:#f8fafc; min-height:70vh;">

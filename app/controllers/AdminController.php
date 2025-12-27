@@ -11,14 +11,6 @@ class AdminController extends Controller {
         $this->view('admin/index');
     }
 
-    public function events()
-    {
-        $cacheKey = 'admin_events';
-        Auth::requireLogin('admin');
-
-        $this->view('admin/events');
-    }
-
     public function login() 
     {
         Session::start();

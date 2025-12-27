@@ -19,10 +19,12 @@
                 Fiche Détaillée: <span class="ml-2 text-[var(--color-secondary)]"><?= $Personnel->nom .' '. $Personnel->postnom ?></span>
             </h1>
             <div class="flex items-center space-x-3">
-                <button class="flex items-center space-x-2 text-sm bg-[var(--color-primary)] text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150 transform hover:scale-[1.01]">
-                    <i class="fas fa-download"></i>
-                    <span>Télécharger tous ses documents</span>
-                </button>
+                <form action="" method="post">
+                    <button name="mosali_dw_all_dcs" class="flex items-center space-x-2 text-sm bg-[var(--color-primary)] text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150 transform hover:scale-[1.01]">
+                        <i class="fas fa-download"></i>
+                        <span>Télécharger tous ses documents</span>
+                    </button>
+                </form>
             </div>
         </header>
         

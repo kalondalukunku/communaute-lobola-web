@@ -277,4 +277,9 @@ class Utils {
 
         return $classModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_PDF);
     }
+
+    public static function formatNamePsn($Personnel)
+    {
+        return str_replace(" ","_",$Personnel->nom .'_'. $Personnel->postnom);
+    }
 }

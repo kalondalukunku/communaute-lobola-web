@@ -402,4 +402,28 @@ class Helper {
 
         return $txt;
     }
+
+    public static function formatNumberShort($number, $precision = 2) 
+    {
+        if ($number < 1000) {
+            // En dessous de 1000, on affiche le nombre normalement
+            return number_format($number, 0, ',', ' '. SITE_DEVISE);
+        }
+
+        if ($number < 1000000) {
+            // Milliers (K)
+            $formatted = $number / 1000;
+            return round($formatted, $precision) . 'K '. SITE_DEVISE;
+        } 
+        
+        if ($number < 1000000000) {
+            // Millions (M)
+            $formatted = $number / 1000000;
+            return round($formatted, $precision) . 'M '. SITE_DEVISE;
+        } 
+        
+        // Milliards (B pour Billion en anglais ou G pour Giga)
+        $formatted = $number / 1000000000;
+        return round($formatted, $precision) . 'B '. SITE_DEVISE;
+    }
 }

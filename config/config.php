@@ -63,6 +63,6 @@ define('ARRAY_DOC_CATEGORY',["Documents d'État Civil et d'Identité",'Documents
 define('ARRAY_TYPE_ACTION_HISTO_DOC',['Upload','Remplacement','Suppression_Logique','Rejet']);
 define('ARRAY_USER',['Actif','Inactif']);
 define('ARRAY_DOC_CLES',["Pièce d'Identité", 'Diplôme Principal', 'Contrat de Travail',"Acte de mariage","Acte de naissance"]);
-// define('ARRAY_DOC_STATE', ['ajoute','transmis_sg', 'transmis_dr', 'recu_sg','recu_bureau_dr','valide','rejete','archive']);
+define('ARRAY_STATUT_PRESENCE', ['Present','Retard','Absent','Congé','Maladie']);
 // define('ARRAY_TYPE_RAPPORT',['global','global suivi','global entrant','global sortant']);
 define('RETOUR_EN_ARRIERE',$_SERVER['HTTP_REFERER'] ?? 'javascript:history.back()');
