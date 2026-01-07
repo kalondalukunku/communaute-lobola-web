@@ -2,9 +2,9 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once BASE_PATH . 'vendor/phpmailer/src/PHPMailer.php';
-require_once BASE_PATH . 'vendor/phpmailer/src/SMTP.php';
-require_once BASE_PATH . 'vendor/phpmailer/src/Exception.php';
+require_once BASE_PATH . 'vendor/PHPMailer/src/PHPMailer.php';
+require_once BASE_PATH . 'vendor/PHPMailer/src/SMTP.php';
+require_once BASE_PATH . 'vendor/PHPMailer/src/Exception.php';
 
 class SendMail {
     private $mail;
@@ -20,7 +20,7 @@ class SendMail {
         $this->mail->Host = 'smtp.hostinger.com';
         $this->mail->SMTPAuth = true; 
         $this->mail->Username = ADMIN_EMAIL;
-        $this->mail->Password = 'support@ANKHMOSALI01'; // Mettre le mot de passe réel ici
+        $this->mail->Password = 'support@LOBOLA01'; // Mettre le mot de passe réel ici
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $this->mail->Port = 465;
         $this->mail->CharSet = 'UTF-8';

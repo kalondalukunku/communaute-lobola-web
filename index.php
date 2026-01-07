@@ -1,4 +1,7 @@
 <?php
+    // Définir le fuseau horaire par défaut
+    date_default_timezone_set('Africa/Kinshasa');
+
     // Afficher les erreurs pendanr le dev (desactiver en prod)
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
@@ -8,7 +11,7 @@
     $domain = $_SERVER['HTTP_HOST'];
     $projetFolder = rtrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\', '/', __DIR__)), '/');
 
-    define('ADMIN_EMAIL', 'support@mosali.ankhing.com');
+    define('ADMIN_EMAIL', 'communaute.lobola@ankhing.com');
 
     define('BASE_URL', $protocol . $domain . $projetFolder);
     define('BASE_PATH', __DIR__ . '/');
@@ -44,6 +47,8 @@
         $file = APP_PATH . "helpers/$helper.php";
         if(file_exists($file)) require_once $file;
     }
+
+    $_SESSION['prsc'] = false;
 
     // Démarrer l'application
     $app = new App();

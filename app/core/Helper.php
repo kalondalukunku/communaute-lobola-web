@@ -29,6 +29,13 @@ class Helper {
         return Self::getUrlPart()[0] === $url ? "text-white bg-[var(--color-primary)]" : "text-gray-300 hover:text-white hover:bg-blue-900/50";
     }
 
+    public static function setActiveAdmin($url, $second = false)
+    {
+        if($second !== false) 
+            return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? "bg-primary text-paper font-bold shadow-lg shadow-primary/10" : "hover:bg-white/5 transition text-gray-400 group";
+        return Self::getUrlPart()[0] === $url ? "bg-primary text-paper font-bold shadow-lg shadow-primary/10" : "hover:bg-white/5 transition text-gray-400 group";
+    }
+
     public static function tempsRestant($date) 
     {
         if($date === null) return 'Non défini';
@@ -280,14 +287,20 @@ class Helper {
         }
     }
 
-    public static function returnEstObligatoireStyle($est_obligatoire)
+    public static function returnStatutDcsStyle($statut)
     {
-        switch ($est_obligatoire) {
-            case ARRAY_ISREQUIRED[0]:
+        switch ($statut) {
+            case ARRAY_STATUT_DCS[0]:
                 return 'green';
                 break;
-            case ARRAY_ISREQUIRED[1]:
+            case ARRAY_STATUT_DCS[1]:
                 return 'red';
+                break;
+            case ARRAY_STATUT_DCS[2]:
+                return 'yellow';
+                break;
+            case ARRAY_STATUT_DCS[3]:
+                return 'gray';
                 break;
         }
     }
@@ -425,5 +438,32 @@ class Helper {
         // Milliards (B pour Billion en anglais ou G pour Giga)
         $formatted = $number / 1000000000;
         return round($formatted, $precision) . 'B '. SITE_DEVISE;
+    }
+
+    public static function getFirstTwoInitials(string $name): string 
+    {
+        // 1. Nettoyer les espaces superflus et séparer la chaîne en tableau
+        $words = explode(' ', trim($name));
+        
+        // Filtrer le tableau pour supprimer les entrées vides (doubles espaces)
+        $words = array_filter($words);
+        
+        $initials = "";
+        $count = 0;
+
+        foreach ($words as $word) {
+            // 2. On récupère le premier caractère de chaque mot
+            // mb_substr est utilisé pour gérer correctement les caractères accentués (UTF-8)
+            $initials .= mb_substr($word, 0, 1);
+            $count++;
+
+            // 3. On s'arrête dès qu'on a récupéré 2 initiales
+            if ($count >= 2) {
+                break;
+            }
+        }
+
+        // Retourner en majuscules
+        return mb_strtoupper($initials);
     }
 }

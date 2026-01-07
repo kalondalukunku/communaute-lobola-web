@@ -1,293 +1,420 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 :root {
-  /* NOUVELLE PALETTE DE COULEURS (Orange Vif & Bleu Profond) */
-  --color-primary: #E65100; /* Orange 700 */
-  --color-secondary: #01579B; /* Bleu Profond 800 */
-  --color-bg-light: #f8fafc; /* Slate 50 */
-  --color-bg-dark: #212121;
-}
-.body {
-  font-family: 'Inter', sans-serif;
-  overflow: hidden; /* Empêche le défilement causé par l'animation de fond */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 1rem;
+    --primary: #cfbb30;
+    --primary-dark: #b5a32a;
+    --secondary: #cfba3013;
+    --paper: #000f0e;
+    --text-main: #cfbb30;
+    --font-serif: "Cormorant Garamond", serif;
+    --font-sans: "Lato", sans-serif;
 }
 
-.gradient-bg {
-  /* Dégradé de fond animé utilisant les nouvelles couleurs */
-  background: linear-gradient(-45deg, var(--color-primary), #ff8f00, var(--color-secondary), #4fc3f7);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+/* Classes utilitaires personnalisées utilisant les variables */
+.bg-primary { background-color: var(--primary); }
+.text-primary { color: var(--primary); }
+.bg-secondary { background-color: var(--secondary); }
+.text-secondary { color: var(--secondary); }
+.bg-paper { background-color: var(--paper); }
+.text-main { color: var(--text-main); }
+.font-serif { font-family: var(--font-serif); }
+.font-sans { font-family: var(--font-sans); }
 
-/* Style pour les champs de formulaire en focus */
-.input-focus-style:focus {
-  /* Utilisation de la couleur secondaire (Bleu Profond) pour la bordure */
-  border-color: var(--color-secondary);
-  /* Utilisation de la couleur primaire (Orange Vif) pour l'anneau de focus */
-  box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.4);
+/* Animations et Transitions */
+.fade-in {
+    animation: fadeIn 0.8s ease-out;
 }
 
-/* Animation du bouton de connexion */
-.btn-loading {
-  transition: all 0.3s ease;
-  width: 4rem;
-  /* Utilisation de la couleur secondaire (Bleu Profond) lors du chargement */
-  background-color: var(--color-secondary) !important; 
-  cursor: wait;
-}
-.spinner {
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-left-color: #fff;
-  border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-
-
-
-/* Custom scrollbar for aesthetics */
-.custom-scrollbar::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1; /* Gray 300 */
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #94a3b8; /* Gray 400 */
-}
-/* Style pour les cartes (cohésion avec le login) */
-.card-container {
-    background-color: white;
-    border-radius: 1rem; /* rounded-xl */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-}
-/* Style pour les lignes du tableau */
-.personnel-row {
-    transition: all 0.2s ease;
-}
-.personnel-row:hover {
-    background-color: #f1f5f9; /* slate-100 */
+.card-hover {
+    transition: all 0.3s ease-in-out;
 }
 
-
-
-
-
-/* Style pour les cartes (cohésion avec le login) */
-.card-container {
-    background-color: white;
-    border-radius: 1rem; /* rounded-xl */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-}
-.active-tab {
-    color: var(--color-secondary);
-    border-bottom: 3px solid var(--color-primary);
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* Styles de base pour la transition */
-.tab-content {
-    display: none;
-    /* Prépare l'élément pour la transition de fondu (opacity) */
-    transition: opacity 300ms ease-in-out;
-    opacity: 0;
-}
-.tab-content.active {
-    display: block;
-    /* L'opacité est gérée par JS pour la transition */
+/* Surcharge des composants spécifiques */
+header {
+    border-bottom: 1px solid rgba(181, 163, 42, 0.2);
 }
 
+.btn-listen {
+    background-color: var(--primary);
+    color: var(--secondary);
+    transition: background-color 0.2s;
+}
 
+.btn-listen:hover {
+    background-color: var(--primary-dark);
+}
 
+.status-badge {
+    background-color: rgba(207, 187, 48, 0.2);
+    color: var(--secondary);
+    border: 1px solid rgba(207, 187, 48, 0.3);
+}
 
+/* Styles Spécifiques au Lecteur */
+.audio-player-container {
+    background: var(--paper);
+    border: 1px solid rgba(207, 187, 48, 0.2);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05);
+}
 
-/* Style des champs de formulaire */
-.form-input {
+.color-border {
+    border: 1px solid rgba(207, 187, 48, 0.2);
+}
+
+.color-border-b {
+    border-bottom: 1px solid rgba(207, 187, 48, 0.2);
+}
+
+.progress-bar {
     width: 100%;
-    padding: 0.65rem 1rem;
-    border-radius: 0.5rem; /* rounded-lg */
-    border: 1px solid #d1d5db; /* gray-300 */
-    transition: border-color 150ms, box-shadow 150ms;
+    height: 6px;
+    background: #EDF2F7;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
 }
-.form-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.3); /* Ring autour du champ focus */
+
+.progress-filled {
+    width: 35%;
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    position: absolute;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: var(--primary);
+    color: var(--paper);
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+/* Zone de texte */
+textarea {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 100%;
+    min-height: 150px;
+    font-family: var(--font-sans);
+    resize: vertical;
+}
+
+textarea:focus {
     outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(207, 187, 48, 0.1);
+    color: var(--text-main);
+}
+
+input, textarea, select {
+    color: var(--text-main);
+}
+
+.btn-action {
+    background-color: var(--primary);
+    color: var(--paper);
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.btn-action:hover {
+    opacity: 0.9;
 }
 
 
+.member-card {
+    background: var(--paper);
+    border: 1px solid rgba(207, 187, 48, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
 
-/* Style pour la modale */
-.modal-overlay {
-    position: fixed;
+.member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+}
+
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    background: var(--secondary);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.badge-status {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(207, 187, 48, 0.1);
+    color: var(--primary-dark);
+    font-weight: bold;
+}
+
+.search-bar {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    background: var(--paper);
+}
+
+.search-bar:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+
+.document-container {
+    background: rgba(255, 255, 255, 0.932);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    border: 1px solid rgba(207, 187, 48, 0.2);
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.document-container::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    margin: 0;
+    height: 10px;
+    border-radius: 15px 15px 0 0;
+    background: var(--primary);
+}
+
+.seal {
+    width: 80px;
+    height: 80px;
+    border: 2px double var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    margin: 0 auto 2rem;
+    transform: rotate(-15deg);
+    font-family: var(--font-serif);
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-align: center;
+    line-height: 1;
+}
+
+.signature-box {
+    border-bottom: 1px solid #CBD5E0;
+    width: 100%;
+    max-width: 300px;
+    height: 60px;
+    margin-top: 1rem;
+}
+
+.btn-sign {
+    background-color: var(--paper);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-sign:hover {
+    background-color: var(--primary-dark);
+    color: var(--paper);
+    transform: scale(1.02);
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary);
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+
+.file-upload-wrapper {
+    position: relative;
+    border: 2px dashed var(--primary);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background-color: var(--paper);
+}
+
+.file-upload-wrapper:hover {
+    border-color: var(--primary);
+    background-color: #012523;
+}
+
+.file-upload-input {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 50;
+    opacity: 0;
+    cursor: pointer;
 }
-.modal-content {
-    background-color: white;
+
+
+.status-container {
+    background: rgba(255, 255, 255, 0.932);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    border: 1px solid rgba(207, 187, 48, 0.2);
+    border-radius: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.payment-card {
+    background: var(--paper);
+    border: 2px solid var(--primary);
+    border-radius: 16px;
     padding: 1.5rem;
-    border-radius: 1rem;
-    width: 90%;
-    max-width: 500px;
-    animation: fadeIn 0.3s ease-out;
+    position: relative;
 }
+
+.copy-btn {
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.copy-btn:hover {
+    opacity: 0.7;
+}
+
+.loading-dots:after {
+    content: '.';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80%, 100% { content: ''; }
+}
+
+
+/* Animation d'entrée et sortie */
+.notification-slide {
+    animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.progress-line {
+    height: 3px;
+    background: rgba(255,255,255,0.3);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+
+.file-upload-wrapper.file-selected {
+    border-style: solid;
+    border-color: rgb(207, 187, 48);
+    /* background-color: rgba(207, 187, 48, 0.05); */
+}
+
+@keyframes bounce-short {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+.animate-bounce-short {
+    animation: bounce-short 0.5s ease-out;
+}
+
+/* Style spécifique pour le focus du select */
+select:focus {
+    border-color: #CFBB30;
+}
+
+
+.audio-player-mini {
+    background: linear-gradient(to right, var(--paper), #0a2520);
+}
+
+
+.glass-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.input-group:focus-within label {
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.custom-input {
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(207, 187, 48, 0.3);
+}
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-
-
-/* Style pour les barres de graphique simulées */
-.chart-bar-container {
-    height: 200px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-.chart-bar-item {
-    width: 15%;
-    margin: 0 2%;
-    position: relative;
-    text-align: center;
-}
-.chart-bar {
-    background-color: var(--color-primary);
-    transition: height 0.5s ease-out;
-    border-radius: 4px 4px 0 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-.bar-label {
-    position: absolute;
-    top: -20px;
-    font-size: 0.75rem; /* text-xs */
-    font-weight: 600; /* font-semibold */
-    color: #4b5563; /* gray-600 */
-}
-
-
-
-
-
-/* Style pour l'onglet ACTIF (renommé en js-tab-button) */
-.js-tab-button.active {
-    border-color: var(--color-primary);
-    color: var(--color-secondary);
-    font-weight: 600;
-}
-
-
-
-#flash-container {
-    position: fixed;
-    top: calc(var(--navbar-height) + 1rem); /* 1rem sous la navbar */
-    right: 1rem;
-    z-index: 1000; /* Augmenté pour garantir qu'il soit au-dessus de tous les autres éléments (modales, menus, etc.) */
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem; /* Espace entre les messages si plusieurs sont actifs */
-    max-width: 300px;
-    pointer-events: none; /* Permet de cliquer à travers le conteneur vide */
-}
-
-/* Style de base pour un message */
-.flash-message {
-    pointer-events: auto; /* Rétablit l'interactivité sur le message lui-même */
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Ombre plus prononcée pour visibilité */
-    /* Animation par défaut: Masqué et décalé vers la droite */
-    opacity: 0;
-    transform: translateX(100%);
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-    display: flex; /* Utilisation de flex pour aligner l'icône et le texte */
-    align-items: center;
-    gap: 0.75rem;
-}
-
-/* Classe pour rendre le message visible */
-.flash-message.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* Styles spécifiques aux types de messages */
-
-/* Succès (Vert) */
-.flash-message.success {
-    background-color: #d1fae5; /* Green 100 */
-    color: #065f46; /* Green 800 */
-    border-left: 5px solid #10b981; /* Green 500 */
-}
-.flash-message.success .flash-title {
-    color: #065f46;
-}
-
-/* Erreur (Rouge) */
-.flash-message.error {
-    background-color: #fee2e2; /* Red 100 */
-    color: #991b1b; /* Red 800 */
-    border-left: 5px solid #ef4444; /* Red 500 */
-}
-.flash-message.error .flash-title {
-    color: #991b1b;
-}
-
-/* Avertissement (Jaune/Ambre) */
-.flash-message.warning {
-    background-color: #fffbeb; /* Yellow 100 */
-    color: #92400e; /* Yellow 800 */
-    border-left: 5px solid var(--color-primary); /* Utilisation de la couleur primaire pour l'alerte */
-}
-.flash-message.warning .flash-title {
-    color: #92400e;
-}
-
-.flash-title {
-    font-weight: bold;
-    font-size: 0.875rem; /* text-sm */
-}
-.flash-text {
-    font-size: 0.75rem; /* text-xs */
-}
-
-
-
-.dropdown-menu {
-    display: none;
-    opacity: 0;
-    transform: scale(1.95);
-    transition: opacity 1.9s ease-out, transform 1.9s ease-out;
-}
-.dropdown-menu.show {
-    display: block;
-    opacity: 1;
-    transform: scale(1);
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
 }

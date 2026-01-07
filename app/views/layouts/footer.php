@@ -1,12 +1,11 @@
-    <div class="container mx-auto mb-5">
-        <!-- Footer -->
-        <footer class="mt-12 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
-            &copy; 2025 Organisation Publique. Version Intranet 2.2.
-        </footer>
-    </div>
+    <footer class="bg-paper color-border text-primary py-12 mt-20 border-t border-primary">
+        <div class="container mx-auto px-6 text-center text-sm">
+            <p>&copy; <?= date('Y') ?> Le Sanctuaire. Le respect de la vie privée est au cœur de notre engagement.</p>
+        </div>
+    </footer>
 
     <!-- Script pour le menu toggle -->
-    <script src="<?= ASSETS ?>js/modules/menuToggle.js"></script>
+    <script src="<?= ASSETS ?>js/modules/main.js"></script>
     <!-- Fichier principal -->
     <script src="<?= ASSETS ?>js/app.js"></script>
 </body>

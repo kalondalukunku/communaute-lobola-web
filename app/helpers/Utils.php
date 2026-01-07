@@ -134,7 +134,7 @@ class Utils {
             $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($docPostViewFileEnc));
             $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.pdf";
 
-            $res = $courierModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_PDF);
+            $res = $courierModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
 
             if($res === true)
             {
@@ -275,11 +275,64 @@ class Utils {
         $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($chemin_fichier_stockage));
         $pathFilePdf = FILE_VIEW_FOLDER_PATH . $namefile;
 
-        return $classModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_PDF);
+        return $classModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
     }
 
     public static function formatNamePsn($Personnel)
     {
         return str_replace(" ","_",$Personnel->nom .'_'. $Personnel->postnom);
+    }
+
+    public static function formatFileSize(int $bytes) 
+    {
+        if ($bytes >= 1073741824) {
+            return round($bytes / 1073741824, 2) . ' Go';
+        } elseif ($bytes >= 1048576) {
+            return round($bytes / 1048576, 2) . ' Mo';
+        } elseif ($bytes >= 1024) {
+            return round($bytes / 1024, 2) . ' Ko';
+        }
+        return $bytes . ' octets';
+    }
+
+    public static function getMonthsByModalite($modalite, $montant) 
+    {
+        switch ($modalite) {
+            case (int) self::getMonthsNumber($modalite) * $montant;
+            case (int) self::getMonthsNumber($modalite) * $montant;
+            case (int) self::getMonthsNumber($modalite) * $montant;
+            case (int) self::getMonthsNumber($modalite) * $montant;
+        }
+    }
+
+    public static function getMonthsNumber($modalite) 
+    {
+        switch ($modalite) {
+            case ARRAY_TYPE_ENGAGEMENT[0]:  return 1;
+            case ARRAY_TYPE_ENGAGEMENT[1]:  return 3;
+            case ARRAY_TYPE_ENGAGEMENT[2]:  return 6;
+            case ARRAY_TYPE_ENGAGEMENT[3]:  return 12;
+        }
+    }
+
+    public static function getExpiryDateEngagement($format = 'Y-m-d H:i:s') 
+    {
+        $now = new DateTimeImmutable();
+        $futureDate = $now->modify('+1 year');
+        
+        return $futureDate->format($format);
+    }   
+
+    public static function generateRandomPassword($length = 8) 
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+        $password = '';
+        $maxIndex = strlen($chars) - 1;
+
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, $maxIndex)];
+        }
+
+        return $password;
     }
 }

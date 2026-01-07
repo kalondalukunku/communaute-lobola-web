@@ -2,164 +2,241 @@
   include APP_PATH . 'views/layouts/header.php'; 
 ?>
 </head>
-<section class="flex flex-col mt-[3.5rem]">
     
     <?php 
         include APP_PATH . 'views/layouts/navbar.php';
         include APP_PATH . 'templates/alertView.php'; 
     ?>
-    
-    <!-- Zone de Contenu Principale (Plein Écran) -->
-    <div class="flex-1 p-4 sm:p-8">
-        
-        <!-- Header du Contenu -->
-        <header class="mb-2 flex flex-col md:flex-row justify-between items-start md:items-center">
-            <h1 class="text-xl font-bold text-gray-900 mb-4 md:mb-0">
-                📋 Fiches du Personnel (<?= $totalrecords ?>)
-            </h1>
-            <div class="flex items-center space-x-3">
-                <!-- Bouton d'Action Primaire (Orange) -->
-                <a href="/psn/add" class="flex items-center space-x-2 bg-[var(--color-primary)] text-sm text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-orange-800 transition duration-150 transform hover:scale-[1.01]">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Ajouter un Personnel</span>
-                </a>
+
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="fade-in">
+            <!-- Section Titre -->
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-primary/10 pb-6">
+                <div class="max-w-2xl">
+                    <h2 class="font-serif text-5xl text-primary mb-4">Bibliothèque Sacrée</h2>
+                    <p class="text-gray-500 text-lg italic">"La sagesse ne s'apprend pas, elle se reconnaît." Explorez les enseignements audio du mois.</p>
+                </div>
+                <div class="bg-green-100 text-green-800 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 mt-6 md:mt-0 shadow-sm border border-green-200">
+                    <i class="fas fa-check-circle"></i> Engagement Actif • Décembre 2023
+                </div>
             </div>
-        </header>
-        
-        <!-- Bar d'Outils et Filtres -->
-        <div class="card-container p-4 mb-6 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-center">
-            
-            <!-- Recherche Globale -->
-            <div class="w-full md:w-1/3 relative">
-                <form action="" method="get">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" name="q" value="<?= $_GET['q'] ?? '' ?>" placeholder="Rechercher par Nom, ID, ou Fonction..."
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[var(--color-primary)] transition duration-150">
+
+            <!-- Grille des Enseignements -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                
+                <!-- Carte Enseignement 1 -->
+                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
+                        <i class="fas fa-om text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Méditation</div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">L'Essence de la Paix Intérieure</h3>
+                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
+                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 12 Oct 2023</span>
+                            <span><i class="far fa-clock mr-1 text-accent"></i> 45 min</span>
+                        </div>
+                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Une exploration profonde des mécanismes de l'ego et comment trouver le silence au milieu du chaos du monde moderne.</p>
+                        <a href="enseignement-1.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
+                            <span>Écouter l'Enseignement</span>
+                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Carte Enseignement 2 -->
+                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
+                        <i class="fas fa-leaf text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Philosophie</div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">Les Racines de l'Ancrage</h3>
+                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
+                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 28 Oct 2023</span>
+                            <span><i class="far fa-clock mr-1 text-accent"></i> 62 min</span>
+                        </div>
+                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Pourquoi nous sentons-nous déconnectés ? Ce cours audio travaille sur le premier centre énergétique et notre lien à la Terre.</p>
+                        <a href="enseignement-2.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
+                            <span>Écouter l'Enseignement</span>
+                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Carte Enseignement 3 -->
+                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
+                        <i class="fas fa-heart text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
+                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Cœur</div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">Le Pardon Radical</h3>
+                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
+                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 05 Nov 2023</span>
+                            <span><i class="far fa-clock mr-1 text-accent"></i> 38 min</span>
+                        </div>
+                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Le pardon n'est pas pour l'autre, mais pour soi. Libérez-vous du poids du passé grâce à cet enseignement transformateur.</p>
+                        <a href="enseignement-3.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
+                            <span>Écouter l'Enseignement</span>
+                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- TEMPLATES (Cachés, utilisés par JS) -->
+
+    <!-- VUE 1: LOGIN -->
+    <!-- <template id="tpl-login">
+        <div class="flex flex-col items-center justify-center min-h-[60vh] fade-in">
+            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md border-t-4 border-primary">
+                <div class="text-center mb-8">
+                    <h2 class="font-serif text-3xl text-primary mb-2">Espace Membre</h2>
+                    <p class="text-gray-500 italic">Accédez aux enseignements sacrés</p>
+                </div>
+                <form onsubmit="app.handleLogin(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Identifiant</label>
+                        <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="votre@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                        <input type="password" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded hover:bg-primaryLight transition duration-300 font-semibold shadow-md">
+                        Entrer dans le Sanctuaire
+                    </button>
                 </form>
+                <div class="mt-6 text-center text-xs text-gray-400">
+                    <p>L'accès est réservé aux membres engagés.</p>
+                </div>
             </div>
+        </div>
+    </template> -->
 
-            <!-- Filtre Statut -->
-            <div class="inline-flex flex-wrap gap-1 end-0 rounded-xl bg-white p-1 shadow-md border border-gray-200">
-                <?php
-                    $full_uri = $_SERVER['REQUEST_URI'] ?? '/';
-                    $path_only = parse_url($full_uri, PHP_URL_PATH);
-                    $clean_path = rtrim($path_only, '/');
+    <!-- VUE 2: RENOUVELLEMENT ENGAGEMENT (BLOCAGE) -->
+    <!-- <template id="tpl-engagement">
+        <div class="max-w-3xl mx-auto mt-10 fade-in">
+            <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+                <div class="bg-red-50 p-6 border-b border-red-100 flex items-center gap-4">
+                    <div class="bg-red-100 p-3 rounded-full text-red-600">
+                        <i class="fas fa-lock text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-red-800">Renouvellement Requis</h2>
+                        <p class="text-red-600 text-sm">Votre engagement éthique a expiré. Veuillez le renouveler pour accéder aux enseignements.</p>
+                    </div>
+                </div>
+
+                <div class="p-8 md:p-12 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]">
+                    <h3 class="font-serif text-3xl text-center text-primary mb-8">Charte d'Engagement Spirituel</h3>
                     
-                    $psnStatus = [
-                        'actif' => 'Actif',
-                        'conge' => 'En Congé',
-                        'retraite' => 'Retraité',
-                        'inactif' => 'Inactif',
-                    ];
+                    <div class="prose max-w-none text-justify text-gray-700 mb-8 p-6 border border-primary/20 bg-white/50 rounded italic font-serif leading-relaxed">
+                        <p>Je soussigné(e), en tant que membre de cette communauté :</p>
+                        <p class="mt-4">- M'engage à respecter la confidentialité des enseignements partagés ici.</p>
+                        <p>- M'engage à utiliser ces connaissances pour mon élévation personnelle et le bien d'autrui.</p>
+                        <p>- Reconnais que cet accès est un privilège qui nécessite une pratique régulière et sincère.</p>
+                        <p>- Renouvelle mon vœu de bienveillance envers le formateur et les autres membres.</p>
+                        <p class="mt-6 text-right font-bold text-primary">Fait pour valoir ce que de droit.</p>
+                    </div>
 
-                    $current_status = $_GET['stt'] ?? 'actif';
-
-                    foreach ($psnStatus as $key => $label) 
-                    {
-                        $is_active = ($current_status === $key);
-
-                        $active_class = $is_active
-                            ? 'bg-[var(--color-primary)] text-white shadow-lg filter-btn' // Active
-                            : 'text-gray-600 hover:bg-gray-100 filter-btn'; // Inactive
-
-                        $new_params = $_GET;
-
-                        $new_params['stt'] = $key;
-
-                        if(isset($new_params['page'])) unset($new_params['page']);
-                        // if(isset($new_params['q'])) unset($new_params['q']);
-
-                        $url_params = http_build_query($new_params);
-
-                        echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium rounded-lg {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
-                    }
-                    ?>
-            </div>
-        </div>
-
-        <?php if(count($allPersonnels) > 0): ?>
-            <!-- Tableau des Personnels (Vue Principale) -->
-            <div class="card-container overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Personnel
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                                Fonction / Service
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                                Date d'Entrée
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Statut
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <form onsubmit="app.signContract(event)" class="flex flex-col items-center gap-6">
+                        <label class="flex items-center gap-3 cursor-pointer select-none">
+                            <input type="checkbox" required class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded">
+                            <span class="text-gray-800">Je lis, j'accepte et je signe cet engagement pour ce mois.</span>
+                        </label>
                         
-                            <?php foreach($allPersonnels as $personnel): ?>
-                                <tr class="personnel-row">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <img class="h-10 w-10 rounded-full object-cover border-2 border-[var(--color-primary)] mb-4 shadow-lg" 
-                                                src="https://placehold.co/300x300/1565C0/FFFFFF?text=<?= Helper::getFirstLetter($personnel->nom) . Helper::getFirstLetter($personnel->postnom) ?>" 
-                                                alt="Photo du Personnel"
-                                                onerror="this.onerror=null; this.src='https://placehold.co/300x300/1565C0/FFFFFF?text=JD'">
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900"><?= $personnel->nom .' '. $personnel->postnom  ?></div>
-                                                <div class="text-sm text-gray-500"><?= $personnel->email ?></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                                        <div class="text-sm text-gray-900"><?= $personnel->poste_actuel ?></div>
-                                        <div class="text-sm text-gray-500"><?= $personnel->nom_service ?></div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                                        <?= Helper::formatDate($personnel->date_engagement) ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="px-3 inline-flex text-xs leading-5 font-semibold rounded-full bg-<?= Helper::returnStatutPsnStyle($personnel->statut_emploi) ?>-100 text-<?= Helper::returnStatutPsnStyle($personnel->statut_emploi) ?>-800">
-                                            <?= $personnel->statut_emploi ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                                        <a href="psn/shw/<?= $personnel->personnel_id ?>" class="text-[var(--color-primary)] hover:text-blue-700" title="Voir Fiche">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="psn/edt/<?= $personnel->personnel_id ?>" class="text-gray-500 hover:text-[var(--color-secondary)]" title="Éditer">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <!-- <button class="text-red-500 hover:text-red-700" title="Archiver">
-                                            <i class="fas fa-archive"></i>
-                                        </button> -->
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+                        <div class="w-full h-px bg-gray-200 my-2"></div>
 
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-lg border border-gray-100">
-            <p class='text-sm text-gray-600'>Page <?= $currentPage ?> sur <?= $totalPages ?> (<?= $totalrecords ?> enregistrements)</p>
-
-            <div class="flex space-x-2">
-                <?php Helper::generatePaginationFull($currentPage, $totalPages); ?>
+                        <button type="submit" class="bg-accent text-primary px-8 py-3 rounded-full font-bold hover:bg-yellow-500 transition shadow-lg flex items-center gap-2">
+                            <i class="fas fa-file-signature"></i>
+                            Signer et Accéder
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+    </template> -->
 
-        <?php else: ?>
-            <h1 class="text-md text-center font-bold text-gray-900 pt-8 mb-4 md:mb-0">
-                📋 Aucun fiche du personnel trouvé !
-            </h1>
-        <?php endif; ?>
-    </div>
-</section>
+    <!-- VUE 3: DASHBOARD (LISTE AUDIOS) -->
+    <!-- <template id="tpl-dashboard">
+        <div class="fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-primary/10 pb-4">
+                <div>
+                    <h2 class="font-serif text-4xl text-primary">Enseignements</h2>
+                    <p class="text-gray-500 mt-2">Explorez la bibliothèque des sagesses audio.</p>
+                </div>
+                <div class="bg-green-50 text-green-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 mt-4 md:mt-0">
+                    <i class="fas fa-check-circle"></i> Engagement Actif
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="audio-grid">
+            </div>
+        </div>
+    </template> -->
+
+    <!-- VUE 4: DÉTAIL AUDIO & Q&A -->
+    <!-- <template id="tpl-audio-detail">
+        <div class="fade-in max-w-4xl mx-auto">
+            <button onclick="app.loadView('dashboard')" class="text-gray-500 hover:text-primary mb-6 flex items-center gap-2 transition">
+                <i class="fas fa-arrow-left"></i> Retour aux enseignements
+            </button>
+
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden mb-8">
+                <div class="bg-primary p-8 text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
+                        <i class="fas fa-om text-9xl"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="bg-accent text-primary text-xs font-bold px-2 py-1 rounded mb-2 inline-block" id="detail-category">Catégorie</span>
+                        <h2 class="font-serif text-3xl md:text-4xl mb-2" id="detail-title">Titre de l'enseignement</h2>
+                        <p class="opacity-80 flex items-center gap-4 text-sm">
+                            <span><i class="far fa-calendar-alt mr-1"></i> <span id="detail-date">Date</span></span>
+                            <span><i class="far fa-clock mr-1"></i> <span id="detail-duration">Durée</span></span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                        <audio id="main-audio-player" class="w-full" controls controlsList="nodownload">
+                            <source src="" type="audio/mpeg">
+                            Votre navigateur ne supporte pas l'audio.
+                        </audio>
+                        <p class="text-xs text-center text-gray-400 mt-2"><i class="fas fa-shield-alt"></i> Téléchargement désactivé - Écoute en streaming uniquement</p>
+                    </div>
+
+                    <div class="prose max-w-none text-gray-200 mb-6">
+                        <h4 class="font-bold text-primary mb-2">À propos de cet enseignement</h4>
+                        <p id="detail-desc">Description...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h3 class="font-serif text-2xl text-primary mb-6 flex items-center gap-3">
+                    <i class="far fa-comments"></i> Questions & Réponses
+                </h3>
+
+                <form onsubmit="app.postQuestion(event)" class="mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Poser une question au formateur</label>
+                    <textarea required id="question-input" rows="3" class="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none mb-3" placeholder="Votre question sur cet enseignement..."></textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-primary text-white px-5 py-2 rounded hover:bg-primaryLight transition text-sm">
+                            Envoyer la question
+                        </button>
+                    </div>
+                </form>
+
+                <div class="space-y-6" id="qa-list">
+                </div>
+            </div>
+        </div>
+    </template> -->
 
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>
