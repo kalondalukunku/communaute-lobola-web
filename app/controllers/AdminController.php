@@ -17,6 +17,7 @@ class AdminController extends Controller
     
     public function __construct()
     {        
+
         $this->adminModel = new Admin();
         $this->MembreModel = new Membre();
         $this->EnseignementModel = new Enseignement();
@@ -31,7 +32,31 @@ class AdminController extends Controller
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
 
-        $allMembres = $this->MembreModel->findAll([], [], $cacheKey);
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $sttGet = basename($_GET['stt'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
+
+        $stt = "";
+        
+        if($sttGet === 'active' || !isset($_GET['stt']))
+            $stt = ARRAY_STATUS_MEMBER[2];
+        elseif($sttGet === 'att_engagement')
+            $stt = ARRAY_STATUS_MEMBER[0];
+        elseif($sttGet === 'att_validation')
+            $stt = ARRAY_STATUS_MEMBER[1];
+        elseif($sttGet === 'suspended')
+            $stt = ARRAY_STATUS_MEMBER[3];
+        elseif($sttGet === 'inactive')
+            $stt = ARRAY_STATUS_MEMBER[4];
+
+        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt], 10);
+        $allMembres = $results['data'];
+        // $totalrecords = $results['total_records'];
+        // $currentPage = $results['current_page'];
+        // $parPage = $results['per_page'];
+        // $totalPages = $results['total_pages'];
+
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
         $totalPayment = $this->PaymentModel->getTotalPayments();
@@ -114,15 +139,47 @@ class AdminController extends Controller
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
+        
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $sttGet = basename($_GET['stt'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
 
-        $allMembres = $this->MembreModel->findAll([], [], $cacheKey);
-        $NbrAllMembres = $this->MembreModel->countAll([], $cacheKey);
-        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
+        $stt = "";
+        
+        if($sttGet === 'active' || !isset($_GET['stt']))
+            $stt = ARRAY_STATUS_MEMBER[2];
+        elseif($sttGet === 'att_engagement')
+            $stt = ARRAY_STATUS_MEMBER[0];
+        elseif($sttGet === 'att_validation')
+            $stt = ARRAY_STATUS_MEMBER[1];
+        elseif($sttGet === 'suspended')
+            $stt = ARRAY_STATUS_MEMBER[3];
+        elseif($sttGet === 'inactive')
+            $stt = ARRAY_STATUS_MEMBER[4];
+
+        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
+        $allMembres = $results['data'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
+
+        $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
+        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => [ARRAY_STATUS_MEMBER[0], ARRAY_STATUS_MEMBER[1]]], $cacheKey);
+        $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
+        $membresEngages = $this->MembreModel->countEngagedMembers();
 
         $data = [
             'allMembres' => $allMembres,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
             'NbrAllMembres' => $NbrAllMembres,
-            'NbrAllMembresAttente' => $NbrAllMembresAttente
+            'NbrAllMembresAttente' => $NbrAllMembresAttente,
+            'totalPaymentMonth' => $totalPaymentMonth,
+            'membresEngages' => $membresEngages
         ];
 
         foreach($allMembres as $membre) {
@@ -137,6 +194,20 @@ class AdminController extends Controller
                 {
                     Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
                     unlink($pathFilePdf);
+                }
+            }
+            
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
+            {
+                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
+                
+                if($mId === $membre->member_id)
+                {
+                    if($this->MembreModel->delete($membre->member_id))
+                    {
+                        Session::setFlash('success', 'Membre supprimé avec succès.');
+                        Utils::redirect('membres');
+                    }    
                 }
             }
         }
@@ -162,26 +233,44 @@ class AdminController extends Controller
             return;
         }
 
-        $nextPayment = $this->PaymentModel->getPayment($membreId, $Membre->engagement_id);
+        $Payment = $this->PaymentModel->getPayment($membreId, $Membre->engagement_id);
 
         $data = [
             'membreId' => $membreId,
             'Membre' => $Membre,
-            'nextPayment' => $nextPayment,
+            'Payment' => $Payment,
             'name' => $name
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_eng_rejeted'])) 
+        {
+            $updateData = [
+                'member_id' => $membreId,
+                'statut' => ARRAY_STATUS_ENGAGEMENT[2]
+            ];
+            $updateDataMembre = [
+                'member_id' => $membreId,
+                'status' => ARRAY_STATUS_MEMBER[4]
+            ];
+            if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
+            {
+                Session::setFlash('success', "Engagement rejeté avec succès.");
+                Utils::redirect('../membres');
+            }
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_approuve'])) 
         {
             if(isset($_POST['cllil_membre_approuve'])) {
-                // Approve engagement logic here
+                
+                $statusM = !$Payment ? ARRAY_STATUS_MEMBER[1] : ARRAY_STATUS_MEMBER[2];
                 $updateData = [
                     'member_id' => $membreId,
                     'statut' => ARRAY_STATUS_ENGAGEMENT[0]
                 ];
                 $updateDataMembre = [
                     'member_id' => $membreId,
-                    'status' => ARRAY_STATUS_MEMBER[1]
+                    'status' => $statusM
                 ];
                 if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
                 {
@@ -195,10 +284,11 @@ class AdminController extends Controller
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_validate'])) 
         {
             if(isset($_POST['cllil_membre_validate'])) 
-                {
+            {
+                $statusM = $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] ? ARRAY_STATUS_MEMBER[2] : $Membre->status;
                 $updateDataMembre = [
                     'member_id' => $membreId,
-                    'status' => ARRAY_STATUS_MEMBER[2]
+                    'status' => $statusM
                 ];
                 $payID = Utils::generateUuidV4();
                 $paymentProchain = date('Y-m-d', strtotime("+". Utils::getMonthsNumber($Membre->modalite_engagement) ." months"));
@@ -223,37 +313,153 @@ class AdminController extends Controller
         }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_download_engagement'.$membreId]))
+        {
+            $name_file = strtolower($Membre->nom_postnom .'_-_engagement.'. $Membre->document_ext);
+
+            $res = Utils::dechiffreflpdf($this->EnseignementModel, $Membre->document_path, $name_file);
+            $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name_file;
+
+            if($res === true && file_exists($pathFilePdf))
             {
-                $name_file = strtolower($Membre->nom_postnom .'_-_engagement.'. $Membre->document_ext);
+                $this->EnseignementModel->download_file($pathFilePdf, $Membre->document_header_type);
+            }
+        }
 
-                $res = Utils::dechiffreflpdf($this->EnseignementModel, $Membre->document_path, $name_file);
-                $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name_file;
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'])) 
+        {
+            
+            if($this->MembreModel->delete($membreId))
+            {
+                Session::setFlash('success', 'Membre supprimé avec succès.');
+                Utils::redirect('../membres');
+            }
+            
+        }
 
-                if($res === true && file_exists($pathFilePdf))
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $Payment)
+        {
+            if($Membre->status === ARRAY_STATUS_MEMBER[2])
+            {
+                if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_suspended']))   
                 {
-                    $this->EnseignementModel->download_file($pathFilePdf, $Membre->document_header_type);
+                    $updateDataMembre = [
+                        'member_id' => $membreId,
+                        'status' => ARRAY_STATUS_MEMBER[3]
+                    ];
+                    if($this->MembreModel->update($updateDataMembre, 'member_id'))
+                    {
+                        Session::setFlash('success', 'Membre suspendu avec succès.');
+                        Utils::redirect('../membres');
+                    }
+                }   
+                if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_desactive'])) 
+                {
+                    $updateDataMembre = [
+                        'member_id' => $membreId,
+                        'status' => ARRAY_STATUS_MEMBER[4]
+                    ];
+                    if($this->MembreModel->update($updateDataMembre, 'member_id'))
+                    {
+                        Session::setFlash('success', 'Membre désactivé avec succès.');
+                        Utils::redirect('../membres');
+                    }
                 }
             }
+            elseif($Membre->status === ARRAY_STATUS_MEMBER[3] || $Membre->status === ARRAY_STATUS_MEMBER[4])
+            {
+                if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_active'])) 
+                {
+                    $updateDataMembre = [
+                        'member_id' => $membreId,
+                        'status' => ARRAY_STATUS_MEMBER[2]
+                    ];
+                    if($this->MembreModel->update($updateDataMembre, 'member_id'))
+                    {
+                        Session::setFlash('success', 'Membre réactivé avec succès.');
+                        Utils::redirect('../membres');
+                    }
+                }
+            }
+        }
 
+        
         $this->view('admin/membre', $data);
     }
 
-    public function enseignements() 
+    public function enseignants() 
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
+        
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $sttGet = basename($_GET['stt'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
 
-        $allMembres = $this->MembreModel->findAll([], [], $cacheKey);
-        $NbrAllMembres = $this->MembreModel->countAll([], $cacheKey);
+        $stt = "";
+        
+        if($sttGet === 'active' || !isset($_GET['stt']))
+            $stt = ARRAY_STATUS_MEMBER[2];
+        elseif($sttGet === 'att_engagement')
+            $stt = ARRAY_STATUS_MEMBER[0];
+        elseif($sttGet === 'att_validation')
+            $stt = ARRAY_STATUS_MEMBER[1];
+        elseif($sttGet === 'suspended')
+            $stt = ARRAY_STATUS_MEMBER[3];
+        elseif($sttGet === 'inactive')
+            $stt = ARRAY_STATUS_MEMBER[4];
+
+        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
+        $allMembres = $results['data'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
+
+        $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
 
         $data = [
             'allMembres' => $allMembres,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente
         ];
 
-        $this->view('admin/index', $data);
+        foreach($allMembres as $membre) {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_vwfl'.$membre->member_id]))
+            {
+                $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
+
+                $res = $this->EnseignementModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
+
+                if($res === true)
+                {
+                    Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
+                    unlink($pathFilePdf);
+                }
+            }
+            
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
+            {
+                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
+                
+                if($mId === $membre->member_id)
+                {
+                    if($this->MembreModel->delete($membre->member_id))
+                    {
+                        Session::setFlash('success', 'Membre supprimé avec succès.');
+                        Utils::redirect('membres');
+                    }    
+                }
+            }
+        }
+
+        $this->view('admin/enseignants', $data);
     }
 
     public function login() 

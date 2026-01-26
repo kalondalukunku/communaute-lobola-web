@@ -297,12 +297,7 @@ class Utils {
 
     public static function getMonthsByModalite($modalite, $montant) 
     {
-        switch ($modalite) {
-            case (int) self::getMonthsNumber($modalite) * $montant;
-            case (int) self::getMonthsNumber($modalite) * $montant;
-            case (int) self::getMonthsNumber($modalite) * $montant;
-            case (int) self::getMonthsNumber($modalite) * $montant;
-        }
+        return (int) self::getMonthsNumber($modalite) * $montant;                
     }
 
     public static function getMonthsNumber($modalite) 
@@ -334,5 +329,34 @@ class Utils {
         }
 
         return $password;
+    }
+
+    public static function getUserIP() 
+    {
+        $keys = [
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_X_CLUSTER_CLIENT_IP',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR'
+        ];
+
+        foreach ($keys as $key) {
+            if (isset($_SERVER[$key])) {
+                $ipList = explode(',', $_SERVER[$key]); // Si plusieurs IP (X-Forwarded-For)
+                foreach ($ipList as $ip) {
+                    $ip = trim($ip);
+                    // Vérifie que l'IP est valide (IPv4 ou IPv6)
+                    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                        return $ip;
+                    }
+                }
+            }
+        }
+
+        // Si aucune IP publique trouvée
+        return $_SERVER['REMOTE_ADDR'] ?? '';
     }
 }

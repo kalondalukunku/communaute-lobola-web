@@ -5,7 +5,7 @@
     </footer>
 
     <!-- Script pour le menu toggle -->
-    <script src="<?= ASSETS ?>js/modules/main.js"></script>
+    <!-- <script src="<?= ASSETS ?>js/modules/main.js"></script> -->
     <!-- Fichier principal -->
     <script src="<?= ASSETS ?>js/app.js"></script>
 </body>

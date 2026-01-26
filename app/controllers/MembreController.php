@@ -34,8 +34,156 @@ class MembreController extends Controller
         $this->view('membre/index', $data);
     }
 
-    public function engagement() 
+    public function integration() 
     {
+        $ip = Utils::getUserIP();
+        $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
+        if($Membre) 
+        {
+            Utils::redirect('engagement/'. $Membre->member_id);
+            return;
+        }
+
+        $data = [
+            'title' => SITE_NAME .' | Intégration',
+            'description' => "Demande d'intégration à la communauté Lobola",
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_integration']))
+        {
+            $nom_postnom = Utils::sanitize(trim($_POST['nom_postnom'] ?? ''));
+            $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
+            $date_naissance = Utils::sanitize(trim($_POST['date_naissance'] ?? ''));
+            $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
+            $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
+            $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
+            $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
+            $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
+
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$nationalite || !$motivation || !$ville || !$phone || !$adresse)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/integration',  $data);
+                return;
+            }
+
+            if(!in_array($sexe, ARRAY_TYPE_SEXE)) 
+            {
+                Session::setFlash('error', "Entrée correctement le sexe.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+
+            if($date_naissance >= date('Y-m-d')) 
+            {
+                Session::setFlash('error', "La date de naissance n'est pas valide.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+
+            $dataAddMembre = [  
+                'ip_address'           => $ip,
+                'nom_postnom'          => $nom_postnom,
+                'sexe'                 => $sexe,
+                'date_naissance'       => $date_naissance,
+                'nationalite'          => $nationalite,
+                'motivation'           => $motivation,
+                'ville'                => $ville,
+                'phone_number'         => $phone,
+                'adresse'              => $adresse,
+            ];
+            
+            if (!empty($_FILES['photo_file']['name']))
+            {
+                $file = $_FILES['photo_file'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('membre/integration', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('membre/integration', $data);
+                    return;
+                }
+
+                $membreId = Utils::generateUuidV4();
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "avatar");
+                $nomFichier = $membreId .'.'. $ext;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('membre/integration',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $dataAddMembre['member_id']     = $membreId;
+                        $dataAddMembre['path_profile']  = $fichierPath;
+                        $resultUpload = true;                   
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('membre/integration', ['data' => $data]);
+                    return;
+                }
+            }
+
+            if($resultUpload)
+            {
+                if($this->MembreModel->insert($dataAddMembre))
+                {
+                    Session::setFlash('success', "Votre demande d'intégration a été enregistrée avec succès.");
+                    Utils::redirect('engagement/'. $membreId);
+                }
+                else {
+                    Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
+                    $this->view('membre/integration',  $data);
+                    return;
+                }
+            }
+        
+        }
+
+        $this->view('membre/integration', $data);
+    }
+
+    public function engagement($membreId) 
+    {
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]) {
+            Utils::redirect('../rjtd/'. $membreId);
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('/');
+            return;
+        }
+        if($Membre->engagement_id) {
+            Utils::redirect('../attente/'. $membreId);
+            return;
+        }
 
         $data = [
             'title' => SITE_NAME .' | Engagement',
@@ -44,18 +192,11 @@ class MembreController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_engagement']))
         {
-            $nom_postnom = Utils::sanitize(trim($_POST['nom_postnom'] ?? ''));
-            $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
-            $phone_number = Utils::sanitize(trim($_POST['phone_number'] ?? ''));
-            $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
-            $date_naissance = Utils::sanitize(trim($_POST['date_naissance'] ?? ''));
             $montant = (int) Utils::sanitize(trim($_POST['montant'] ?? ''));
             $modalite_engagement = Utils::sanitize(trim($_POST['modalite_engagement'] ?? ''));
             $devise = Utils::sanitize(trim($_POST['devise'] ?? ''));
 
-            // var_dump($_POST);die;
-
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$montant || !$modalite_engagement || !$devise || !$phone_number || !$adresse)
+            if(!$montant || !$modalite_engagement || !$devise)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/engagement',  $data);
@@ -76,13 +217,6 @@ class MembreController extends Controller
                 return;
             }
 
-            if(!in_array($sexe, ARRAY_TYPE_SEXE)) 
-            {
-                Session::setFlash('error', "Entrée correctement le sexe.");
-                $this->view('membre/engagement',  $data);
-                return;
-            }
-
             if($devise === ARRAY_TYPE_DEVISE[1] && $montant < 10 || $devise === ARRAY_TYPE_DEVISE[2] && $montant < 10) 
             {
                 Session::setFlash('error', "Le montant de l'engagement doit être au minimum de 10$devise.");
@@ -97,20 +231,14 @@ class MembreController extends Controller
 
             $date_expiration = Utils::getExpiryDateEngagement();
 
-            $dataAddMembre = [  
-                // 'member_id'            => $membreId,
-                'nom_postnom'          => $nom_postnom,
-                'sexe'                 => $sexe,
-                'phone_number'         => $phone_number,
-                'adresse'              => $adresse,
-                'date_naissance'       => $date_naissance,
+            $dataUpdateMembre = [
+                'status' => ARRAY_STATUS_MEMBER[0], // pending_validation
+                'member_id' => $membreId
             ];
+
             $dataAddEngagement = [
-                // 'engagement_id'        => $engagementId,
-                // 'member_id'            => $membreId,
                 'montant'              => $montant,
                 'modalite_engagement'  => $modalite_engagement,
-                // 'status'               => 'en_attente',
                 'date_expiration'      => $date_expiration,
                 'devise'               => $devise
             ];
@@ -146,7 +274,6 @@ class MembreController extends Controller
                     return;
                 }
 
-                $membreId = Utils::generateUuidV4();
                 $engagementId = Utils::generateUuidV4();
                 $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "engagement");
                 $nomFichier = $this->EnseignementModel->generteNomFichierPdf($membreId, $ext);
@@ -193,65 +320,13 @@ class MembreController extends Controller
                     return;
                 }
             }
-            
-            if (!empty($_FILES['photo_file']['name']))
+
+            if($resultUpload1 && $this->MembreModel->update($dataUpdateMembre, 'member_id'))
             {
-                $file = $_FILES['photo_file'];
-                $filename = $file['name'];
-                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-                // Verif erreur d'upload
-                if ($file['error'] !== UPLOAD_ERR_OK)
-                {
-                    Session::setFlash('error', "Erreur lors de l'envoi du document");
-                    $this->view('membre/engagement', $data);
-                    return;
-                }
-                // verif mime reel
-                $mime = mime_content_type($file['tmp_name']);
-                if (!in_array($mime, $allowedTypes))
-                {
-                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
-                    $this->view('membre/engagement', $data);
-                    return;
-                }
-
-                $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "avatar");
-                $nomFichier = $membreId .'.'. $ext;
-                $fichierPath = $pathDossier ."/". $nomFichier;
-                $uploadPath = BASE_PATH . $fichierPath;
-
-                if(!is_dir($pathDossier)) {
-                    if(!mkdir($pathDossier, 0777, true)) 
-                    {
-                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
-                        $this->view('membre/engagement',  $data);
-                        return;
-                    }
-                }
-
-                if (move_uploaded_file($file['tmp_name'], $uploadPath))
-                {
-                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
-                    {
-                        $dataAddMembre['member_id']     = $membreId;
-                        $dataAddMembre['path_profile']  = $fichierPath;
-                        $resultUpload2 = true;                   
-                    }
-
-                } else {
-                    Session::setFlash('error', "Impossible d'enregistrer le document.");
-                    $this->view('membre/engagement', ['data' => $data]);
-                    return;
-                }
-            }
-
-            if($resultUpload1 && $resultUpload2)
-            {
-                if($this->MembreModel->insert($dataAddMembre) && $this->EngagementModel->insert($dataAddEngagement))
+                if($this->EngagementModel->insert($dataAddEngagement))
                 {
                     Session::setFlash('success', "Engagement enregistré avec succès. Vous serez contacté pour la suite du processus.");
-                    Utils::redirect('../membre/attente/'. $membreId);
+                    Utils::redirect('attente/'. $membreId);
                 }
                 else {
                     Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
@@ -270,12 +345,18 @@ class MembreController extends Controller
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         if(!$Membre) {
-            Utils::redirect('/membre/engagement');
+            Utils::redirect('/membre/integration');
             return;
         }
 
         if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
             Utils::redirect('/');
+            return;
+        }
+
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
+        {
+            Utils::redirect('../rjtd/'. $membreId);
             return;
         }
         
@@ -286,5 +367,34 @@ class MembreController extends Controller
         ];
 
         $this->view('membre/attente', $data);
+    }
+
+    public function rjtd($membreId) 
+    {
+
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('/membre/integration');
+            return;
+        }
+
+        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('/');
+            return;
+        }
+
+        if($Membre->statut_engagement !== ARRAY_STATUS_ENGAGEMENT[2])
+        {
+            Utils::redirect('../attente/'. $membreId);
+            return;
+        }
+        
+        $data = [
+            'title' => SITE_NAME .' | Engagement Rejeté',
+            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
+            'Membre' => $Membre,
+        ];
+
+        $this->view('membre/rjtd', $data);
     }
 }

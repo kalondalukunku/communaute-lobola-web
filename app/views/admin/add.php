@@ -7,9 +7,14 @@
 
     <main class="flex-1">
         <!-- Top Header -->
-        <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-10 flex justify-between items-center sticky top-0 z-40">
-            <div>
-                <h1 class="font-serif text-2xl font-bold text-primary">Ajouter un administrateur</h1>
+        <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
+            <!-- Bouton Hamburger -->
+            <button id="openSidebar" class="lg:hidden w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-primary hover:bg-gray-100 transition shadow-sm">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+
+            <div class="pl-2">
+                <h1 class="font-serif text-xl md:text-md font-bold text-primary">Ajouter un administrateur</h1>
                 <p class="text-xs text-gray-400 mt-1 font-medium italic">Créez un nouvel accès administratif au système.</p>
             </div>
             
@@ -42,7 +47,8 @@
                             </span>
                             <input type="text" id="nom" name="nom" required 
                                 class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
-                                placeholder="Ex: Shenuti Lobola">
+                                placeholder="Ex: Shenuti Lobola"
+                                style="color: var(--primary);">
                         </div>
                     </div>
 
@@ -55,7 +61,8 @@
                             </span>
                             <input type="email" id="email" name="email" required
                                 class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
-                                placeholder="admin@communautelobola.com">
+                                placeholder="admin@communautelobola.com"
+                                style="color: var(--primary);">
                         </div>
                     </div>
 

@@ -7,22 +7,17 @@
         <main class="flex-grow flex flex-col min-w-0">
         
         <!-- Header -->
-        <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
-            <!-- Bouton Hamburger -->
-            <button id="openSidebar" class="lg:hidden w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-primary hover:bg-gray-100 transition shadow-sm">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-
+        <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-10 flex justify-between items-center sticky top-0 z-40">
             <div>
-                <h1 class="font-serif text-xl md:text-md font-bold text-primary">Membres de la communauté</h1>
-                <p class="text-xs text-gray-400 mt-1 font-medium italic">Accueillez et gérez les âmes du sanctuaire</p>
+                <h1 class="font-serif text-2xl font-bold text-primary">Enseignants de la communauté</h1>
+                <p class="text-xs text-gray-400 mt-1 font-medium italic">Ajouter et gérez les transmeteurs du savoir des ancêtres</p>
             </div>
             
             <div class="flex items-center gap-6">
                 <form action="" method="get">
                     <div class="relative hidden xl:block">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
-                        <input type="text" name="q" placeholder="Rechercher un membre..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="pl-10 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-64 transition-all" style="color: var(--primary);">                    
+                        <input type="text" name="q" placeholder="Rechercher un enseignant..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="pl-10 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-64 transition-all">                    
                     </div>
                 </form>
                 
@@ -44,7 +39,7 @@
                 <div class="card-stat p-6 color-border rounded-[2.5rem]">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Communauté</p>
+                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Enseignants</p>
                             <h3 class="text-white text-xl leading-none"><?= $NbrAllMembres ?></h3>
                         </div>
                         <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
@@ -75,23 +70,8 @@
                 <div class="card-stat p-6 color-border rounded-[2.5rem]">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Membres engagés</p>
-                            <h3 class="text-white text-xl leading-none"><?= $membresEngages ?></h3>
-                        </div>
-                        <div class="w-12 h-12 bg-paper text-primary rounded-2xl flex items-center justify-center">
-                            <i class="fas fa-shield-alt text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-center gap-2">
-                        <span class="text-[10px] font-bold text-primary bg-white px-2 py-1 rounded-lg">Excellent</span>
-                    </div>
-                </div>
-
-                <div class="card-stat p-6 color-border rounded-[2.5rem]">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Revenus de ce mois</p>
-                            <h3 class="text-white text-xl leading-none"><?= $totalPaymentMonth ?>$</h3>
+                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Revenus/Mois</p>
+                            <h3 class="text-white text-xl leading-none">4,820€</h3>
                         </div>
                         <div class="w-12 h-12 bg-paper text-green-600 rounded-2xl flex items-center justify-center">
                             <i class="fas fa-chart-line text-xl"></i>
@@ -99,6 +79,21 @@
                     </div>
                     <div class="mt-4 flex items-center gap-2">
                         <span class="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-lg">+5.4%</span>
+                    </div>
+                </div>
+
+                <div class="card-stat p-6 color-border rounded-[2.5rem]">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Taux d'engagement</p>
+                            <h3 class="text-white text-xl leading-none">94%</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-paper text-primary rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-primary bg-white px-2 py-1 rounded-lg">Excellent</span>
                     </div>
                 </div>
             </div>

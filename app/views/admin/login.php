@@ -34,7 +34,8 @@
                         <input type="text" id="email" required
                             name="email"
                             class="custom-input w-full pl-10 pr-4 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="admin@exemple.com">
+                            placeholder="admin@exemple.com"
+                            style="color: var(--primary);">
                     </div>
                 </div>
 
@@ -50,7 +51,7 @@
                         <input type="password" id="password" required
                             name="pswd"
                             class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="••••••••">
+                            placeholder="••••••••" style="color: var(--primary);">
                         <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                             <i id="eyeIcon" class="fas fa-eye"></i>
                         </button>
@@ -66,7 +67,7 @@
                     name="cllil_admin_login"
                     class="w-full bg-primary hover:bg-primary text-paper font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                     <span id="btnText">Se connecter</span>
-                    <i id="btnIcon" class="fas fa-arrow-right"></i>
+                    <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
                 </button>
             </form>
         </div>

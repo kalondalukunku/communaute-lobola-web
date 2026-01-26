@@ -3,85 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erreur 404 - Page Introuvable</title>
-    <!-- Chargement de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Configuration de la police Inter, cohérente avec un design moderne */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        :root {
-            --mosali-blue-dark: #1e40af; /* Bleu profond, inspiré de l'en-tête */
-            --mosali-blue-light: #3b82f6; /* Bleu plus clair pour les accents */
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb; /* Très léger gris pour un fond doux */
+            background-color: #000f0e;
         }
-        /* Style pour l'animation subtile des boutons au survol */
-        .btn-primary {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(30, 64, 175, 0.2); /* Ombre légère bleue */
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(30, 64, 175, 0.3);
+
+        .status-container {
+            background: rgba(255, 255, 255, 0.932);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            margin: auto;
+            border-radius: 8px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+<body>
 
-    <div class="max-w-4xl w-full bg-white p-6 sm:p-12 lg:p-16 rounded-2xl shadow-2xl text-center">
+<div class="container mx-auto py-[100px] px-4 md:px-0">
+    
+    <div class="status-container fade-in text-center p-8 md:p-12 border-t-4 border-gray-400">
         
-        <!-- Conteneur pour l'illustration (SVG d'un chemin brisé/perdu) -->
-        <div class="mb-2 flex justify-center">
-            <!-- Simple SVG pour un look clean et professionnel -->
-            <svg class="w-24 h-24 text-blue-700 sm:w-32 sm:h-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <!-- Icône représentant un chemin perdu ou une recherche manquée -->
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <!-- Illustration 404 Formelle -->
+        <div class="mb-8 flex justify-center">
+            <div class="relative">
+                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
+                    <span class="text-3xl font-serif font-bold text-[#cfbb30] italic">404</span>
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-sm">
+                    <i class="fas fa-map-signs text-[#cfbb30] text-xl"></i>
+                </div>
+            </div>
         </div>
 
-        <!-- Grand titre d'erreur (impactant) -->
-        <p class="text-7xl sm:text-7xl font-extrabold text-blue-800 mb-4 tracking-tight">
-            404
-        </p>
-
-        <!-- Message Principal -->
-        <h1 class="text-3xl sm:text-3xl font-bold text-gray-900 mb-4">
-            Oups ! Page Introuvable.
-        </h1>
-
-        <!-- Description Détaillée -->
-        <p class="text-md text-gray-600 mb-5 max-w-xl mx-auto">
-            Il semblerait que nous n'ayons pas trouvé la page que vous cherchez.
-            Peut-être que l'adresse a été mal saisie ou que le contenu a été déplacé.
-        </p>
-        <p class="text-md text-gray-600 mb-5 max-w-xl mx-auto"><?= $message ?></p>
-
-        <!-- Section des actions (Boutons Clairs) -->
-        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <h1 class="font-serif text-3xl text-[#cfbb30] mb-6">Page introuvable</h1>
+        
+        <div class="space-y-6 mb-10">
+            <p class="text-gray-600 leading-relaxed text-sm">
+                Le chemin que vous tentez d'emprunter ne semble plus exister ou a été déplacé de manière permanente.
+            </p>
             
-            <!-- Bouton Principal (Retour à l'accueil) -->
-            <button onclick="window.location.href = '/';" class="btn-primary flex items-center justify-center px-8 py-3 text-base text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                <!-- Icône Accueil (lucide-react équivalent) -->
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-2-2v10a1 1 0 01-1 1h-6a1 1 0 01-1-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-10l2-2z"></path></svg>
-                Retourner à l'accueil
-            </button>
-
-            <!-- Bouton Secondaire (Reporting/Contact) -->
-            <button onclick="console.log('Action : Signaler un problème'); /* Remplacez par votre logique de reporting */" class="px-8 py-3 text-base text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out">
-                Signaler ce problème
-            </button>
-
+            <p class="text-gray-500 text-sm italic border-l-2 border-[#cfbb30]/20 pl-4 py-2 bg-gray-50/50">
+                L'accès à cette ressource n'a pu être validé par notre serveur.
+            </p>
+            <p><?= $message ?></p>
         </div>
-        
-    </div>
 
-    <!-- Script JS simple pour gérer l'action des boutons si nécessaire -->
-    <script>
-        // Le bouton "Retourner à l'accueil" utilise déjà window.location.href = '/';
-        // Vous pouvez ajouter ici une logique plus complexe pour le bouton de signalement.
-    </script>
+        <!-- Section Navigation -->
+        <div class="bg-[#cfbb30]/5 p-6 rounded-xl mb-8 border border-[#cfbb30]/10">
+            <h2 class="font-bold text-[#cfbb30] uppercase tracking-widest text-[10px] mb-4">Que souhaitez-vous faire ?</h2>
+            
+            <div class="flex flex-col md:flex-row gap-3 justify-center">
+                <a href="/" class="inline-flex items-center justify-center bg-[#cfbb30] text-white py-3 px-8 rounded-lg text-sm font-bold hover:bg-[#000f0e] transition-all">
+                    <i class="fas fa-home mr-2"></i> Page d'accueil
+                </a>
+                <button onclick="window.history.back()" class="inline-flex items-center justify-center bg-white border border-[#cfbb30]/20 text-[#cfbb30] py-3 px-8 rounded-lg text-sm font-bold hover:bg-gray-50 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Page précédente
+                </button>
+            </div>
+        </div>
+
+        <div class="pt-4">
+            <p class="text-xs text-gray-400">
+                Si vous pensez qu'il s'agit d'une erreur technique, merci de 
+                <a href="mailto:<?= ADMIN_EMAIL ?>" class="text-[#cfbb30] underline decoration-dotted font-medium">contacter le support</a>.
+            </p>
+        </div>
+
+    </div>
+</div>
 
 </body>
 </html>

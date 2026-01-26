@@ -6,31 +6,36 @@
 ?>
 
         <main class="flex-grow flex flex-col min-w-0">
-        
+
             <!-- Header -->
-            <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-10 flex justify-between items-center sticky top-0 z-40">
-                <div>
-                    <h1 class="font-serif text-2xl font-bold text-primary">Tableau de bord</h1>
+            <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
+                <!-- Bouton Hamburger -->
+                <button id="openSidebar" class="lg:hidden w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-primary hover:bg-gray-100 transition shadow-sm">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="pl-2">
+                    <h1 class="font-serif text-xl md:text-md font-bold text-primary">Tableau de bord</h1>
                     <p class="text-xs text-gray-400 mt-1 font-medium italic">Accueillez et gérez les âmes du sanctuaire</p>
                 </div>
                 
-                <div class="flex items-center gap-6">
-                    <div class="relative hidden xl:block">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
-                        <input type="text" placeholder="Rechercher..." class="pl-12 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-80 transition-all">
-                    </div>
+                
+                <div class="flex items-center gap-3 lg:gap-6">
                     <div class="flex gap-2">
                         <button class="w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 transition relative">
                             <i class="far fa-bell"></i>
                             <span class="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
                         </button>
-                        <a href="add" class="bg-primary text-paper font-bold text-xs tracking-widest px-6 py-3 rounded-2xl shadow-xl shadow-secondary/10 hover:scale-105 transition-transform active:scale-95">
+                        <a href="add" class="hidden md:flex bg-primary text-paper font-bold text-[10px] tracking-widest px-6 py-3 rounded-2xl shadow-xl shadow-secondary/10 hover:scale-105 transition-transform items-center">
                             Nouvel administrateur
+                        </a>
+                        <a href="add" class="md:hidden w-11 h-11 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-plus"></i>
                         </a>
                     </div>
                 </div>
             </header>
-
+        
             <div class="p-10 space-y-10">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="card-stat p-6 color-border rounded-[2.5rem]">

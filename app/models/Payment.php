@@ -34,7 +34,7 @@ class Payment extends Model {
     {
         // 1. Définition des taux de change (1 USD = X devise)
         $exchangeRates = [
-            'CDF' => 2800, // Ajusté à 2800 ou selon votre input ['CDF' => 2800, 'EUR' => 0.87]
+            'CDF' => 2300, // Ajusté à 2800 ou selon votre input ['CDF' => 2800, 'EUR' => 0.87]
             'EUR' => 0.87,
             'USD' => 1.0
         ];
@@ -64,6 +64,53 @@ class Payment extends Model {
             } else {
                 // Optionnel : Gérer une devise inconnue (on l'ajoute telle quelle ou on ignore)
                 $totalInUSD += $amount;
+            }
+        }
+
+        return round($totalInUSD, 2);
+    }
+
+    public function getTotalPaymentsMonth(): float
+    {
+        // 1. Définition des taux de change (Base 1 USD)
+        $exchangeRates = [
+            'CDF' => 2300, 
+            'EUR' => 0.87,
+            'USD' => 1.0
+        ];
+
+        /**
+         * 2. Sélection groupée par devise pour le mois actuel uniquement.
+         * On filtre sur le mois et l'année en cours (CURRENT_DATE).
+         * Remplacez 'created_at' par votre colonne de date (ex: 'payment_date' ou 'payment_prochain').
+         */
+        $query = "SELECT devise, SUM(amount) as subtotal 
+                FROM payments 
+                WHERE MONTH(payment_date) = MONTH(CURRENT_DATE)
+                    AND YEAR(payment_date) = YEAR(CURRENT_DATE)
+                GROUP BY devise";
+        
+        $q = $this->db->prepare($query);
+        $q->execute();
+        $results = $q->fetchAll(PDO::FETCH_OBJ);
+
+        $totalInUSD = 0.0;
+
+        // 3. Traitement et conversion
+        if ($results) {
+            foreach ($results as $row) {
+                $currency = strtoupper($row->devise);
+                $amount = (float)$row->subtotal;
+
+                if ($currency === 'USD') {
+                    $totalInUSD += $amount;
+                } elseif (isset($exchangeRates[$currency]) && $exchangeRates[$currency] > 0) {
+                    // Conversion : Montant / Taux
+                    $totalInUSD += ($amount / $exchangeRates[$currency]);
+                } else {
+                    // Par sécurité, on ne traite pas ou on log si la devise est inconnue
+                    // Ici on choisit de ne pas l'ajouter pour ne pas fausser le total USD
+                }
             }
         }
 

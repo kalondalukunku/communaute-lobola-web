@@ -250,155 +250,76 @@ class Helper {
         return mb_substr($string, 0, 1);
     }
 
-    public static function returnStatutPsnStyle($statut)
-    {
-        switch ($statut) {
-            case ARRAY_PERSONNEL_STATUT_EMPLOI[0]:
-                return 'gray';
-                break;
-            case ARRAY_PERSONNEL_STATUT_EMPLOI[1]:
-                return 'green';
-                break;
-            case ARRAY_PERSONNEL_STATUT_EMPLOI[2]:
-                return 'yellow';
-                break;
-            case ARRAY_PERSONNEL_STATUT_EMPLOI[3]:
-                return 'blue';
-                break;
-            case ARRAY_PERSONNEL_STATUT_EMPLOI[4]:
-                return 'red';
-                break;
-            
-            default:
-                # code...
-                break;
+    public static function generatePaginationElement($page, $content, $isActive = false, $isDisabled = false) {
+        $baseUrl = "?page=" . $page;
+        // On conserve les paramètres de recherche s'ils existent dans l'URL
+        if (isset($_GET['search'])) {
+            $baseUrl .= "&search=" . urlencode($_GET['search']);
         }
+
+        if ($isDisabled) {
+            return '<button class="w-8 h-8 rounded-xl border border-gray-100 flex items-center justify-center text-gray-200 cursor-not-allowed transition" disabled>' . $content . '</button>';
+        }
+
+        if ($isActive) {
+            return '<button class="w-8 h-8 rounded-xl bg-secondary text-primary font-bold text-xs shadow-lg shadow-secondary/10">' . $content . '</button>';
+        }
+
+        return '<a href="' . $baseUrl . '" class="w-8 h-8 rounded-xl border border-gray-100 flex items-center justify-center text-gray-400 hover:bg-white hover:border-gray-300 transition text-xs font-bold">' . $content . '</a>';
     }
 
-    public static function returnStatutUsStyle($statut)
-    {
-        switch ($statut) {
-            case ARRAY_USER[0]:
-                return 'green';
-                break;
-            case ARRAY_USER[1]:
-                return 'red';
-                break;
-        }
-    }
+    /**
+     * Génère la structure complète de la pagination
+     */
+    public static function generatePaginationFull($currentPage, $totalPages) {
+        if ($totalPages < 1) return;
 
-    public static function returnStatutDcsStyle($statut)
-    {
-        switch ($statut) {
-            case ARRAY_STATUT_DCS[0]:
-                return 'green';
-                break;
-            case ARRAY_STATUT_DCS[1]:
-                return 'red';
-                break;
-            case ARRAY_STATUT_DCS[2]:
-                return 'yellow';
-                break;
-            case ARRAY_STATUT_DCS[3]:
-                return 'gray';
-                break;
-        }
-    }
+        echo '<div class="flex items-center gap-2">';
 
-    public static function formatMontantDevise(int|float $montant): string 
-    {
-        $montant_positif = abs($montant);
-
-        $montant_formatte = number_format(
-            $montant_positif,  // Nombre à formater
-            0,                 // Nombre de décimales
-            '',                // Séparateur décimal (non utilisé ici)
-            '.'                // Séparateur de milliers (le point)
-        );
-
-        $resultat = $montant_formatte . SITE_DEVISE;
-
-        if ($montant < 0) {
-            return '- ' . $resultat;
-        }
-
-        return $resultat;
-    }
-
-    public static function generatePaginationElement(int $page_num, string $label, bool $is_active = false, bool $is_disabled = false): string 
-    {
-        global $current_status;
-        
-        // Classes de base pour les numéros de page et les icônes
-        $base_class = 'h-7 px-4 py-2 text-xs border rounded-xl transition font-medium flex items-center justify-center';
-
-        if ($is_disabled) {
-            // Élément désactivé (span, pas de lien)
-            $class = $base_class . ' text-gray-400 bg-gray-100 cursor-not-allowed';
-            return "<span class='{$class}'>{$label}</span>";
-        }
-
-        // Prépare les paramètres de l'URL
-        $url_params = http_build_query(array_merge($_GET, ['status' => $current_status, 'page' => $page_num]));
-        
-        if ($is_active) {
-            // Style Actif: Votre --color-secondary
-            $class = $base_class . ' text-white bg-[var(--color-primary)] shadow-md';
-        } else {
-            // Style Inactif: gris, hover
-            $class = $base_class . ' text-gray-600 border-gray-300 hover:bg-gray-200';
-        }
-        
-        return "<a href=\"?{$url_params}\" class='{$class}'>{$label}</a>";
-    }
-
-    public static function generatePaginationFull($currentPage,$totalPages)
-    {
+        // --- 1. Bouton Précédent ---
         $prev_page = $currentPage - 1;
         $is_prev_disabled = $currentPage <= 1;
-        $prev_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>';
-        
-        echo Helper::generatePaginationElement($prev_page, $prev_icon, false, $is_prev_disabled);
+        $prev_icon = '<i class="fas fa-chevron-left text-[10px]"></i>';
+        echo self::generatePaginationElement($prev_page, $prev_icon, false, $is_prev_disabled);
 
-        // --- 2. Liens des pages (affichage simple : 1 2 3 ... X) ---
-        $display_limit = 5; // Nombre maximum de numéros de page à afficher
-        $start_page = max(1, $currentPage - floor($display_limit / 2));
-        $end_page = min($totalPages, $currentPage + floor($display_limit / 2));
+        // --- 2. Liens des pages ---
+        $display_limit = 3; 
+        $start_page = max(1, $currentPage - 1);
+        $end_page = min($totalPages, $start_page + $display_limit - 1);
 
-        // Ajuster si on arrive trop près de la fin
+        // Ajustement si on est à la fin
         if ($end_page - $start_page < $display_limit - 1) {
             $start_page = max(1, $totalPages - $display_limit + 1);
-            $end_page = min($totalPages, $totalPages);
         }
 
+        // Première page et points de suspension
         if ($start_page > 1) {
-            echo Helper::generatePaginationElement(1, '1');
+            echo self::generatePaginationElement(1, '1');
             if ($start_page > 2) {
-                echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+                echo "<span class='w-8 h-8 flex items-center justify-center text-gray-400 text-xs'>...</span>";
             }
         }
 
+        // Boucle des pages numériques
         for ($i = $start_page; $i <= $end_page; $i++) {
-            echo Helper::generatePaginationElement(
-                $i, 
-                (string)$i, 
-                $i === $currentPage
-            );
+            echo self::generatePaginationElement($i, (string)$i, $i === $currentPage);
         }
 
+        // Dernière page et points de suspension
         if ($end_page < $totalPages) {
             if ($end_page < $totalPages - 1) {
-                echo "<span class='h-7 px-4 py-2 text-xs text-gray-500 flex items-center justify-center'>...</span>";
+                echo "<span class='w-8 h-8 flex items-center justify-center text-gray-400 text-xs'>...</span>";
             }
-            echo Helper::generatePaginationElement($totalPages, (string)$totalPages);
+            echo self::generatePaginationElement($totalPages, (string)$totalPages);
         }
 
-        // --- 3. Bouton/Icône Suivant ---
+        // --- 3. Bouton Suivant ---
         $next_page = $currentPage + 1;
         $is_next_disabled = $currentPage >= $totalPages;
-        $next_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>';
+        $next_icon = '<i class="fas fa-chevron-right text-[10px]"></i>';
+        echo self::generatePaginationElement($next_page, $next_icon, false, $is_next_disabled);
 
-        echo Helper::generatePaginationElement($next_page, $next_icon, false, $is_next_disabled);
+        echo '</div>';
     }
 
     public static function returnTxtVwDc1($statut_conformite, $validite = null)
@@ -414,30 +335,6 @@ class Helper {
         $txt = "$niveau_etude - $etablissement ($annee_obtention) - $ville - $pays";
 
         return $txt;
-    }
-
-    public static function formatNumberShort($number, $precision = 2) 
-    {
-        if ($number < 1000) {
-            // En dessous de 1000, on affiche le nombre normalement
-            return number_format($number, 0, ',', ' '. SITE_DEVISE);
-        }
-
-        if ($number < 1000000) {
-            // Milliers (K)
-            $formatted = $number / 1000;
-            return round($formatted, $precision) . 'K '. SITE_DEVISE;
-        } 
-        
-        if ($number < 1000000000) {
-            // Millions (M)
-            $formatted = $number / 1000000;
-            return round($formatted, $precision) . 'M '. SITE_DEVISE;
-        } 
-        
-        // Milliards (B pour Billion en anglais ou G pour Giga)
-        $formatted = $number / 1000000000;
-        return round($formatted, $precision) . 'B '. SITE_DEVISE;
     }
 
     public static function getFirstTwoInitials(string $name): string 
