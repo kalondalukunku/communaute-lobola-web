@@ -197,4 +197,18 @@ class Membre extends Model {
         }
     }
 
+    public function calculerTauxEngagementApprouve()
+    {
+        $totalMembres = $this->countAll(["status" => ARRAY_STATUS_MEMBER[2]]);
+        if ($totalMembres === 0) {
+            return 0;
+        }
+
+        $membresEngagesApprouves = $this->countEngagedMembers();
+
+        $taux = ($membresEngagesApprouves / $totalMembres) * 100;
+
+        return round($taux, 2);
+    }
+
 }

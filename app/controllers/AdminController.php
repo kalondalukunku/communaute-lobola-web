@@ -60,12 +60,14 @@ class AdminController extends Controller
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
         $totalPayment = $this->PaymentModel->getTotalPayments();
+        $tauxEngagement = $this->MembreModel->calculerTauxEngagementApprouve();
 
         $data = [
             'allMembres' => $allMembres,
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente,
             'totalPayment' => $totalPayment,
+            'tauxEngagement' => $tauxEngagement
         ];
 
         $this->view('admin/dashboard', $data);

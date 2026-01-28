@@ -88,7 +88,7 @@
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Taux d'engagement</p>
-                                <h3 class="text-white text-xl leading-none">94%</h3>
+                                <h3 class="text-white text-xl leading-none"><?= $tauxEngagement ?>%</h3>
                             </div>
                             <div class="w-12 h-12 bg-paper text-primary rounded-2xl flex items-center justify-center">
                                 <i class="fas fa-shield-alt text-xl"></i>
