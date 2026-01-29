@@ -114,8 +114,8 @@
                             
                             $psnStatus = [
                                 'active' => 'Actif',
+                                'att_validation' => 'Attente Intégration',
                                 'att_engagement' => 'Attente Engagement',
-                                'att_validation' => 'Attente Validation',
                                 'suspended' => 'Suspendu',
                                 'inactive' => 'Inactif',
                             ];
@@ -161,7 +161,7 @@
                                 <th class="pl-5 pr-3 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Identité</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Engagement</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Statut actuel</th>
-                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Dernière activité</th>
+                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Date d'intégration</th>
                                 <th class="pl-3 pr-5 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400 text-right">Options</th>
                             </tr>
                         </thead>
@@ -198,19 +198,22 @@
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[0] || $membre->status === ARRAY_STATUS_MEMBER[1] ? 'A vérifier' : '' ?>  
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[2] ? 'Actif' : '' ?>
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[3] ? 'Suspendu' : '' ?>
-                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[4] ? 'Inactif' : '' ?>
+                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[5] ? 'Inactif' : '' ?>
                                                         </span>
                                                         </td>
                                                         <td class="px-3 py-3">
-                                                        <p class="text-sm font-medium text-white">Aujourd'hui, 09:12</p>
+                                                        <p class="text-xs font-medium text-white">Le <?= Helper::formatDate2($membre->created_at) ?></p>
                                                         <p class="text-[10px] text-primary font-bold">Enseignement #42</p>
                                                         </td>
                                                         <td class="pl-6 pr-10 py-5">
                                                         <div class="flex justify-end gap-2">
-
+                                                            <?php if($membre->engagement_id): ?>
                                                             <form action="" method="post">
                                                                 <button type="submit" name="cllil_vwfl<?= $membre->member_id ?>" class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition">Voir</button>
                                                             </form>
+                                                            <?php else: ?>
+                                                                <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
+                                                            <?php endif; ?>
                                                             <form action="" method="post">
                                                                 <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
                                                                 <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>

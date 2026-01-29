@@ -67,6 +67,19 @@
                     <h3 class="text-sm uppercase tracking-widest font-bold text-gray-800">Cheminement Spirituel</h3>
                     <div class="flex-grow h-px bg-gray-100"></div>
                 </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 mb-8">
+                    <div class="group relative">
+                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Niveau d'initiation</label>
+                        <select name="niveau_initiation" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
+                            <option value="" disabled selected>Sélectionnez votre niveau d'initiation</option>
+                            <?php foreach(ARRAY_TYPE_NIVEAU_INITIATION as $niveau): ?>
+                                <option value="<?= $niveau ?>" <?= Helper::getSelectedValue('niveau_initiation', $niveau) ?> ><?= $niveau ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
+                    </div>
+                </div>
 
                 <div class="space-y-8">
                     <div class="group">
@@ -98,6 +111,11 @@
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Lieu de résidence (Adresse)</label>
                         <input type="text" name="adresse" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ville, Commune, Quartier..." required>
+                    </div>
+
+                    <div class="group">
+                        <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Adresse Email</label>
+                        <input type="email" name="email" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="exemple@gmail.com" required>
                     </div>
 
                     <div class="group">

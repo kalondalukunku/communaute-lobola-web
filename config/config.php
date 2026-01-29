@@ -44,10 +44,11 @@ define('ARRAY_ROLE_USER',['Admin','Enseignant','Membre']);
 define('ARRAY_TYPE_ENGAGEMENT',['Menseul','Trimestriel','Semestriel','Annuel']);
 define('ARRAY_TYPE_DEVISE',['CDF','USD','EUR']);
 define('ARRAY_TYPE_SEXE',['M','F']);
-define('ARRAY_STATUS_MEMBER',['pending_engagement','pending_validation','active','suspended','inactive']);
+define('ARRAY_STATUS_MEMBER',['attente_engagement','attente_integration','active','suspended','integration_rejetee','inactive']);
 define('ARRAY_STATUS_ENGAGEMENT',['Approuvé','Non Approuvé','Rejété']);
 define('ARRAY_DOC_HEADER_TYPE',['pdf' => 'application/pdf', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
 define('ARRAY_PAYMENT_STATUS',['En attente','Payé','Echoué']);
+define('ARRAY_TYPE_NIVEAU_INITIATION',['Pas encore initié', '15 jours', '30 jours']);
 define('ARRAT_TAUX_CHANGE',['CDF' => 2200, 'EUR' => 0.87, 'USD' => 1.0]); // valeurs en CDF
 
 define('RETOUR_EN_ARRIERE', 'javascript:history.back()');

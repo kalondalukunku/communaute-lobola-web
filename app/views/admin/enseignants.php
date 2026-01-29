@@ -193,7 +193,7 @@
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[0] || $membre->status === ARRAY_STATUS_MEMBER[1] ? 'A vérifier' : '' ?>  
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[2] ? 'Actif' : '' ?>
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[3] ? 'Suspendu' : '' ?>
-                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[4] ? 'Inactif' : '' ?>
+                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[5] ? 'Inactif' : '' ?>
                                                         </span>
                                                         </td>
                                                         <td class="px-3 py-3">

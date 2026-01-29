@@ -25,7 +25,7 @@
                     <form action="" method="post" class="hidden md:block">
                         <button name="cllil_membre_desactive" class="px-4 py-2 rounded-xl border border-gray text-[10px] font-black tracking-widest text-orange-400 hover:bg-orange-90 transition">Désactiver</button>
                     </form>
-                <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[3] || $Membre->status === ARRAY_STATUS_MEMBER[4] && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $Payment): ?>
+                <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[3] || $Membre->status === ARRAY_STATUS_MEMBER[5] && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $Payment): ?>
                     <form action="" method="post">
                         <button name="cllil_membre_active" class="px-4 py-2 rounded-xl border border-green text-[10px] font-black tracking-widest text-green-500 hover:bg-green-90 transition">Activer</button>
                     </form>
@@ -81,135 +81,189 @@
 
             <!-- Right Column: Validation Steps -->
             <div class="lg:col-span-2 space-y-8">
-                
-                <!-- Section 1: Engagement Spirituel -->
-                <div class="glass-card color-border rounded-[2.5rem] overflow-hidden bg-[#cfbb30]/20">
-                    <div class="p-4 pb-2 flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">1</span>
-                            <h3 class="font-serif text-white text-md md:text-sm font-bold">Engagement Spirituel</h3>
-                        </div>
-                        <div>
-                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
-                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>En cours
-                            </span>
-                            <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]): ?>
-                            <span class="text-[10px] font-black text-red-500 uppercase tracking-tighter">
-                                <i class="fas fa-times-circle mr-2"></i>Rejeté
-                            </span>
-                            <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0]): ?>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-green-500 uppercase tracking-tighter">
-                                        <i class="fas fa-check-circle mr-2"></i>Approuvé
-                                    </span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mb-5">
-                        <form action="" method="post">
-                            <button name="cllil_membre_download_engagement<?= $membreId ?>" class="bg-primary text-paper px-4 py-2 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Télécharger</button>
-                        </form>
-                    </div>
-                    
-                    <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
-                        <div class="p-8">
-                            <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-4">Visualisation de l'engagement</p>
-
-                            <div class="lg:col-span-2 card-container p-4 h-[700px] flex flex-col">
-                                <div class="relative w-full rounded-lg overflow-hidden bg-slate-50 shadow-inner" 
-                                    style="height: calc(100vh - 250px); min-height: 620px;">
-                                    <iframe 
-                                        src="<?= BASE_URL ?>/assets/uploads/document/<?= $name ?>#toolbar=0&navpanes=0&scrollbar=0" 
-                                        class="absolute inset-0 w-full h-full"
-                                        style="border: none;"
-                                        title="Aperçu PDF">
-                                    </iframe>
-                                </div>
-
-                                <!-- Pied de page optionnel / Info -->
-                                <div class="mt-4 flex items-center justify-center gap-2 text-[8px] text-slate-500 uppercase tracking-widest">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    Mode lecture uniquement
-                                </div>
-                            </div>
-
-                            <div class="mt-4 flex justify-end gap-3">
-                                <form action="" method="post">
-                                    <button name="cllil_membre_eng_rejeted" class="px-6 py-3 rounded-xl border border-red text-[10px] font-black tracking-widest text-red-500 hover:bg-red-90 transition">Réjéter</button>
-                                </form>
-                                <form action="" method="post">
-                                    <button name="cllil_membre_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'engagement</button>
-                                </form>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <?php if ($Membre->statut_engagement !== ARRAY_STATUS_ENGAGEMENT[2]) : ?>
-                    <!-- Section 2: Paiement / Offrande -->
-                    <div class="glass-card color-border rounded-[2.5rem] overflow-hidden">
-                        <div class="p-4 color-border-b flex justify-between items-center bg-[#cfbb30]/20">
+                <?php if ($Membre->engagement_id) : ?>
+                    <!-- Section 1: Engagement Spirituel -->
+                    <div class="glass-card color-border rounded-[2.5rem] overflow-hidden bg-[#cfbb30]/20">
+                        <div class="p-4 pb-2 flex justify-between items-center">
                             <div class="flex items-center gap-4">
-                                <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">2</span>
-                                <h3 class="font-serif text-white text-md md:text-sm font-bold">Vérification du Paiement</h3>
+                                <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">1</span>
+                                <h3 class="font-serif text-white text-md md:text-sm font-bold">Engagement Spirituel</h3>
                             </div>
-                            
-                            <?php if($Payment): ?>
-                            <span class="text-[10px] font-black text-green-500 uppercase tracking-tighter">
-                                <i class="fas fa-check-circle mr-2"></i>Approuvé
-                            </span>
-                            <?php else: ?>
-                            <span class="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>En cours
-                            </span>
-                            <?php endif; ?>
+                            <div>
+                                <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
+                                <span class="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>En cours
+                                </span>
+                                <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]): ?>
+                                <span class="text-[10px] font-black text-red-500 uppercase tracking-tighter">
+                                    <i class="fas fa-times-circle mr-2"></i>Rejeté
+                                </span>
+                                <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0]): ?>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-black text-green-500 uppercase tracking-tighter">
+                                            <i class="fas fa-check-circle mr-2"></i>Approuvé
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         
-                        <?php if(!$Payment): ?>
-                        <div class="p-8">
-                            <div class="flex items-start justify-between mb-8">
-                                <div>
-                                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Type d'engagement</p>
-                                    <p class="text-md text-white font-bold"><?= $Membre->modalite_engagement ?></p>
+                        <div class="text-center mb-5">
+                            <form action="" method="post">
+                                <button name="cllil_membre_download_engagement<?= $membreId ?>" class="bg-primary text-paper px-4 py-2 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Télécharger</button>
+                            </form>
+                        </div>
+                        
+                        <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
+                            <div class="p-8">
+                                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-4">Visualisation de l'engagement</p>
+
+                                <div class="lg:col-span-2 card-container p-4 h-[700px] flex flex-col">
+                                    <div class="relative w-full rounded-lg overflow-hidden bg-slate-50 shadow-inner" 
+                                        style="height: calc(100vh - 250px); min-height: 620px;">
+                                        <iframe 
+                                            src="<?= BASE_URL ?>/assets/uploads/document/<?= $name ?>#toolbar=0&navpanes=0&scrollbar=0" 
+                                            class="absolute inset-0 w-full h-full"
+                                            style="border: none;"
+                                            title="Aperçu PDF">
+                                        </iframe>
+                                    </div>
+
+                                    <!-- Pied de page optionnel / Info -->
+                                    <div class="mt-4 flex items-center justify-center gap-2 text-[8px] text-slate-500 uppercase tracking-widest">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                        Mode lecture uniquement
+                                    </div>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Montant</p>
-                                    <p class="text-md font-bold text-primary"><?= Utils::getMonthsByModalite($Membre->modalite_engagement, $Membre->montant) .' '. $Membre->devise   ?></p>
+
+                                <div class="mt-4 flex justify-end gap-3">
+                                    <form action="" method="post">
+                                        <button name="cllil_membre_eng_rejeted" class="px-6 py-3 rounded-xl border border-red text-[10px] font-black tracking-widest text-red-500 hover:bg-red-90 transition">Réjéter</button>
+                                    </form>
+                                    <form action="" method="post">
+                                        <button name="cllil_membre_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'engagement</button>
+                                    </form>
                                 </div>
                             </div>
+                        <?php endif; ?>
+                    </div>
 
-                            <!-- <div class="bg-secondary rounded-3xl p-6 text-white flex items-center justify-between shadow-2xl">
+                    <?php if ($Membre->statut_engagement !== ARRAY_STATUS_ENGAGEMENT[2]) : ?>
+                        <!-- Section 2: Paiement / Offrande -->
+                        <div class="glass-card color-border rounded-[2.5rem] overflow-hidden">
+                            <div class="p-4 color-border-b flex justify-between items-center bg-[#cfbb30]/20">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-file-pdf text-xl text-primary"></i>
-                                    </div>
+                                    <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">2</span>
+                                    <h3 class="font-serif text-white text-md md:text-sm font-bold">Vérification du Paiement</h3>
+                                </div>
+                                
+                                <?php if($Payment): ?>
+                                <span class="text-[10px] font-black text-green-500 uppercase tracking-tighter">
+                                    <i class="fas fa-check-circle mr-2"></i>Approuvé
+                                </span>
+                                <?php else: ?>
+                                <span class="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>En cours
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <?php if(!$Payment): ?>
+                            <div class="p-8">
+                                <div class="flex items-start justify-between mb-8">
                                     <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Preuve de virement</p>
-                                        <p class="text-xs font-bold">VIREMENT_JULIANNE_M.PDF</p>
+                                        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Type d'engagement</p>
+                                        <p class="text-md text-white font-bold"><?= $Membre->modalite_engagement ?></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Montant</p>
+                                        <p class="text-md font-bold text-primary"><?= Utils::getMonthsByModalite($Membre->modalite_engagement, $Membre->montant) .' '. $Membre->devise   ?></p>
                                     </div>
                                 </div>
-                                <button class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition">
-                                    <i class="fas fa-eye text-xs"></i>
-                                </button>
-                            </div> -->
 
-                            <div class="mt-10 flex flex-col sm:flex-row gap-4">
-                                <div class="flex-grow flex items-center gap-2 text-[10px] text-gray-400 italic">
-                                    <i class="fas fa-info-circle"></i>
-                                    Vérifiez que le libellé correspond au nom du membre
+                                <!-- <div class="bg-secondary rounded-3xl p-6 text-white flex items-center justify-between shadow-2xl">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+                                            <i class="fas fa-file-pdf text-xl text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase">Preuve de virement</p>
+                                            <p class="text-xs font-bold">VIREMENT_JULIANNE_M.PDF</p>
+                                        </div>
+                                    </div>
+                                    <button class="bg-white/10 hover:bg-white/20 p-3 rounded-xl transition">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </button>
+                                </div> -->
+
+                                <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                                    <div class="flex-grow flex items-center gap-2 text-[10px] text-gray-400 italic">
+                                        <i class="fas fa-info-circle"></i>
+                                        Vérifiez que le libellé correspond au nom du membre
+                                    </div>
+                                    <form action="" method="post">
+                                        <button name="cllil_membre_validate" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">CONFIRMER LE PAIEMENT</button>
+                                    </form>
                                 </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[1]): ?>
+                    <!-- Card pour validation integration -->
+                    <div class="glass-card color-border rounded-[2.5rem] overflow-hidden">
+                        <div class="p-4 flex justify-between items-center bg-[#cfbb30]/20">
+                            <div class="flex items-center gap-4">
+                                <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">1</span>
+                                <h3 class="font-serif text-white text-md md:text-sm font-bold">Validation d'intégration</h3>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>En cours
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <p class="text-[10px] tracking-widest text-gray-400 font-black mb-4">Veuillez avoir un entretien avec ce membre pour valider ou réjéter son intégration  à la plateforme et accès aux enseignants selon son niveau.</p>
+                            <div class="p-4 rounded-xl border mb-6" style="border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <h4 class="text-sm font-bold text-gray-400 mb-3">Informations du membre</h4>
+                                <ul class="text-xs text-gray-500 space-y-1">
+                                    <li>Nom complet :<span class="font-bold text-gray-400"> <?= $Membre->nom_postnom ?></span></li>
+                                    <li>Téléphone :<span class="font-bold text-gray-400"> <?= $Membre->phone_number ?></span></li>
+                                    <li>Date de naissance :<span class="font-bold text-gray-400"> <?= Helper::formatDate($Membre->date_naissance) ?></span></li>
+                                    <li>Nationalité :<span class="font-bold text-gray-400"> <?= $Membre->nationalite ?></span></li>
+                                    <li>Ville :<span class="font-bold text-gray-400"> <?= $Membre->ville ?></span></li>
+                                    <li>Adresse :<span class="font-bold text-gray-400"> <?= $Membre->adresse ?></span></li>
+                                    <li>Niveau d'initiation :<span class="font-bold text-gray-400"> <?= $Membre->niveau_initiation ?></span></li>
+                                    <li>Téléphone :<span class="font-bold text-gray-400"> <?= $Membre->phone_number ?></span></li>
+                                    <?php if($Membre->email): ?>
+                                        <li>Email :<span class="font-bold text-gray-400"> <?= $Membre->email ?></span></li>
+                                    <?php endif; ?>
+                                    <li>Date d'inscription :<span class="font-bold text-gray-400"> <?= Helper::formatDate2($Membre->created_at) ?></span></li>
+                                    <li>Motivation :<span class="font-bold text-gray-400"> <?= $Membre->motivation ?></span></li>
+                                </ul>
+                                <div class="mt-6 flex justify-center items-center gap-4">
+                                    <a href="https://wa.me/<?= str_replace('+', '', $Membre->phone_number) ?>" class="text-[10px] font-black p-3 rounded-xl text-green-500 border border-green-500 hover:text-green-70 transition" target="_blank">
+                                        <i class="fa-brands fa-whatsapp text-[14px] mr-1"></i>
+                                        <span>Appeler sur WhatsApp</span>
+                                    </a>
+                                    <a href="tel:<?= str_replace('+', '', $Membre->phone_number) ?>" class="text-[10px] font-black p-3 rounded-xl text-gray-400 border border-gray-400 hover:text-gray-70 transition" target="_blank">
+                                        <i class="fa-solid fa-phone text-[13px] mr-1"></i>
+                                        <span>Appeler sur téléphone</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end gap-3">
                                 <form action="" method="post">
-                                    <button name="cllil_membre_validate" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">CONFIRMER LE PAIEMENT</button>
+                                    <button name="cllil_membre_integration_rejeted" class="px-6 py-3 rounded-xl border border-red text-[10px] font-black tracking-widest text-red-500 hover:bg-red-90 transition">Réjéter</button>
+                                </form>
+                                <form action="" method="post">
+                                    <button name="cllil_membre_integration_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'intégration</button>
                                 </form>
                             </div>
                         </div>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
-
             </div>
         </div>
     </main>

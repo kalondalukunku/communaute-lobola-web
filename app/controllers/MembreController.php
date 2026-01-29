@@ -40,7 +40,7 @@ class MembreController extends Controller
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
         if($Membre) 
         {
-            Utils::redirect('engagement/'. $Membre->member_id);
+            Utils::redirect('attitgt/'. $Membre->member_id);
             return;
         }
 
@@ -55,12 +55,14 @@ class MembreController extends Controller
             $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
             $date_naissance = Utils::sanitize(trim($_POST['date_naissance'] ?? ''));
             $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
+            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
+            $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
             $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
             $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
 
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$nationalite || !$motivation || !$ville || !$phone || !$adresse)
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ville || !$phone || !$adresse)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/integration',  $data);
@@ -70,6 +72,12 @@ class MembreController extends Controller
             if(!in_array($sexe, ARRAY_TYPE_SEXE)) 
             {
                 Session::setFlash('error', "Entrée correctement le sexe.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            if(!in_array($niveau_initiation, ARRAY_TYPE_NIVEAU_INITIATION)) 
+            {
+                Session::setFlash('error', "Entrée correctement le niveau d'initiation.");
                 $this->view('membre/integration',  $data);
                 return;
             }
@@ -87,10 +95,13 @@ class MembreController extends Controller
                 'sexe'                 => $sexe,
                 'date_naissance'       => $date_naissance,
                 'nationalite'          => $nationalite,
+                'email'                => $email,
+                'niveau_initiation'    => $niveau_initiation,
                 'motivation'           => $motivation,
                 'ville'                => $ville,
                 'phone_number'         => $phone,
                 'adresse'              => $adresse,
+                'status'               => ARRAY_STATUS_MEMBER[1],
             ];
             
             if (!empty($_FILES['photo_file']['name']))
@@ -151,7 +162,7 @@ class MembreController extends Controller
                 if($this->MembreModel->insert($dataAddMembre))
                 {
                     Session::setFlash('success', "Votre demande d'intégration a été enregistrée avec succès.");
-                    Utils::redirect('engagement/'. $membreId);
+                    Utils::redirect('attitgt/'. $membreId);
                 }
                 else {
                     Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
@@ -163,6 +174,35 @@ class MembreController extends Controller
         }
 
         $this->view('membre/integration', $data);
+    }
+
+    public function attitgt($membreId)
+    {   
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+
+        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('/');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[0]) {
+            Utils::redirect('../engagement/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]) {
+            Utils::redirect('../rjtd/'. $membreId);
+            return;
+        }
+        $data = [
+            'title' => SITE_NAME .' | Attente d\'approbation',
+            'description' => 'Attente d\'approbation de votre intégration',
+            'membre' => $Membre,
+        ];
+
+        $this->view('membre/attitgt', $data);
     }
 
     public function engagement($membreId) 
@@ -178,6 +218,10 @@ class MembreController extends Controller
         }
         if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
             Utils::redirect('/');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
             return;
         }
         if($Membre->engagement_id) {
@@ -232,7 +276,7 @@ class MembreController extends Controller
             $date_expiration = Utils::getExpiryDateEngagement();
 
             $dataUpdateMembre = [
-                'status' => ARRAY_STATUS_MEMBER[0], // pending_validation
+                'status' => ARRAY_STATUS_MEMBER[0], // attente_integration
                 'member_id' => $membreId
             ];
 
@@ -345,7 +389,7 @@ class MembreController extends Controller
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         if(!$Membre) {
-            Utils::redirect('/membre/integration');
+            Utils::redirect('../integration');
             return;
         }
 
@@ -353,7 +397,14 @@ class MembreController extends Controller
             Utils::redirect('/');
             return;
         }
-
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
+            return;
+        }
+        if(!$Membre->engagement_id) {
+            Utils::redirect('../engagement/'. $membreId);
+            return;
+        }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
         {
             Utils::redirect('../rjtd/'. $membreId);
@@ -396,5 +447,66 @@ class MembreController extends Controller
         ];
 
         $this->view('membre/rjtd', $data);
+    }
+
+    public function updt_pswd($membreId) 
+    {
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status !== ARRAY_STATUS_MEMBER[5]) {
+            Utils::redirect('/');
+            return;
+        }
+        $data = [
+            'title' => SITE_NAME .' | Mise à jour du mot de passe',
+            'description' => 'Mise à jour du mot de passe',
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_updt_pswd']))
+        {
+            $pswd = Utils::sanitize(trim($_POST['pswd'] ?? ''));
+            $confirm_pswd = Utils::sanitize(trim($_POST['confirm_pswd'] ?? ''));
+
+            if(!$pswd || !$confirm_pswd)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/updt_pswd',  $data);
+                return;
+            }
+
+            if($pswd !== $confirm_pswd)
+            {
+                Session::setFlash('error', 'Les mots de passe ne correspondent pas.');
+                $this->view('membre/updt_pswd',  $data);
+                return;
+            }
+
+            $hashedPassword = password_hash($pswd, PASSWORD_ARGON2I);
+
+            $dataUpdateMembre = [
+                'pswd' => $hashedPassword,
+                'status' => ARRAY_STATUS_MEMBER[2], // active
+                'member_id' => $membreId
+            ];
+
+            if($this->MembreModel->update($dataUpdateMembre, 'member_id'))
+            {
+                $MembreLog = $this->MembreModel->findByMemberId($membreId);
+                Session::set('user', $MembreLog);
+                Session::setFlash('success', 'Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.');
+                Utils::redirect('/');
+            }
+            else {
+                Session::setFlash('error', "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayez plutard.");
+                $this->view('membre/updt_pswd',  $data);
+                return;
+            }
+        
+        }
+
+        $this->view('membre/updt_pswd', $data);
     }
 }

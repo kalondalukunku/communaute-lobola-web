@@ -48,7 +48,7 @@ class AdminController extends Controller
         elseif($sttGet === 'suspended')
             $stt = ARRAY_STATUS_MEMBER[3];
         elseif($sttGet === 'inactive')
-            $stt = ARRAY_STATUS_MEMBER[4];
+            $stt = ARRAY_STATUS_MEMBER[5];
 
         $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt], 10);
         $allMembres = $results['data'];
@@ -58,7 +58,7 @@ class AdminController extends Controller
         // $totalPages = $results['total_pages'];
 
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
-        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
+        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
         $totalPayment = $this->PaymentModel->getTotalPayments();
         $tauxEngagement = $this->MembreModel->calculerTauxEngagementApprouve();
 
@@ -158,7 +158,7 @@ class AdminController extends Controller
         elseif($sttGet === 'suspended')
             $stt = ARRAY_STATUS_MEMBER[3];
         elseif($sttGet === 'inactive')
-            $stt = ARRAY_STATUS_MEMBER[4];
+            $stt = ARRAY_STATUS_MEMBER[5];
 
         $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
         $allMembres = $results['data'];
@@ -244,6 +244,48 @@ class AdminController extends Controller
             'name' => $name
         ];
 
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_integration_approuve'])) 
+        {
+            if(isset($_POST['cllil_membre_integration_approuve'])) 
+            {
+                $updateDataMembre = [
+                    'member_id' => $membreId,
+                    'status' => ARRAY_STATUS_MEMBER[5]
+                ];
+                if($this->MembreModel->update($updateDataMembre, 'member_id'))
+                {
+                    // envoi de mail de notification
+                    $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                    ob_start();
+                    include APP_PATH . 'templates/email/integration_active.php';
+                    $messageBody = ob_get_clean();
+
+                    if($this->sendEmailModel->sendEmail(
+                        $Membre->email, 
+                        'Intégration  - '. SITE_NAME, 
+                        $messageBody
+                    )) 
+                    {
+                        Session::setFlash('success', 'Membre approuvé avec succès.');
+                        Utils::redirect('../membres');
+                    }
+                } 
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_integration_rejeted'])) 
+        {
+            $updateDataMembre = [
+                'member_id' => $membreId,
+                'status' => ARRAY_STATUS_MEMBER[4]
+            ];
+            if($this->MembreModel->update($updateDataMembre, 'member_id'))
+            {
+                Session::setFlash('success', "Membre rejeté avec succès.");
+                Utils::redirect('../membres');
+            }
+        }
+
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_eng_rejeted'])) 
         {
             $updateData = [
@@ -252,7 +294,7 @@ class AdminController extends Controller
             ];
             $updateDataMembre = [
                 'member_id' => $membreId,
-                'status' => ARRAY_STATUS_MEMBER[4]
+                'status' => ARRAY_STATUS_MEMBER[5]
             ];
             if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
             {
@@ -358,7 +400,7 @@ class AdminController extends Controller
                 {
                     $updateDataMembre = [
                         'member_id' => $membreId,
-                        'status' => ARRAY_STATUS_MEMBER[4]
+                        'status' => ARRAY_STATUS_MEMBER[5]
                     ];
                     if($this->MembreModel->update($updateDataMembre, 'member_id'))
                     {
@@ -367,7 +409,7 @@ class AdminController extends Controller
                     }
                 }
             }
-            elseif($Membre->status === ARRAY_STATUS_MEMBER[3] || $Membre->status === ARRAY_STATUS_MEMBER[4])
+            elseif($Membre->status === ARRAY_STATUS_MEMBER[3] || $Membre->status === ARRAY_STATUS_MEMBER[5])
             {
                 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_active'])) 
                 {
@@ -409,7 +451,7 @@ class AdminController extends Controller
         elseif($sttGet === 'suspended')
             $stt = ARRAY_STATUS_MEMBER[3];
         elseif($sttGet === 'inactive')
-            $stt = ARRAY_STATUS_MEMBER[4];
+            $stt = ARRAY_STATUS_MEMBER[5];
 
         $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
         $allMembres = $results['data'];
@@ -419,7 +461,7 @@ class AdminController extends Controller
         $totalPages = $results['total_pages'];
 
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
-        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'pending_engagement', 'status' => 'pending_validation'], $cacheKey);
+        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
 
         $data = [
             'allMembres' => $allMembres,
