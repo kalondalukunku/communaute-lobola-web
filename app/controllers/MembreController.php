@@ -216,15 +216,11 @@ class MembreController extends Controller
             Utils::redirect('../rjtd/'. $membreId);
             return;
         }
-        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
-            Utils::redirect('/');
-            return;
-        }
         if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
             Utils::redirect('../attitgt/'. $membreId);
             return;
         }
-        if($Membre->engagement_id) {
+        if($Membre->engagement_id && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]) {
             Utils::redirect('../attente/'. $membreId);
             return;
         }
@@ -392,22 +388,22 @@ class MembreController extends Controller
             Utils::redirect('../integration');
             return;
         }
-
-        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
-            Utils::redirect('/');
-            return;
-        }
         if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
             Utils::redirect('../attitgt/'. $membreId);
             return;
         }
-        if(!$Membre->engagement_id) {
+        if(!$Membre->engagement_id && $Membre->status !== ARRAY_STATUS_MEMBER[0]) {
             Utils::redirect('../engagement/'. $membreId);
             return;
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
         {
             Utils::redirect('../rjtd/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1])
+        {
+            Utils::redirect('../profile/'. $membreId);
             return;
         }
         
@@ -497,7 +493,7 @@ class MembreController extends Controller
                 $MembreLog = $this->MembreModel->findByMemberId($membreId);
                 Session::set('user', $MembreLog);
                 Session::setFlash('success', 'Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.');
-                Utils::redirect('/');
+                Utils::redirect('../profile/'. $membreId);
             }
             else {
                 Session::setFlash('error', "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayez plutard.");
@@ -508,5 +504,28 @@ class MembreController extends Controller
         }
 
         $this->view('membre/updt_pswd', $data);
+    }
+
+    public function profile($membreId)
+    {
+        Auth::requireLogin('user');
+
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('../integration');
+            return;
+        }
+
+        $data = [
+            'title' => SITE_NAME .' | Profil de '. $Membre->nom_postnom,
+            'description' => 'Mon Profil',
+            'Membre' => $Membre,
+        ];
+
+        $this->view('membre/profile', $data);
     }
 }

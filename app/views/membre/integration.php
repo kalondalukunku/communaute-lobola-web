@@ -45,7 +45,7 @@
                     <div class="group relative">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Sexe</label>
                         <select name="sexe" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
-                            <option value="" disabled selected>Sélectionnez votre sexe...</option>
+                            <option value="" disabled selected>Sélectionnez votre genre...</option>
                             <?php foreach(ARRAY_TYPE_SEXE as $sexe): ?>
                                 <option value="<?= $sexe ?>" <?= Helper::getSelectedValue('sexe', $sexe) ?> ><?= $sexe ?></option>
                             <?php endforeach; ?>

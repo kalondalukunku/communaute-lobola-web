@@ -261,6 +261,24 @@ input, textarea, select {
     transform: scale(1.02);
 }
 
+.btn-primaire {
+    background-color: var(--primary);
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primaire:hover {
+    background-color: var(--primary-dark);
+    color: var(--paper);
+    transform: scale(1.02);
+}
+
 .checkbox-custom {
     width: 20px;
     height: 20px;

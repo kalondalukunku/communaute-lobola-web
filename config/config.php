@@ -2,7 +2,7 @@
 // Site infos
 define('SITE_NAME','Communauté Lobola');
 define('FORMATEUR','Shenuti Lobola-lo-ilondo');
-define('SITE_URL','https://communautelobola.ankhing.com');
+define('SITE_URL','https://communaute-lobola.ankhing.com');
 // define('SITE_NAME_BY','Ankhing Mosali');
 define('SITE_NAME_SESSION', str_replace(' ', '_', SITE_NAME));
 define('SITE_NAME_SESSION_USER', strtolower(SITE_NAME_SESSION . '_user'));
@@ -43,7 +43,7 @@ define('MAX_UPLOAD_SIZE', 256000);
 define('ARRAY_ROLE_USER',['Admin','Enseignant','Membre']);
 define('ARRAY_TYPE_ENGAGEMENT',['Menseul','Trimestriel','Semestriel','Annuel']);
 define('ARRAY_TYPE_DEVISE',['CDF','USD','EUR']);
-define('ARRAY_TYPE_SEXE',['M','F']);
+define('ARRAY_TYPE_SEXE',['Kamis','Kamite']);
 define('ARRAY_STATUS_MEMBER',['attente_engagement','attente_integration','active','suspended','integration_rejetee','inactive']);
 define('ARRAY_STATUS_ENGAGEMENT',['Approuvé','Non Approuvé','Rejété']);
 define('ARRAY_DOC_HEADER_TYPE',['pdf' => 'application/pdf', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);

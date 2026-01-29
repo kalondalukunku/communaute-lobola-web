@@ -74,7 +74,21 @@ class Membre extends Model {
 
     public function findByMemberId($memberId)
     {
-        $query = "SELECT M.*, E.*, E.statut AS statut_engagement FROM $this->table M LEFT JOIN engagements E ON M.member_id = E.member_id WHERE M.member_id = :member_id LIMIT 1";
+        $query = "SELECT 
+                        M.*,
+                        E.statut AS statut_engagement, 
+                        E.engagement_id, 
+                        E.modalite_engagement, 
+                        E.document_path, 
+                        E.document_ext, 
+                        E.document_header_type, 
+                        E.reference_code, 
+                        E.montant, 
+                        E.devise, 
+                        E.signed_at, 
+                        E.date_expiration 
+                    
+                    FROM $this->table M LEFT JOIN engagements E ON M.member_id = E.member_id WHERE M.member_id = :member_id LIMIT 1";
         $q = $this->db->prepare($query);
         $q->execute(['member_id' => $memberId]); 
         return $q->fetch();
