@@ -2,6 +2,7 @@
 require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class MembreController extends Controller 
@@ -10,14 +11,13 @@ class MembreController extends Controller
     private $EngagementModel;
     private $EnseignementModel;
     private $SendMailModel;
+    private $TokensModel;
 
     public function __construct()
-    {
-        // Auth::requireLogin('user');
-        // Auth::isRole(ARRAY_ROLE_USER[0]);
-        
+    {        
         $this->MembreModel = new Membre();
         $this->EngagementModel = new Engagement();
+        $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
         $this->SendMailModel = new SendMail();
  
@@ -25,13 +25,7 @@ class MembreController extends Controller
 
     public function index() 
     {
-
-        $data = [
-            'title' => SITE_NAME .' | Acceuil',
-            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
-        ];
-
-        $this->view('membre/index', $data);
+        Utils::redirect('/');
     }
 
     public function integration() 
@@ -42,6 +36,18 @@ class MembreController extends Controller
         {
             Utils::redirect('attitgt/'. $Membre->member_id);
             return;
+        }
+        
+        $dbEmails = $this->MembreModel->getEmails();
+        foreach ($dbEmails as $dbEmail) 
+        {
+            $dbEmails[] = $dbEmail->email;
+        }
+
+        $dbPhoneNumbers = $this->MembreModel->getPhoneNumbers();
+        foreach ($dbPhoneNumbers as $dbPhoneNumber) 
+        {
+            $dbPhoneNumbers[] = $dbPhoneNumber->phone_number;
         }
 
         $data = [
@@ -88,11 +94,23 @@ class MembreController extends Controller
                 $this->view('membre/integration',  $data);
                 return;
             }
+            if(in_array($email, $dbEmails))
+            {
+                Session::setFlash('error', 'Un membre avec cet email existe déjà.');
+                $this->view('membre/integration', $data);
+                return;
+            }
+            if(in_array($phone, $dbPhoneNumbers))
+            {
+                Session::setFlash('error', 'Un membre avec ce numéro de téléphone existe déjà.');
+                $this->view('membre/integration', $data);
+                return;
+            }
 
             $dataAddMembre = [  
                 'ip_address'           => $ip,
                 'nom_postnom'          => $nom_postnom,
-                'sexe'                 => $sexe,
+                'genre'                => $sexe,
                 'date_naissance'       => $date_naissance,
                 'nationalite'          => $nationalite,
                 'email'                => $email,
@@ -183,13 +201,12 @@ class MembreController extends Controller
             Utils::redirect('../integration');
             return;
         }
-
         if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
             Utils::redirect('/');
             return;
         }
-        if($Membre->status === ARRAY_STATUS_MEMBER[0]) {
-            Utils::redirect('../engagement/'. $membreId);
+        if($Membre->status === ARRAY_STATUS_MEMBER[4]) {
+            Utils::redirect('../itgtrjt/'. $membreId);
             return;
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]) {
@@ -205,8 +222,34 @@ class MembreController extends Controller
         $this->view('membre/attitgt', $data);
     }
 
+    public function itgtrjt($membreId)
+    {   
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('/');
+            return;
+        }
+        $data = [
+            'title' => SITE_NAME .' | Intégration rejétée',
+            'description' => 'Demande de votre intégration rejétée',
+            'membre' => $Membre,
+        ];
+
+        $this->view('membre/itgtrjt', $data);
+    }
+
     public function engagement($membreId) 
     {
+        Auth::requireLogin('membre');
+
         $Membre = $this->MembreModel->findByMemberId($membreId);
         if(!$Membre) {
             Utils::redirect('../integration');
@@ -222,6 +265,10 @@ class MembreController extends Controller
         }
         if($Membre->engagement_id && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]) {
             Utils::redirect('../attente/'. $membreId);
+            return;
+        }
+        if($Membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[2]) {
+            Utils::redirect('../profile/'. $membreId);
             return;
         }
 
@@ -382,6 +429,7 @@ class MembreController extends Controller
     
     public function attente($membreId) 
     {
+        Auth::requireLogin('membre');
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         if(!$Membre) {
@@ -408,7 +456,7 @@ class MembreController extends Controller
         }
         
         $data = [
-            'title' => SITE_NAME .' | Engagement',
+            'title' => SITE_NAME .' | En attente d\'engagement',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'membre' => $Membre,
         ];
@@ -448,12 +496,13 @@ class MembreController extends Controller
     public function updt_pswd($membreId) 
     {
         $Membre = $this->MembreModel->findByMemberId($membreId);
+        
         if(!$Membre) {
             Utils::redirect('../integration');
             return;
         }
         if($Membre->status !== ARRAY_STATUS_MEMBER[5]) {
-            Utils::redirect('/');
+            Utils::redirect('../integration');
             return;
         }
         $data = [
@@ -469,6 +518,13 @@ class MembreController extends Controller
             if(!$pswd || !$confirm_pswd)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/updt_pswd',  $data);
+                return;
+            }
+            
+            if(strlen($pswd) < 8 || strlen($confirm_pswd) < 8)
+            {
+                Session::setFlash('error', 'Le mot de passe doit contenir au moins 8 caractères.');
                 $this->view('membre/updt_pswd',  $data);
                 return;
             }
@@ -491,8 +547,8 @@ class MembreController extends Controller
             if($this->MembreModel->update($dataUpdateMembre, 'member_id'))
             {
                 $MembreLog = $this->MembreModel->findByMemberId($membreId);
-                Session::set('user', $MembreLog);
-                Session::setFlash('success', 'Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.');
+                Session::set('membre', $MembreLog);
+                Session::setFlash('success', 'Mot de passe mis à jour avec succès.');
                 Utils::redirect('../profile/'. $membreId);
             }
             else {
@@ -508,7 +564,7 @@ class MembreController extends Controller
 
     public function profile($membreId)
     {
-        Auth::requireLogin('user');
+        Auth::requireLogin('membre');
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         if(!$Membre) {
@@ -527,5 +583,81 @@ class MembreController extends Controller
         ];
 
         $this->view('membre/profile', $data);
+    }
+
+    public function forgot_pswd() 
+    {
+        $data = [
+            'title' => SITE_NAME .' | Mot de passe oublié',
+            'description' => 'Mot de passe oublié',
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_forgot_pswd']))
+        {
+            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
+
+            if(!$email)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/forgot_pswd',  $data);
+                return;
+            }
+
+            $Membre = $this->MembreModel->findByWhere('email', $email);
+            if(!$Membre)
+            {
+                Session::setFlash('error', 'L\'adresse email n\'est pas correcte.');
+                $this->view('membre/forgot_pswd',  $data);
+                return;
+            }
+
+            $tokenDb = $this->TokensModel->findByMemberId($Membre->member_id);
+            if($tokenDb) $this->TokensModel->delete($Membre->member_id, $tokenDb->token_id);
+            
+            $tokenid = Utils::generateUuidV4();
+            $token = Utils::generateToken(60);
+            $tokenStatus = ARRAY_STATUS_TOKEN[1]; // non utilisé
+            $expiryDate = Utils::getExpiryDateToken();
+
+            $dataAddToken = [
+                'token_id'      => $tokenid,
+                'token'         => $token,
+                'status'        => $tokenStatus,
+                'expired_at'    => $expiryDate,
+                'user_id'       => $Membre->member_id,
+            ];
+
+            $dataUpdateMembre = [
+                'token'         => $token,
+                'member_id'     => $Membre->member_id,
+            ];
+
+            if($this->TokensModel->insert($dataAddToken) && $this->MembreModel->update($dataUpdateMembre, 'member_id'))
+            {
+                // Envoi de l'email
+                $lien_reset = SITE_URL . '/auth/uatvt/' . $Membre->member_id . '?tk=' . $tokenid;
+                ob_start();
+                include APP_PATH . 'templates/email/forgot_pswd.php';
+                $messageBody = ob_get_clean();
+
+                if($this->SendMailModel->sendEmail(
+                    $Membre->email, 
+                    'Réinitialisation de votre mot de passe - '. SITE_NAME, 
+                    $messageBody
+                )) 
+                {
+                    Session::setFlash('success', 'Un email de réinitialisation a été envoyé à votre adresse email.');
+                    Utils::redirect('../login');
+                }
+            }
+            else {
+                Session::setFlash('error', "Une erreur est survenue. Veuillez réessayez plutard.");
+                $this->view('membre/forgot_pswd',  $data);
+                return;
+            }
+        
+        }
+
+        $this->view('membre/forgot_pswd', $data);
     }
 }

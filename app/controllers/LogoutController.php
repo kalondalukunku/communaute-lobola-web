@@ -4,7 +4,7 @@ class LogoutController extends Controller {
     public function index() 
     {
         Session::destroy();
-        Cache::delete('user_connexion');
+        Cache::delete('membre_connexion');
         Utils::redirect('login');
     }
 }

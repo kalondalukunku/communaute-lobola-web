@@ -54,27 +54,50 @@
                     <p class="text-xs text-gray-400 font-medium mb-6">Inscrite le <?= Helper::formatDate($Membre->created_at) ?></p>
                     
                     <div class="flex flex-col gap-2">
-                        <span class="border border-amber rounded-xl p-2 text-[10px] text-amber-600 self-center">ATTENTE APPROBATION</span>
+                        <?php if($Membre->status === ARRAY_STATUS_MEMBER[2]): ?>
+                            <span class="border border-green rounded-xl p-2 text-[10px] text-green-600 self-center">ACTIVE</span>
+                        <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[3]): ?>
+                            <span class="border border-red rounded-xl p-2 text-[10px] text-red-600 self-center">SUSPENDUE</span>
+                        <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[5]): ?>
+                            <span class="border border-gray rounded-xl p-2 text-[10px] text-gray-600 self-center">INACTIVE</span>
+                        <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[1]): ?>
+                            <span class="border border-amber rounded-xl p-2 text-[10px] text-amber-600 self-center">ATTENTE INTÉGRATION</span>
+                        <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[4]): ?>
+                            <span class="border border-red rounded-xl p-2 text-[10px] text-red-600 self-center">INTÉGRATION REJETÉE</span>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="glass-card rounded-[2.5rem] p-8">
-                    <h3 class="font-serif text-lg text-white font-bold mb-4">Contact</h3>
+                    <h3 class="font-serif text-lg text-white font-bold mb-4">Initiation</h3>
                     <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-seedling text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->niveau_initiation ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-[2.5rem] p-8">
+                    <h3 class="font-serif text-lg text-white font-bold mb-4">Infos</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-earth-africa text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->nationalite ?></span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-map-marker-alt text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->ville ?>, <?= $Membre->adresse ?></span>
+                        </div>
                         <div class="flex items-center gap-3">
                             <i class="fas fa-phone text-primary text-xs"></i>
                             <span class="text-xs font-bold text-gray-600"><?= $Membre->phone_number ?></span>
                         </div>
-                        <?php if($Membre->email): ?>
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-envelope text-primary text-xs"></i>
-                                <span class="text-xs font-bold text-gray-600"><?= $Membre->email ?></span>
-                            </div>
-                        <?php endif; ?>
                         <div class="flex items-center gap-3">
-                            <i class="fas fa-map-marker-alt text-primary text-xs"></i>
-                            <span class="text-xs font-bold text-gray-600"><?= $Membre->adresse ?></span>
+                            <i class="fas fa-envelope text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->email ?></span>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -229,16 +252,13 @@
                                 <h4 class="text-sm font-bold text-gray-400 mb-3">Informations du membre</h4>
                                 <ul class="text-xs text-gray-500 space-y-1">
                                     <li>Nom complet :<span class="font-bold text-gray-400"> <?= $Membre->nom_postnom ?></span></li>
-                                    <li>Téléphone :<span class="font-bold text-gray-400"> <?= $Membre->phone_number ?></span></li>
                                     <li>Date de naissance :<span class="font-bold text-gray-400"> <?= Helper::formatDate($Membre->date_naissance) ?></span></li>
                                     <li>Nationalité :<span class="font-bold text-gray-400"> <?= $Membre->nationalite ?></span></li>
                                     <li>Ville :<span class="font-bold text-gray-400"> <?= $Membre->ville ?></span></li>
                                     <li>Adresse :<span class="font-bold text-gray-400"> <?= $Membre->adresse ?></span></li>
                                     <li>Niveau d'initiation :<span class="font-bold text-gray-400"> <?= $Membre->niveau_initiation ?></span></li>
                                     <li>Téléphone :<span class="font-bold text-gray-400"> <?= $Membre->phone_number ?></span></li>
-                                    <?php if($Membre->email): ?>
-                                        <li>Email :<span class="font-bold text-gray-400"> <?= $Membre->email ?></span></li>
-                                    <?php endif; ?>
+                                    <li>Email :<span class="font-bold text-gray-400"> <?= $Membre->email ?></span></li>
                                     <li>Date d'inscription :<span class="font-bold text-gray-400"> <?= Helper::formatDate2($Membre->created_at) ?></span></li>
                                     <li>Motivation :<span class="font-bold text-gray-400"> <?= $Membre->motivation ?></span></li>
                                 </ul>

@@ -2,17 +2,21 @@
 require_once APP_PATH . 'models/Admin.php';
 require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
+require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AdminController extends Controller 
 {
     private $MembreModel; 
     private $EnseignementModel;
+    private $EnseignantModel;
     private $EngagementModel;
     private $adminModel;
     private $PaymentModel;
+    private $TokensModel;
     private $sendEmailModel;
     
     public function __construct()
@@ -21,10 +25,87 @@ class AdminController extends Controller
         $this->adminModel = new Admin();
         $this->MembreModel = new Membre();
         $this->EnseignementModel = new Enseignement();
+        $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
+        $this->TokensModel = new Tokens();
         $this->sendEmailModel = new SendMail();
  
+    }
+
+    public function index()
+    {
+        Utils::redirect('/admin/dashboard');
+    }
+    
+    public function edtpswd()
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+        $admin = $this->adminModel->find(Session::get('admin')['admin_id'], $cacheKey);
+        if(!$admin) {
+            Utils::redirect('/admin/dashboard');
+            return;
+        }
+
+        $data = [];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_updt_pswd']))
+        {
+            $old_pswd = Utils::sanitize(trim($_POST['old_pswd'] ?? ''));
+            $new_pswd = Utils::sanitize(trim($_POST['new_pswd'] ?? ''));
+            $confirm_password = Utils::sanitize(trim($_POST['confirm_pswd'] ?? ''));
+
+            if($old_pswd === '' || $new_pswd === '' || $confirm_password === '')
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/edtpswd',  $data);
+                return;
+            }
+            if(
+                !Helper::lengthValidation($old_pswd, 8, 16) || 
+                !Helper::lengthValidation($new_pswd, 8, 16) || 
+                !Helper::lengthValidation($confirm_password, 8, 16)
+            ) {
+                Session::setFlash('error', "Tous les mot de passe doit être compris entre 8 à 16 caratères.");
+                $this->view('admin/edtpswd',  $data);
+                return;
+            }
+            if($old_pswd === $new_pswd)
+            {
+                Session::setFlash('error', "Le nouveau mot de passe doit être différent de l'ancien mot de passe.");
+                $this->view('admin/edtpswd',  $data);
+                return;
+            }
+
+             if($new_pswd !== $confirm_password)
+            {
+                Session::setFlash('error', "Les deux nouveaux mots de passe ne se correspondent pas.");
+                $this->view('admin/edtpswd',  $data);
+                return;
+            }
+            if(!password_verify($old_pswd, $admin->pswd))
+            {
+                Session::setFlash('error', "Ancien mot de passe incorrect.");
+                $this->view('admin/edtpswd',  $data);
+                return;
+            }
+
+            $hashedPassword = password_hash($new_pswd, PASSWORD_ARGON2I);
+
+            $dataEdtPswdUs = [
+                'pswd'      => $hashedPassword,
+                'admin_id'  => $admin->admin_id,
+            ];
+
+            if($this->adminModel->update($dataEdtPswdUs, 'admin_id'))
+            {
+                Session::setFlash('success', 'Mot de passe modifié avec succès.');
+                Utils::redirect('dashboard');
+            }
+        }
+
+        $this->view('admin/edtpswd', $data);
     }
 
     public function dashboard() 
@@ -50,12 +131,8 @@ class AdminController extends Controller
         elseif($sttGet === 'inactive')
             $stt = ARRAY_STATUS_MEMBER[5];
 
-        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt], 10);
+        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['status' => $stt], 10);
         $allMembres = $results['data'];
-        // $totalrecords = $results['total_records'];
-        // $currentPage = $results['current_page'];
-        // $parPage = $results['per_page'];
-        // $totalPages = $results['total_pages'];
 
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
@@ -137,6 +214,14 @@ class AdminController extends Controller
         $this->view('admin/add');
     }
 
+    public function settings()
+    {
+        Auth::requireLogin('admin');
+        $casheKey = 'admin_administraction';
+
+        $this->view('admin/settings');
+    }
+
     public function membres() 
     {
         Auth::requireLogin('admin');
@@ -151,8 +236,6 @@ class AdminController extends Controller
         
         if($sttGet === 'active' || !isset($_GET['stt']))
             $stt = ARRAY_STATUS_MEMBER[2];
-        elseif($sttGet === 'att_engagement')
-            $stt = ARRAY_STATUS_MEMBER[0];
         elseif($sttGet === 'att_validation')
             $stt = ARRAY_STATUS_MEMBER[1];
         elseif($sttGet === 'suspended')
@@ -160,7 +243,7 @@ class AdminController extends Controller
         elseif($sttGet === 'inactive')
             $stt = ARRAY_STATUS_MEMBER[5];
 
-        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
+        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['status' => $stt]);
         $allMembres = $results['data'];
         $totalrecords = $results['total_records'];
         $currentPage = $results['current_page'];
@@ -168,9 +251,9 @@ class AdminController extends Controller
         $totalPages = $results['total_pages'];
 
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
-        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => [ARRAY_STATUS_MEMBER[0], ARRAY_STATUS_MEMBER[1]]], $cacheKey);
+        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[1]], $cacheKey);
+        $NbrAllMembresInities = $this->MembreModel->countAll(['niveau_initiation' => [ARRAY_TYPE_NIVEAU_INITIATION[1],ARRAY_TYPE_NIVEAU_INITIATION[2]]], $cacheKey);
         $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
-        $membresEngages = $this->MembreModel->countEngagedMembers();
 
         $data = [
             'allMembres' => $allMembres,
@@ -181,7 +264,7 @@ class AdminController extends Controller
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente,
             'totalPaymentMonth' => $totalPaymentMonth,
-            'membresEngages' => $membresEngages
+            'NbrAllMembresInities' => $NbrAllMembresInities
         ];
 
         foreach($allMembres as $membre) {
@@ -215,6 +298,82 @@ class AdminController extends Controller
         }
 
         $this->view('admin/membres', $data);
+    }
+
+    public function engages() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+        
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $sttGet = basename($_GET['stt'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
+
+        $stt = ARRAY_STATUS_MEMBER[2];
+        
+        if($sttGet === 'active' || !isset($_GET['stt']))
+            $stt = ARRAY_STATUS_MEMBER[2];
+        elseif($sttGet === 'att_engagement')
+            $stt = ARRAY_STATUS_MEMBER[0];
+
+        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['status' => $stt]);
+        $AllEngages = $results['data'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
+
+        $NbrAllEngages = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
+        $NbrAllEngagesAttente = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[0]], $cacheKey);
+        $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
+        $membresEngages = $this->MembreModel->countEngagedMembers();
+        $membresEngagesRejetes = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[2]], $cacheKey);
+
+        $data = [
+            'AllEngages' => $AllEngages,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
+            'NbrAllEngages' => $NbrAllEngages,
+            'NbrAllEngagesAttente' => $NbrAllEngagesAttente,
+            'totalPaymentMonth' => $totalPaymentMonth,
+            'membresEngages' => $membresEngages,
+            'membresEngagesRejetes' => $membresEngagesRejetes
+        ];
+
+        foreach($AllEngages as $membre) {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_vwfl'.$membre->member_id]))
+            {
+                $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
+
+                $res = $this->EnseignementModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
+
+                if($res === true)
+                {
+                    Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
+                    unlink($pathFilePdf);
+                }
+            }
+            
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
+            {
+                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
+                
+                if($mId === $membre->member_id)
+                {
+                    if($this->MembreModel->delete($membre->member_id))
+                    {
+                        Session::setFlash('success', 'Membre supprimé avec succès.');
+                        Utils::redirect('membres');
+                    }    
+                }
+            }
+        }
+
+        $this->view('admin/engages', $data);
     }
 
     public function membre($membreId) 
@@ -430,78 +589,186 @@ class AdminController extends Controller
         $this->view('admin/membre', $data);
     }
 
+    public function addenseignant() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $data = [];
+        
+        $dbEmails = $this->EnseignantModel->getEmails();
+        foreach ($dbEmails as $dbEmail) 
+        {
+            $dbEmails[] = $dbEmail->email;
+        }
+
+        $dbPhoneNumbers = $this->EnseignantModel->getPhoneNumbers();
+        foreach ($dbPhoneNumbers as $dbPhoneNumber) 
+        {
+            $dbPhoneNumbers[] = $dbPhoneNumber->phone_number;
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_add_enseignant'])) 
+        {
+            $nom_complet = Utils::sanitize(trim($_POST['nom_complet'] ?? ''));
+            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
+            $phone_number = Utils::sanitize(trim($_POST['phone_number'] ?? ''));
+            $biographie = Utils::sanitize(trim($_POST['biographie'] ?? ''));
+
+            if(!$nom_complet || !$email || !$phone_number || !$biographie)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/addenseignant');
+                return;
+            }
+            if(in_array($email, $dbEmails))
+            {
+                Session::setFlash('error', 'Un enseignant avec cet email existe déjà.');
+                $this->view('admin/addenseignant');
+                return;
+            }
+            if(in_array($phone_number, $dbPhoneNumbers))
+            {
+                Session::setFlash('error', 'Un enseignant avec ce numéro de téléphone existe déjà.');
+                $this->view('admin/addenseignant');
+                return;
+            }
+
+            $enseignantId = Utils::generateUuidV4();
+            $tokenid = Utils::generateUuidV4();
+            $token = Utils::generateToken(60);
+            $tokenStatus = ARRAY_STATUS_TOKEN[1]; // non utilisé
+            $expiryDate = Utils::getExpiryDateToken();
+            
+            $dataAddToken = [
+                'token_id'      => $tokenid,
+                'token'         => $token,
+                'status'        => $tokenStatus,
+                'expired_at'    => $expiryDate,
+                'admin_id'      => $enseignantId,
+            ];
+
+            $dataAddEnseignant = [
+                'enseignant_id' => $enseignantId,
+                'nom_complet'   => $nom_complet,
+                'email'         => $email,
+                'phone_number'  => $phone_number,
+                'biographie'    => $biographie,
+                'token'         => $token
+            ];
+            
+            if (!empty($_FILES['photo_file']['name']))
+            {
+                $file = $_FILES['photo_file'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('admin/addenseignant', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('admin/addenseignant', $data);
+                    return;
+                }
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($enseignantId, "enseignants");
+                $nomFichier = str_replace(' ', '_', $nom_complet) .'.'. $ext;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('admin/addenseignant',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $dataAddEnseignant['path_profile']  = $fichierPath;
+                        $resultUpload = true;                   
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('admin/addenseignant', ['data' => $data]);
+                    return;
+                }
+            }
+
+            if($resultUpload)
+            {
+                if($this->EnseignantModel->insert($dataAddEnseignant) && $this->TokensModel->insert($dataAddToken))
+                {
+                    // envoi de mail de notification
+                    $lien = SITE_URL . '/auth/esgnt/' . $enseignantId . '?tk=' . $tokenid;
+                    ob_start();
+                    include APP_PATH . 'templates/email/add_enseignant.php';
+                    $messageBody = ob_get_clean();
+
+                    if($this->sendEmailModel->sendEmail(
+                        $email, 
+                        'Invitation de devenir enseignant - '. SITE_NAME, 
+                        $messageBody
+                    )) 
+                    {
+                        Session::setFlash('success', 'Un email d\'invitation a été envoyé à l\'enseignant.');
+                        Utils::redirect('enseignants');
+                    }
+                } else {
+                    Session::setFlash('error', "Une erreur est survenue lors de l'ajout de l'enseignant.");
+                    $this->view('admin/addenseignant', $data);
+                    return;
+                }
+            } else {
+                Session::setFlash('error', "Veuillez ajouter une photo de profil pour l'enseignant.");
+                $this->view('admin/addenseignant', $data);;
+                return;
+            }
+        }
+
+        $this->view('admin/addenseignant');
+    }
+
+    public function vwenseignant($enseignantId) 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';        
+
+        $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
+        if(!$Enseignant) {
+            Utils::redirect('../enseignants');
+            return;
+        }
+
+        $data = [
+            'Enseignant' => $Enseignant,
+        ];
+
+        $this->view('admin/vwenseignant', $data);
+    }
+
     public function enseignants() 
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
+
+        $allEnseignants = $this->EnseignantModel->all();
         
-        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $search = ($query !== '') ? basename($query) : null;
-        $sttGet = basename($_GET['stt'] ?? '');
-        $psnPg = (int) basename($_GET['page'] ?? 1);
-
-        $stt = "";
-        
-        if($sttGet === 'active' || !isset($_GET['stt']))
-            $stt = ARRAY_STATUS_MEMBER[2];
-        elseif($sttGet === 'att_engagement')
-            $stt = ARRAY_STATUS_MEMBER[0];
-        elseif($sttGet === 'att_validation')
-            $stt = ARRAY_STATUS_MEMBER[1];
-        elseif($sttGet === 'suspended')
-            $stt = ARRAY_STATUS_MEMBER[3];
-        elseif($sttGet === 'inactive')
-            $stt = ARRAY_STATUS_MEMBER[5];
-
-        $results = $this->MembreModel->findAll($psnPg, $search, ['status' => $stt]);
-        $allMembres = $results['data'];
-        $totalrecords = $results['total_records'];
-        $currentPage = $results['current_page'];
-        $parPage = $results['per_page'];
-        $totalPages = $results['total_pages'];
-
-        $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
-        $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
-
         $data = [
-            'allMembres' => $allMembres,
-            'totalrecords' => $totalrecords,
-            'currentPage' => $currentPage,
-            'parPage' => $parPage,
-            'totalPages' => $totalPages,
-            'NbrAllMembres' => $NbrAllMembres,
-            'NbrAllMembresAttente' => $NbrAllMembresAttente
+            'allEnseignants' => $allEnseignants,
         ];
-
-        foreach($allMembres as $membre) {
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_vwfl'.$membre->member_id]))
-            {
-                $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
-                $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
-
-                $res = $this->EnseignementModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
-
-                if($res === true)
-                {
-                    Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
-                    unlink($pathFilePdf);
-                }
-            }
-            
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
-            {
-                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
-                
-                if($mId === $membre->member_id)
-                {
-                    if($this->MembreModel->delete($membre->member_id))
-                    {
-                        Session::setFlash('success', 'Membre supprimé avec succès.');
-                        Utils::redirect('membres');
-                    }    
-                }
-            }
-        }
 
         $this->view('admin/enseignants', $data);
     }

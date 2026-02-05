@@ -1,4 +1,5 @@
 <?php 
+    $title = $title;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar.php';
     include APP_PATH . 'templates/alertView.php'; 

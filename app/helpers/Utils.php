@@ -37,6 +37,22 @@ class Utils {
     public static function generateToken($length = 32) {
         return bin2hex(random_bytes($length));
     }
+
+    public static function getExpiryDateToken($format = 'Y-m-d H:i:s', $hoursValid = 24) 
+    {
+        $now = new DateTimeImmutable();
+        $futureDate = $now->modify("+{$hoursValid} hours");
+        
+        return $futureDate->format($format);
+    }
+
+    public static function isTokenExpired($expirationDate): bool 
+    {
+        $now = new DateTimeImmutable();
+        $expiration = new DateTimeImmutable($expirationDate);
+        
+        return $now > $expiration;
+    }
     
     public static function comparePostWithCourier($post, $courier)
     {

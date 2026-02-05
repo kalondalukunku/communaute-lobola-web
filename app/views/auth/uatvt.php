@@ -1,62 +1,96 @@
 <?php 
-  include APP_PATH . 'views/layouts/header.php'; 
+    $title = "Admin | Connexion";
+    include APP_PATH . 'views/layouts/header.php'; 
+    include APP_PATH . 'templates/alertView.php'; 
+
 ?>
 
-<section class="flex flex-col mt-[3.5rem]">
-    
-    <?php 
-        include APP_PATH . 'views/layouts/navbar.php';
-        include APP_PATH . 'templates/alertView.php';
-    ?>
-    
-    <!-- Zone de Contenu Principale (Plein Écran) -->
-    <div class="flex-1 p-4 sm:p-8">
-        
-        <!-- Header de la Page d'Ajout -->
-        <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
-            <h1 class="text-2xl font-bold text-gray-900 flex items-center mb-4 md:mb-0">
-                <a href="<?= RETOUR_EN_ARRIERE ?>" class="text-gray-400 hover:text-[var(--color-secondary)] mr-4"><i class="fas fa-arrow-left text-xl"></i></a>
-                Ajouter un mot de passe
-            </h1>
-        </header>
-        
-        <!-- Formulaire principal -->
-        <div id="addPersonnelForm" class="grid grid-cols-1 lg:grid-cols-2 gap-4 px-9" enctype="multipart/form-data">
-
-            <!-- Colonne Droite: Onglets de Saisie (2/3) -->
-            <div class="lg:col-span-2">
-                <div class="card-container p-6">
-
-                    <!-- --------------------------------- -->
-                    <div id="personnel" class="tab-content active space-y-6">
-                        <form action="" method="post">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                
-                                <div>
-                                    <label for="new_pswd" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-                                    <input type="password" id="new_pswd" name="new_pswd" value="<?=  Helper::getData($_POST, 'new_pswd') ?>" required class="form-input" placeholder="Mot de passe">
-                                </div>
-                                <div>
-                                    <label for="confirm_pswd" class="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
-                                    <input type="password" id="confirm_pswd" name="confirm_pswd" value="<?=  Helper::getData($_POST, 'confirm_pswd') ?>" required class="form-input" placeholder="Confirmer le mot de passe">
-                                </div>
-                            </div>
-
-                            <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end">
-                                <button type="submit" name="mosali_auth_us" class="flex items-center space-x-2 bg-green-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-green-700 transition duration-150 transform hover:scale-[1.01]">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Ajouter</span>
-                                </button>
-                            </div>
-                        </form>
-                            
-                    </div>
-
-                </div>
+<section class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full animate-fade-in">
+        <!-- Logo ou Icône -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 shadow-lg shadow-primary/20">
+                <img class="w-15 rounded-2xl" src="<?= ASSETS ?>images/logo.jpg" alt="">
             </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Espace Membre</h1>
+            <p class="text-slate-400 mt-2">Mise à jour du mot de passe</p>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="glass-card rounded-3xl p-8 md:p-10">
+            <form method="post" id="loginForm" class="space-y-6">
+
+                <div class="input-group">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label for="password" class="block text-sm font-medium text-slate-300 transition-all">Nouveau mot de passe</label>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password1" required
+                            name="pswd"
+                            class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
+                            placeholder="••••••••" style="color: var(--primary);"
+                            value="<?= Helper::getData($_POST, 'pswd') ?>">
+                        <button type="button" onclick="togglePassword1()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                            <i id="eyeIcon1" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label for="password" class="block text-sm font-medium text-slate-300 transition-all">Confirme le nouveau mot de passe</label>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password2" required
+                            name="confirm_pswd"
+                            class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
+                            placeholder="••••••••" style="color: var(--primary);"
+                            value="<?= Helper::getData($_POST, 'confirm_pswd') ?>">
+                        <button type="button" onclick="togglePassword2()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                            <i id="eyeIcon2" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                    name="cllil_membre_updt_pswd"
+                    class="w-full bg-primary hover:bg-primary text-paper font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span id="btnText">Modifier</span>
+                    <i id="btnIcon" class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
         </div>
     </div>
-    
 </section>
 
-<?php include APP_PATH . 'views/layouts/footer.php'; ?>
+<script>
+    function togglePassword1() {
+        const pwd = document.getElementById('password1');
+        const icon = document.getElementById('eyeIcon1');
+        if (pwd.type === 'password' ) {
+            pwd.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            pwd.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+    function togglePassword2() {
+        const pwd2 = document.getElementById('password2');
+        const icon2 = document.getElementById('eyeIcon2');
+
+        if (pwd2.type === 'password') {
+            pwd2.type = 'text';
+            icon2.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            pwd2.type = 'password';
+            icon2.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>

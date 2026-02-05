@@ -1,4 +1,5 @@
 <?php 
+    $title = $title;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'templates/alertView.php'; 
 ?>
@@ -39,7 +40,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nom complet (Nom du KAMA)</label>
-                        <input type="text" name="nom_postnom" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Mukendi Kitenge" required>
+                        <input type="text" name="nom_postnom" value="<?= Helper::getData($_POST, 'nom_postnom') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Mukendi Kitenge" required>
                     </div>
 
                     <div class="group relative">
@@ -55,7 +56,7 @@
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Date de naissance</label>
-                        <input type="date" name="date_naissance" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="JJ/MM/AAAA..." required>
+                        <input type="date" name="date_naissance" value="<?= Helper::getData($_POST, 'date_naissance') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="JJ/MM/AAAA..." required>
                     </div>
                 </div>
             </section>
@@ -84,7 +85,7 @@
                 <div class="space-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Pourquoi souhaitez-vous rejoindre la communauté ?</label>
-                        <textarea name="motivation" rows="3" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos motivations profondes..." required></textarea>
+                        <textarea name="motivation" rows="3" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos motivations profondes..." required><?= Helper::getData($_POST, 'motivation') ?></textarea>
                     </div>
                 </div>
             </section>
@@ -100,27 +101,27 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nationalité</label>
-                        <input type="text" name="nationalite" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Votre pays d'origine..." required>
+                        <input type="text" name="nationalite" value="<?= Helper::getData($_POST, 'nationalite') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Votre pays d'origine..." required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ville de résidence</label>
-                        <input type="text" name="ville" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
+                        <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
                     </div>
                     
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Lieu de résidence (Adresse)</label>
-                        <input type="text" name="adresse" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ville, Commune, Quartier..." required>
+                        <input type="text" name="adresse" value="<?= Helper::getData($_POST, 'adresse') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ville, Commune, Quartier..." required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Adresse Email</label>
-                        <input type="email" name="email" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="exemple@gmail.com" required>
+                        <input type="email" name="email" value="<?= Helper::getData($_POST, 'email') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="exemple@gmail.com" required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">WhatsApp / Appel</label>
-                        <input type="tel" name="phone" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243 8*******" required>
+                        <input type="tel" name="phone" value="<?= Helper::getData($_POST, 'phone') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243 8*******" required>
                     </div>
                 </div>
             </section>

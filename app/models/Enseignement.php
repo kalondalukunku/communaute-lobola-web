@@ -28,7 +28,21 @@ class Enseignement extends Model {
 
         $q = $this->db->prepare($query);
         return $q->execute($datas);
-    }    
+    } 
+    
+    public function find($enseignementId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignement_id = :enseignement_id LIMIT 1");
+        $stmt->execute(['enseignement_id' => $enseignementId]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+    
+    public function findAll($enseignantId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignant_id = :enseignant_id");
+        $stmt->execute(['enseignant_id' => $enseignantId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 
     public function cheminDossierPdf($personnelID, $type_file = "engagement")
     {

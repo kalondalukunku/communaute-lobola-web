@@ -48,7 +48,9 @@ define('ARRAY_STATUS_MEMBER',['attente_engagement','attente_integration','active
 define('ARRAY_STATUS_ENGAGEMENT',['Approuvé','Non Approuvé','Rejété']);
 define('ARRAY_DOC_HEADER_TYPE',['pdf' => 'application/pdf', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
 define('ARRAY_PAYMENT_STATUS',['En attente','Payé','Echoué']);
-define('ARRAY_TYPE_NIVEAU_INITIATION',['Pas encore initié', '15 jours', '30 jours']);
+define('ARRAY_TYPE_NIVEAU_INITIATION',['Pas encore initié', '15 jours', '30 jours','Neuvaine']);
 define('ARRAT_TAUX_CHANGE',['CDF' => 2200, 'EUR' => 0.87, 'USD' => 1.0]); // valeurs en CDF
+define('ARRAY_STATUS_TOKEN',['utilisé', 'non utilisé', 'expiré']);
+define('ARRAY_STATUS_ENSEIGNANT',['Actif','Inactif','En pause']);
 
 define('RETOUR_EN_ARRIERE', 'javascript:history.back()');

@@ -11,7 +11,7 @@ class HomeController extends Controller {
 
     public function __construct()
     {
-        // Auth::requireLogin('user'); // protéger toutes les pages
+        // Auth::requireLogin('membre') ?? Auth::requireLogin('enseignant');
         // Auth::isRole(ARRAY_ROLE_USER[0]);
         
         $this->MembreModel = new Membre();

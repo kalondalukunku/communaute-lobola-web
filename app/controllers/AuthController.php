@@ -1,122 +1,112 @@
 <?php
-require_once APP_PATH . 'models/User.php';
-require_once APP_PATH . 'helpers/Logger.php';
+require_once APP_PATH . 'models/Membre.php';
+require_once APP_PATH . 'models/Enseignant.php';
+require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AuthController extends Controller {
 
-    private $loggerModel;
-    private $userModel;
+    private $TokensModel;
+    private $MembreModel;
+    private $EnseignantModel;
     private $sendEmailModel;
 
     public function __construct()
     {
-        $this->loggerModel = new Logger();
-        $this->userModel = new User();
+        $this->TokensModel = new Tokens();
+        $this->MembreModel = new Membre();
+        $this->EnseignantModel = new Enseignant();
         $this->sendEmailModel = new SendMail();
     }
 
-    // public function index() 
-    // {
-    //     Session::start();
-    //     $cacheKey = 'user_connexion';
-    //     if (Session::isLogged('user')) Utils::redirect('/');
+    public function index() 
+    {
+        Utils::redirect('/');
+    }
 
-    //     if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bukus_user_login'])) $this->auth($_POST, $cacheKey);
-    //     $this->view('auth/index');
-    // }
-
-    public function uatvt() 
+    public function uatvt($membreId) 
     {
         Session::start();
         $cacheKey = 'user_activation';
         // if (Session::isLogged('user')) Utils::redirect('/');
         if(isset($_GET['tk'])){
-            $token = $_GET['tk'];
+            $tokenId = $_GET['tk'];
 
-            $user = $this->userModel->getUsers('token', $token);
-            if (!$user || $user->statut_compte === ARRAY_USER[0]) {
-                Session::setFlash('error', "Lien d'activation invalide.");
-                Utils::redirect('/');
-                return;
+            $Membre = $this->MembreModel->findByMemberId($membreId);
+            $tokenDb = $this->TokensModel->find($membreId, $tokenId);
+
+            if(!$Membre || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->user_id !== $membreId || $Membre->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
+            {
+                Session::setFlash('error', "Lien d'activation invalide ou expiré.");
+                Utils::redirect('/login');
             }
 
             $data = [
-                'user' => $user,
+                'membre' => $Membre,
             ];
 
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mosali_auth_us']))
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_updt_pswd']))
             {
-                $new_pswd = Utils::sanitize(trim($_POST['new_pswd'] ?? ''));
+                $pswd = Utils::sanitize(trim($_POST['pswd'] ?? ''));
                 $confirm_pswd = Utils::sanitize(trim($_POST['confirm_pswd'] ?? ''));
 
-                if($new_pswd === '' || $confirm_pswd === '')
+                if(!$pswd || !$confirm_pswd)
                 {
                     Session::setFlash('error', 'Remplissez correctement le formulaire.');
                     $this->view('auth/uatvt',  $data);
                     return;
                 }
-                
-                //verifier le password s'il respect la longueur de 8 0 16 ccarateres
-                if(
-                    !Helper::lengthValidation($new_pswd, 8, 16) || 
-                    !Helper::lengthValidation($confirm_pswd, 8, 16)
-                ) {
-                    Session::setFlash('error', "Tous les mot de passe doit être compris entre 8 à 16 caratères.");
-                    $this->view('auth/uatvt',  $data);
-                    return;
-                }
-                if($new_pswd !== $confirm_pswd)
+
+                if(strlen($pswd) < 8)
                 {
-                    Session::setFlash('error', "Les deux mot de passe ne se correspondent pas.");
+                    Session::setFlash('error', 'Le mot de passe doit contenir au moins 8 caractères.');
                     $this->view('auth/uatvt',  $data);
                     return;
                 }
 
-                $pswd = password_hash($new_pswd, PASSWORD_ARGON2I);
+                if($pswd !== $confirm_pswd)
+                {
+                    Session::setFlash('error', 'Les 2 mots de passe ne se correspondent pas.');
+                    $this->view('auth/uatvt',  $data);
+                    return;
+                }
 
-                $dataUpdate = [
-                    'pswd'              => $pswd,
-                    'token'             => null,
-                    'token_expiration'  => null,
-                    'statut_compte'     => ARRAY_USER[0],
-                    'user_id'           => $user->user_id,
+                if(password_verify($pswd, $Membre->pswd))
+                {
+                    Session::setFlash('error', 'Le nouveau mot de passe doit être différent de l\'ancien.');
+                    $this->view('auth/uatvt',  $data);
+                    return;
+                }
+
+                $hashedPassword = password_hash($pswd, PASSWORD_ARGON2I);
+
+                $dataUpdateMembre = [
+                    'status'        => ARRAY_STATUS_MEMBER[2],
+                    'pswd'          => $hashedPassword,
+                    'token'         => null,
+                    'member_id'     => $membreId
                 ];
 
-                if($this->userModel->update($dataUpdate, 'user_id'))
-                {
-                    // $dataLogs = [
-                    //     'user_id'       => $user->user_id,
-                    //     'action'        => "Activation du compte réussi",
-                    //     'resultat'      => '1',
-                    //     'date_action'   => date('Y-m-d H:i:s'),
-                    // ];
-                    // if($this->loggerModel->addLog($dataLogs))
-                    // {
-                        $lien_connexion = BASE_URL . '/login';
-                        ob_start();
-                        include APP_PATH . 'templates/email/activationCompte2.php';
-                        $messageBody = ob_get_clean();
+                $dataUpdateToken = [
+                    'token_id'  => $tokenDb->token_id,
+                    'token'     => NULL,
+                    'status'    => ARRAY_STATUS_TOKEN[0], // utilisé
+                ];
 
-                        if($this->sendEmailModel->sendEmail(
-                            $user->email, 
-                            'Compte activé avec succès - '. SITE_NAME,
-                            $messageBody
-                        ))
-                        {
-                            Session::setFlash('success', 'Compte activé avec succès. Veuillez vous connecter.');
-                            Utils::redirect('/login');
-                        } 
-                        else {
-                            Session::setFlash('error', "Echec de l'envoi de l'email d'activation.");
-                            Utils::redirect('../sg/users');
-                        }
-                    // } 
-                    // else {
-                    //     Session::setFlash('error', "Echec de l'activation du compte.");
-                    //     Utils::redirect('/');
-                    // }
+                if($this->MembreModel->update($dataUpdateMembre, 'member_id') && 
+                   $this->TokensModel->update($dataUpdateToken, 'token_id'))
+                {
+                    $MembreLog = $this->MembreModel->findByMemberId($membreId);
+                    Session::set('membre', $MembreLog);
+                    Session::setFlash('success', 'Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.');
+                    Utils::redirect('../../login');
                 }
+                else {
+                    Session::setFlash('error', "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayez plutard.");
+                    $this->view('auth/uatvt',  $data);
+                    return;
+                }
+            
             }
         } else {
             Session::setFlash('error', "Lien d'activation invalide.");
@@ -124,5 +114,97 @@ class AuthController extends Controller {
         }
 
         $this->view('auth/uatvt');
+    }
+
+    public function esgnt($enseignantId) 
+    {
+        Session::start();
+        $cacheKey = 'enseignant_activation';
+        
+        if(isset($_GET['tk'])){
+            $tokenId = $_GET['tk'];
+
+            $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
+            $tokenDb = $this->TokensModel->find($enseignantId, $tokenId);
+
+            if(!$Enseignant || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->user_id !== $enseignantId || $Enseignant->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
+            {
+                Session::setFlash('error', "Lien d'activation invalide ou expiré.");
+                Utils::redirect('/');
+            }
+
+            $data = [
+                'enseignant' => $Enseignant,
+            ];
+
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_add_pswd']))
+            {
+                $pswd = Utils::sanitize(trim($_POST['pswd'] ?? ''));
+                $confirm_pswd = Utils::sanitize(trim($_POST['confirm_pswd'] ?? ''));
+
+                if(!$pswd || !$confirm_pswd)
+                {
+                    Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                    $this->view('auth/esgnt',  $data);
+                    return;
+                }
+
+                if(strlen($pswd) < 8)
+                {
+                    Session::setFlash('error', 'Le mot de passe doit contenir au moins 8 caractères.');
+                    $this->view('auth/esgnt',  $data);
+                    return;
+                }
+
+                if($pswd !== $confirm_pswd)
+                {
+                    Session::setFlash('error', 'Les 2 mots de passe ne se correspondent pas.');
+                    $this->view('auth/esgnt',  $data);
+                    return;
+                }
+
+                if(password_verify($pswd, $Enseignant->pswd))
+                {
+                    Session::setFlash('error', 'Le nouveau mot de passe doit être différent de l\'ancien.');
+                    $this->view('auth/esgnt',  $data);
+                    return;
+                }
+
+                $hashedPassword = password_hash($pswd, PASSWORD_ARGON2I);
+
+                $dataUpdateEnseignant = [
+                    'status'        => ARRAY_STATUS_ENSEIGNANT[0],
+                    'pswd'          => $hashedPassword,
+                    'token'         => null,
+                    'enseignant_id'     => $enseignantId    
+                ];
+
+                $dataUpdateToken = [
+                    'token_id'  => $tokenDb->token_id,
+                    'token'     => NULL,
+                    'status'    => ARRAY_STATUS_TOKEN[0], // utilisé
+                ];
+
+                if($this->EnseignantModel->update($dataUpdateEnseignant, 'enseignant_id') && 
+                   $this->TokensModel->update($dataUpdateToken, 'token_id'))
+                {
+                    // $EnseignantLog = $this->EnseignantModel->findByEnseignantId($enseignantId);
+                    // Session::set('enseignant', $EnseignantLog);
+                    Session::setFlash('success', 'Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.');
+                    Utils::redirect('../../enseignant');
+                }
+                else {
+                    Session::setFlash('error', "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayez plutard.");
+                    $this->view('auth/esgnt',  $data);
+                    return;
+                }
+            
+            }
+        } else {
+            Session::setFlash('error', "Lien d'activation invalide.");
+            Utils::redirect('/');
+        }
+
+        $this->view('auth/esgnt');
     }
 }

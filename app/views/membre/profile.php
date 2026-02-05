@@ -1,4 +1,5 @@
 <?php 
+    $title = $title;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar.php';
     include APP_PATH . 'templates/alertView.php'; 
@@ -73,7 +74,7 @@
 
             <?php if ($Membre->niveau_initiation == ARRAY_TYPE_NIVEAU_INITIATION[2]):?>
                 <div class="mt-4 justify-center flex">
-                    <a href="../engagement/<?= $Membre->member_id ?>" class="btn-primaire w-full md:w-auto text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">M'engager</a>
+                    <!-- <a href="../engagement/<?= $Membre->member_id ?>" class="btn-primaire w-full md:w-auto text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">M'engager</a> -->
                 </div>
             <?php endif; ?>
         </div>

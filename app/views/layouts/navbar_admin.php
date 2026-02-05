@@ -27,6 +27,10 @@
                 <i class="fas fa-user-friends w-5"></i> 
                 <span class="text-sm">Gestion Membres</span>
             </a>
+            <a href="/admin/engages" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/engages', true) ?>">
+                <i class="fas fa-users w-5"></i> 
+                <span class="text-sm">Gestion des Engagés</span>
+            </a>
             <a href="/admin/enseignants" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/enseignants', true) ?>">
                 <i class="fas fa-book-open w-5 group-hover:text-primary transition"></i> 
                 <span class="text-sm font-medium">Enseignants</span>
@@ -34,9 +38,13 @@
             
             <div class="pt-8">
                 <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Système</p>
-                <a href="#" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition text-gray-400 group">
+                <!-- <a href="#" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition text-gray-400 group">
                     <i class="fas fa-cog w-5 group-hover:text-primary transition"></i> 
                     <span class="text-sm font-medium">Paramètres</span>
+                </a> -->
+                <a href="/admin/edtpswd" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/edtpswd', true) ?>">
+                    <i class="fas fa-edit w-5 group-hover:text-primary transition"></i> 
+                    <span class="text-sm font-medium">Modifier Mot de passe</span>
                 </a>
             </div>
         </nav>

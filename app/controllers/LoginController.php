@@ -1,22 +1,28 @@
 <?php
-require_once APP_PATH .'models/User.php';
+require_once APP_PATH . 'models/Membre.php';
 
 class LoginController extends Controller {
+
+    private $MembreModel;
+
+    public function __construct()
+    {        
+        $this->MembreModel = new Membre();
+ 
+    }
 
     public function index() 
     {
         Session::start();
-        $cacheKey = 'user_connexion';
-        if (Session::isLogged('user')) Utils::redirect('/');
+        $cacheKey = 'membre_connexion';
+        if (Session::isLogged('membre')) Utils::redirect('membre/profile/'. Session::get('membre')->member_id);
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mutu_user_login'])) $this->auth($_POST, $cacheKey);
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_login'])) $this->auth($_POST, $cacheKey);
         $this->view('login/index');
     }
 
     public function auth($Post, $cacheKey) 
     {
-        $userModel = new User();
-
         $connect = Utils::sanitize(trim($Post['connect'] ?? ''));
         $pswd = Utils::sanitize(trim($Post['pswd'] ?? ''));
 
@@ -32,16 +38,27 @@ class LoginController extends Controller {
             return;
         }
 
-        $user = $userModel->loginUser($connect, $cacheKey);
-        var_dump($user);
+        $Membre = $this->MembreModel->loginMember($connect, $cacheKey);
+        if(!$Membre) {
+            Session::setFlash('error', 'Adresse mail ou numéro de téléphone incorrect.');
+            $this->view('login/index', ['data' => $data]);
+            return;
+        }
 
-        if ($user && password_verify($pswd, $user->pswd) && $user->statut_compte === 'Actif') 
+        if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
+            Session::setFlash('error', 'Votre compte n\'est pas activé. Contactez l\'administrateur.');
+            $this->view('login/index', ['data' => $data]);
+            return;
+        }
+
+        if ($Membre && password_verify($pswd, $Membre->pswd)) 
         {
-            Session::set('user', $user);
+            Cache::set($cacheKey, $Membre);
+            Session::set('membre', $Membre);
             Session::setFlash('success', 'Connecté.');
-            Utils::redirect('/');
+            Utils::redirect('membre/profile/'.$Membre->member_id);
         } else {
-            Session::setFlash('error', 'Email ou mot de passe incorrect.');
+            Session::setFlash('error', 'Mot de passe incorrect.');
             $this->view('login/index', ['data' => $data]);
             return;
         }

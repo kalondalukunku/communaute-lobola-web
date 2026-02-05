@@ -44,7 +44,7 @@
                 <div class="card-stat p-6 color-border rounded-[2.5rem]">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Communauté</p>
+                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Membres actifs</p>
                             <h3 class="text-white text-xl leading-none"><?= $NbrAllMembres ?></h3>
                         </div>
                         <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
@@ -75,8 +75,8 @@
                 <div class="card-stat p-6 color-border rounded-[2.5rem]">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Membres engagés</p>
-                            <h3 class="text-white text-xl leading-none"><?= $membresEngages ?></h3>
+                            <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Membres initiés</p>
+                            <h3 class="text-white text-xl leading-none"><?= $NbrAllMembresInities ?></h3>
                         </div>
                         <div class="w-12 h-12 bg-paper text-primary rounded-2xl flex items-center justify-center">
                             <i class="fas fa-shield-alt text-xl"></i>
@@ -115,7 +115,6 @@
                             $psnStatus = [
                                 'active' => 'Actif',
                                 'att_validation' => 'Attente Intégration',
-                                'att_engagement' => 'Attente Engagement',
                                 'suspended' => 'Suspendu',
                                 'inactive' => 'Inactif',
                             ];
@@ -139,7 +138,7 @@
 
                                 $url_params = http_build_query($new_params);
 
-                                echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium rounded-lg {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
+                                echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium color-border rounded-2xl {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
                             }
                             ?>
                         <!-- <button class="relative font-bold text-xs text-primary after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-primary after:rounded-full">Tous les membres</button>
@@ -159,10 +158,10 @@
                         <thead>
                             <tr class="bg-[#001411] color-border-b">
                                 <th class="pl-5 pr-3 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Identité</th>
-                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Engagement</th>
+                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Niveau initiation</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Statut actuel</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Date d'intégration</th>
-                                <th class="pl-3 pr-5 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400 text-right">Options</th>
+                                <th class="pl-3 pr-5 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400 text-center">Options</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -183,12 +182,12 @@
                                                         </td>
                                                         <td class="px-3 py-3">
                                                         <div class="flex flex-col">
-                                                                <span class="text-sm font-bold text-white"><?= $membre->modalite_engagement ?></span>
-                                                                <span class="text-[10px] text-gray-400">Renouvellement : <?= Helper::formatDate($membre->date_expiration) ?></span>
-                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[0]): ?>
-                                                                <span class="text-[10px] text-amber-500 font-bold">Engagement à approuver</span>
-                                                                <?php elseif( $membre->status === ARRAY_STATUS_MEMBER[1]): ?>
-                                                                <span class="text-[10px] text-amber-500 font-bold">Paiement à confirmer</span>
+                                                                <span class="text-xs font-bold text-white"><?= $membre->niveau_initiation ?></span>
+                                                                <!-- <span class="text-[10px] text-gray-400">Renouvellement : </span> -->
+                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[1]): ?>
+                                                                <span class="text-[10px] text-amber-500 font-bold">Intégration à approuver</span>
+                                                                <?php elseif( $membre->status === ARRAY_STATUS_MEMBER[2]): ?>
+                                                                <span class="text-[10px] text-green-500 font-bold">Intégré</span>
                                                                 <?php endif; ?>
                                                         </div>
                                                         </td>
@@ -207,13 +206,8 @@
                                                         </td>
                                                         <td class="pl-6 pr-10 py-5">
                                                         <div class="flex justify-end gap-2">
-                                                            <?php if($membre->engagement_id): ?>
-                                                            <form action="" method="post">
-                                                                <button type="submit" name="cllil_vwfl<?= $membre->member_id ?>" class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition">Voir</button>
-                                                            </form>
-                                                            <?php else: ?>
-                                                                <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
-                                                            <?php endif; ?>
+                                                            <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
+
                                                             <form action="" method="post">
                                                                 <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
                                                                 <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>

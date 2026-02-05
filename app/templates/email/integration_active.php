@@ -117,7 +117,7 @@
             <tr>
                 <td class="header">
                     <!-- Image représentative de l'intégration -->
-                    <img src="https://communautelobola.ankhing.com/assets/images/logo.jpg" alt="[Image de l'Intégration]">
+                    <img src="https://communaute-lobola.ankhing.com/assets/images/logo.jpg" alt="[Image de l'Intégration]">
                     <h1>Félicitations</h1>
                 </td>
             </tr>

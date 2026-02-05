@@ -1,5 +1,5 @@
 <?php 
-    $title = "Admin | Connexion";
+    $title = "Mise à jour du mot de passe";
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'templates/alertView.php'; 
 
@@ -31,7 +31,8 @@
                         <input type="password" id="password1" required
                             name="pswd"
                             class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="••••••••" style="color: var(--primary);">
+                            placeholder="••••••••" style="color: var(--primary);"
+                            value="<?= Helper::getData($_POST, 'pswd') ?>">
                         <button type="button" onclick="togglePassword1()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                             <i id="eyeIcon1" class="fas fa-eye"></i>
                         </button>
@@ -49,7 +50,8 @@
                         <input type="password" id="password2" required
                             name="confirm_pswd"
                             class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="••••••••" style="color: var(--primary);">
+                            placeholder="••••••••" style="color: var(--primary);"
+                            value="<?= Helper::getData($_POST, 'confirm_pswd') ?>">
                         <button type="button" onclick="togglePassword2()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                             <i id="eyeIcon2" class="fas fa-eye"></i>
                         </button>

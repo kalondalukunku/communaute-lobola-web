@@ -1,4 +1,5 @@
 <?php 
+    $title = $title;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'templates/alertView.php'; 
 ?>
@@ -63,32 +64,6 @@
             
             <!-- Informations Personnelles -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                <!-- <div class="group">
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nom & Postnom</label>
-                    <input type="text" name="nom_postnom" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Saisissez votre nom complet..." required>
-                </div>
-
-                <div class="group relative">
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Sexe</label>
-                    <select name="sexe" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
-                        <option value="" disabled selected>Sélectionnez votre sexe...</option>
-                        <?php foreach(ARRAY_TYPE_SEXE as $sexe): ?>
-                            <option value="<?= $sexe ?>" <?= Helper::getSelectedValue('sexe', $sexe) ?> ><?= $sexe ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
-                </div>
-
-                <div class="group">
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Date de naissance</label>
-                    <input type="date" name="date_naissance" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" required>
-                </div>
-
-                <div class="group">
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Numéro de téléphone</label>
-                    <input type="tel" name="phone_number" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243..." required>
-                </div> -->
-
                 <div class="group relative">
                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Modalité d'engagement</label>
                     <select name="modalite_engagement" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
@@ -102,7 +77,7 @@
 
                 <div class="group">
                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Montant de la contribution</label>
-                    <input type="number" name="montant" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Min: 10" required>
+                    <input type="number" name="montant" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" value="<?= Helper::getData($_POST, 'montant') ?>" placeholder="Min: 10" required>
                 </div>
 
                 <div class="group relative">
