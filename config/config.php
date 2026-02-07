@@ -52,5 +52,7 @@ define('ARRAY_TYPE_NIVEAU_INITIATION',['Pas encore initié', '15 jours', '30 jou
 define('ARRAT_TAUX_CHANGE',['CDF' => 2200, 'EUR' => 0.87, 'USD' => 1.0]); // valeurs en CDF
 define('ARRAY_STATUS_TOKEN',['utilisé', 'non utilisé', 'expiré']);
 define('ARRAY_STATUS_ENSEIGNANT',['Actif','Inactif','En pause']);
+define('ARRAY_ACTIONS_RAISONS',['Reject','Suspend','Desactiver','Reactiver','autres']);
+define('ARRAY_ACTIONS_RAISONS_STATUS',['Traité','Non traité']);
 
 define('RETOUR_EN_ARRIERE', 'javascript:history.back()');

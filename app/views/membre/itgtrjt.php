@@ -23,10 +23,22 @@
                 <p class="text-gray-600 leading-relaxed text-sm">
                     Nous vous remercions de l'intérêt porté à notre communauté. Après examen attentif de votre demande et des documents fournis, nos modérateurs ont déterminé que nous ne sommes pas en mesure de valider votre intégration pour le moment.
                 </p>
-                
-                <p class="text-gray-500 text-sm italic border-l-2 border-primary/20 pl-4 py-2 bg-gray-50/50">
-                    Cette décision s'inscrit dans notre politique de préservation de l'intégrité et de la cohésion des membres actuels.
-                </p>
+                <?php if($RaisonRejet->status === ARRAY_ACTIONS_RAISONS_STATUS[1]): ?>
+                    <p class="font-bold text-lg text-gray-700 border-l-2 border-primary/20 pl-4 py-2 bg-gray-50/50 mb-0 pb-0">Raison</p>
+                    <p class="text-gray-700 text-sm italic border-l-2 border-primary/20 pl-4 pb-3 pt-2 mb-0 bg-gray-50/50">
+                        <?= $RaisonRejet->raison ?? "Cette décision s'inscrit dans notre politique de préservation de l'intégrité et de la cohésion des membres actuels." ?>
+                    </p>
+                    <p class="text-gray-700 text-sm italic border-l-2 border-primary/20 pl-4 py-2 pb-4 bg-gray-50/50">
+                        <a href="../rjtdmdf/<?= $membre->member_id ?>" class="w-[30%] mx-auto bg-primary text-[13px] text-white px-4 py-2 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
+                            Corriger l'erreur
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </p>
+                <?php else: ?>
+                    <p class="text-gray-600 leading-relaxed text-sm">
+                        Veuillez patienter après 48 pour recommencer le processus d'intégration
+                    </p>
+                <?php endif; ?>
             </div>
 
             <!-- Section Contestation -->

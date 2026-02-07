@@ -3,6 +3,8 @@ require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Tokens.php';
+require_once APP_PATH . 'models/ActionsRaisons.php';
+require_once APP_PATH . 'models/Pays.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class MembreController extends Controller 
@@ -12,6 +14,8 @@ class MembreController extends Controller
     private $EnseignementModel;
     private $SendMailModel;
     private $TokensModel;
+    private $ActionsRaisonsModel;
+    private $PaysModel;
 
     public function __construct()
     {        
@@ -19,6 +23,8 @@ class MembreController extends Controller
         $this->EngagementModel = new Engagement();
         $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
+        $this->ActionsRaisonsModel = new ActionsRaisons();
+        $this->PaysModel = new Pays();
         $this->SendMailModel = new SendMail();
  
     }
@@ -34,8 +40,23 @@ class MembreController extends Controller
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
         if($Membre) 
         {
-            Utils::redirect('attitgt/'. $Membre->member_id);
-            return;
+            $RaisonRejet = $this->ActionsRaisonsModel->find($Membre->member_id, ARRAY_ACTIONS_RAISONS[0]);
+            if($RaisonRejet)
+            {
+               $heureTest = Utils::addHours($RaisonRejet->created_at, 48);
+               $now = date('Y-m-d H:i:s');
+               if($heureTest > $now) 
+                {
+                    Utils::redirect('itgtrjt/'. $Membre->member_id);
+                }
+                else {
+                    $this->MembreModel->delete($Membre->member_id);
+                }
+            }
+            else {
+                Utils::redirect('attitgt/'. $Membre->member_id);
+                return;
+            }
         }
         
         $dbEmails = $this->MembreModel->getEmails();
@@ -60,15 +81,16 @@ class MembreController extends Controller
             $nom_postnom = Utils::sanitize(trim($_POST['nom_postnom'] ?? ''));
             $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
             $date_naissance = Utils::sanitize(trim($_POST['date_naissance'] ?? ''));
+            $domaine_etude = Utils::sanitize(trim($_POST['domaine_etude'] ?? ''));
             $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
-            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
+            $email = filter_var(Utils::sanitize(trim($_POST['email'] ?? '')), FILTER_SANITIZE_EMAIL);
             $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
             $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
             $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
 
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ville || !$phone || !$adresse)
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ville || !$phone || !$adresse)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/integration',  $data);
@@ -100,6 +122,18 @@ class MembreController extends Controller
                 $this->view('membre/integration', $data);
                 return;
             }
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) 
+            {
+                Session::setFlash('error', "L'adresse email n'est pas valide.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            if(!str_contains($phone, '+'))
+            {
+                Session::setFlash('error', "Entrée un numéro de téléphone en commençant par l'indicatif de votre pays. Ex: +243");
+                $this->view('membre/integration', $data);
+                return;
+            }
             if(in_array($phone, $dbPhoneNumbers))
             {
                 Session::setFlash('error', 'Un membre avec ce numéro de téléphone existe déjà.');
@@ -112,6 +146,7 @@ class MembreController extends Controller
                 'nom_postnom'          => $nom_postnom,
                 'genre'                => $sexe,
                 'date_naissance'       => $date_naissance,
+                'domaine_etude'        => $domaine_etude,
                 'nationalite'          => $nationalite,
                 'email'                => $email,
                 'niveau_initiation'    => $niveau_initiation,
@@ -225,7 +260,15 @@ class MembreController extends Controller
     public function itgtrjt($membreId)
     {   
         $Membre = $this->MembreModel->findByMemberId($membreId);
-        if(!$Membre) {
+        $RaisonRejet = $this->ActionsRaisonsModel->find($membreId, ARRAY_ACTIONS_RAISONS[0]);
+
+        $heureTest = Utils::addHours($RaisonRejet->created_at, 48);
+        $now = date('Y-m-d H:i:s');
+        if($now > $heureTest) 
+        {
+            if($this->MembreModel->delete($Membre->member_id)) Utils::redirect('../integration');
+        }
+        if(!$Membre && !$RaisonRejet) {
             Utils::redirect('../integration');
             return;
         }
@@ -241,9 +284,182 @@ class MembreController extends Controller
             'title' => SITE_NAME .' | Intégration rejétée',
             'description' => 'Demande de votre intégration rejétée',
             'membre' => $Membre,
+            'RaisonRejet' => $RaisonRejet,
         ];
 
         $this->view('membre/itgtrjt', $data);
+    }
+
+    public function rjtdmdf($membreId)
+    {
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        $RaisonRejet = $this->ActionsRaisonsModel->find($membreId, ARRAY_ACTIONS_RAISONS[0]);
+
+        $heureTest = Utils::addHours($RaisonRejet->created_at, 48);
+        $now = date('Y-m-d H:i:s');
+        if($now > $heureTest) 
+        {
+            if($this->MembreModel->delete($Membre->member_id)) Utils::redirect('../integration');
+        }
+        if(!$Membre && !$RaisonRejet) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[2]) {
+            Utils::redirect('/');
+            return;
+        }
+        $data = [
+            'title' => SITE_NAME .' | Modification des informations incorrectes',
+            'description' => 'Votre demande d\'engagement a été rejétée',
+            'membre' => $Membre,
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_rjtdmdf']))
+        {
+            $nom_postnom = Utils::sanitize(trim($_POST['nom_postnom'] ?? ''));
+            $sexe = Utils::sanitize(trim($_POST['sexe'] ?? ''));
+            $date_naissance = Utils::sanitize(trim($_POST['date_naissance'] ?? ''));
+            $domaine_etude = Utils::sanitize(trim($_POST['domaine_etude'] ?? ''));
+            $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
+            $email = filter_var(Utils::sanitize(trim($_POST['email'] ?? '')), FILTER_SANITIZE_EMAIL);
+            $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
+            $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
+            $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
+            $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
+            $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
+
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ville || !$phone || !$adresse)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/integration',  $data);
+                return;
+            }
+
+            if(!in_array($sexe, ARRAY_TYPE_SEXE)) 
+            {
+                Session::setFlash('error', "Entrée correctement le sexe.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            if(!in_array($niveau_initiation, ARRAY_TYPE_NIVEAU_INITIATION)) 
+            {
+                Session::setFlash('error', "Entrée correctement le niveau d'initiation.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+
+            if($date_naissance >= date('Y-m-d')) 
+            {
+                Session::setFlash('error', "La date de naissance n'est pas valide.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) 
+            {
+                Session::setFlash('error', "L'adresse email n'est pas valide.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            if(!str_contains($phone, '+'))
+            {
+                Session::setFlash('error', "Entrée un numéro de téléphone en commençant par l'indicatif de votre pays. Ex: +243");
+                $this->view('membre/integration', $data);
+                return;
+            }
+
+            $submitted_data = [  
+                'nom_postnom'          => $nom_postnom,
+                'genre'                => $sexe,
+                'date_naissance'       => $date_naissance,
+                'domaine_etude'        => $domaine_etude,
+                'nationalite'          => $nationalite,
+                'email'                => $email,
+                'niveau_initiation'    => $niveau_initiation,
+                'motivation'           => $motivation,
+                'ville'                => $ville,
+                'phone_number'         => $phone,
+                'adresse'              => $adresse,
+                'status'               => ARRAY_STATUS_MEMBER[1],
+                'member_id'            => $membreId,
+            ];
+            $dataUpdateAction = [
+                'status' => ARRAY_ACTIONS_RAISONS_STATUS[0], 
+                'action_id' => $RaisonRejet->action_id
+            ];
+            
+            if (!empty($_FILES['photo_file']['name']))
+            {
+                $file = $_FILES['photo_file'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('membre/integration', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('membre/integration', $data);
+                    return;
+                }
+
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "avatar");
+                $nomFichier = $membreId .'.'. $ext;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('membre/integration',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $this->MembreModel->update([
+                            'image_profile' => $nomFichier,
+                            'member_id' => $membreId
+                        ], 'personnel_id');        
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('membre/integration', ['data' => $data]);
+                    return;
+                }
+            }
+
+            if($this->MembreModel->update($submitted_data, 'member_id') && $this->ActionsRaisonsModel->update($dataUpdateAction))
+            {
+                Session::setFlash('success', "Votre demande de réintégration a été envoyée avec succès.");
+                Utils::redirect('attitgt/'. $membreId);
+            }
+            else {
+                Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
+                $this->view('membre/integration',  $data);
+                return;
+            }
+            
+        
+        }
+
+        $this->view('membre/rjtdmdf', $data);
     }
 
     public function engagement($membreId) 

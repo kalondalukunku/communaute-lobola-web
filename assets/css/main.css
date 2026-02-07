@@ -125,7 +125,6 @@ textarea:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(207, 187, 48, 0.1);
-    color: var(--text-main);
 }
 
 input, textarea, select {
@@ -467,4 +466,11 @@ select:focus {
             transform: translateY(0) scale(1); 
         }
     }
+}
+
+.modal-active {
+    overflow: hidden;
+}
+#modalOverlay.hidden {
+    display: none;
 }

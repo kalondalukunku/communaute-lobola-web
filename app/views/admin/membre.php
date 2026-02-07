@@ -100,6 +100,17 @@
 
                     </div>
                 </div>
+
+                <div class="glass-card rounded-[2.5rem] p-8">
+                    <h3 class="font-serif text-lg text-white font-bold mb-4">Etudes</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-graduation-cap text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->domaine_etude ?></span>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
             <!-- Right Column: Validation Steps -->
@@ -274,11 +285,16 @@
                                 </div>
                             </div>
                             <div class="mt-4 flex justify-end gap-3">
-                                <form action="" method="post">
+                                <button 
+                                    id="openModalBtn"
+                                    class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-black py-3 px-8 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                                    Rejeté
+                                </button>
+                                <!-- <form action="" method="post">
                                     <button name="cllil_membre_integration_rejeted" class="px-6 py-3 rounded-xl border border-red text-[10px] font-black tracking-widest text-red-500 hover:bg-red-90 transition">Réjéter</button>
-                                </form>
+                                </form> -->
                                 <form action="" method="post">
-                                    <button name="cllil_membre_integration_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[10px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'intégration</button>
+                                    <button name="cllil_membre_integration_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'intégration</button>
                                 </form>
                             </div>
                         </div>
@@ -289,5 +305,49 @@
     </main>
 
 </section>
+
+<div 
+    id="modalOverlay" 
+    class="hidden fixed inset-0 bg-transparent z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     
+    <!-- Conteneur du Modal -->
+    <div 
+        id="modalContent"
+        class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <h3 class="text-md font-bold text-gray-800">Confirmation réjet du membre : <?= $Membre->nom_postnom ?></h3>
+            <button id="closeIcon" class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form action="" method="post">
+            <!-- Corps du Modal -->
+            <div class="p-6 pt-0">
+                <div class="group">
+                    <label class="block text-[11px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Pourquoi souhaitez-vous Réjéter ce membre ?</label>
+                    <textarea name="motif" rows="2" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos raisons de réjet." required><?= Helper::getData($_POST, 'motif') ?></textarea>
+                </div>
+            </div>
+
+            <!-- Footer / Boutons d'action -->
+            <div class="flex flex-col sm:flex-row-reverse gap-3 p-6 bg-gray-50 rounded-b-xl">
+                <button name="cllil_membre_integration_rejeted" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">
+                    Réjeter le membre
+                </button>
+                <button 
+                    id="closeModalBtn"
+                    class="w-full sm:w-auto px-6 py-2.5 bg-white border border-gray-300 text-[12px] text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    
+<script src="<?= ASSETS ?>js/modules/modal.js"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

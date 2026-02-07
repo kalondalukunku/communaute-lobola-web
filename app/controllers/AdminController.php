@@ -6,6 +6,7 @@ require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
 require_once APP_PATH . 'models/Tokens.php';
+require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AdminController extends Controller 
@@ -17,6 +18,7 @@ class AdminController extends Controller
     private $adminModel;
     private $PaymentModel;
     private $TokensModel;
+    private $ActionsRaisonsModel;
     private $sendEmailModel;
     
     public function __construct()
@@ -29,6 +31,7 @@ class AdminController extends Controller
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
         $this->TokensModel = new Tokens();
+        $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->sendEmailModel = new SendMail();
  
     }
@@ -240,6 +243,8 @@ class AdminController extends Controller
             $stt = ARRAY_STATUS_MEMBER[1];
         elseif($sttGet === 'suspended')
             $stt = ARRAY_STATUS_MEMBER[3];
+        elseif($sttGet === 'att_rejete')
+            $stt = ARRAY_STATUS_MEMBER[4];
         elseif($sttGet === 'inactive')
             $stt = ARRAY_STATUS_MEMBER[5];
 
@@ -434,14 +439,40 @@ class AdminController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_integration_rejeted'])) 
         {
+            $motif = Utils::sanitize(trim($_POST['motif'] ?? ''));
+            if(!$motif) {
+                Session::setFlash('error', 'Veuillez fournir une raison pour le rejet du membre.');
+                $this->view('admin/membre', $data);
+                return;
+            }
+            $dataAddActionRaison = [
+                'action_id' => Utils::generateUuidV4(),
+                'member_id' => $membreId,
+                'admin_id' => Session::get('admin')['admin_id'],
+                'actions' => ARRAY_ACTIONS_RAISONS[0],
+                'raison' => $motif,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
             $updateDataMembre = [
                 'member_id' => $membreId,
                 'status' => ARRAY_STATUS_MEMBER[4]
             ];
-            if($this->MembreModel->update($updateDataMembre, 'member_id'))
+            if($this->MembreModel->update($updateDataMembre, 'member_id') && $this->ActionsRaisonsModel->insert($dataAddActionRaison))
             {
-                Session::setFlash('success', "Membre rejeté avec succès.");
-                Utils::redirect('../membres');
+                $lien_correction = SITE_URL . '/membre/rjtdmdf/' . $membreId;
+                ob_start();
+                include APP_PATH . 'templates/email/integration_rejete.php';
+                $messageBody = ob_get_clean();
+
+                if($this->sendEmailModel->sendEmail(
+                    $Membre->email, 
+                    'Rejet de votre intégration  - '. SITE_NAME, 
+                    $messageBody
+                )) 
+                {
+                    Session::setFlash('success', "Membre rejeté avec succès.");
+                    Utils::redirect('../membres');
+                }
             }
         }
 

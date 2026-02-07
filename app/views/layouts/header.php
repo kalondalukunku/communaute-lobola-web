@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- supporter tous les navigateur (safari) -->
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- support navigateur safari -->
+     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <meta name="apple-mobile-web-app-title" content="<?= SITE_NAME ?>">
+    
     <!-- Chargement de Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -15,8 +21,8 @@
     <!-- Main css -->
     <link rel="stylesheet" href="<?= ASSETS ?>css/main.css">
 
-		<!-- icon du domaine -->
-		<link rel="icon" href="<?= ASSETS ?>images/logo.jpg" type="image/png">
+    <!-- icon du domaine -->
+    <link rel="icon" href="<?= ASSETS ?>images/logo.jpg" type="image/png">
 
     <!-- Title -->
     <title><?= $title ?? SITE_NAME ?></title>

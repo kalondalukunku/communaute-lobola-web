@@ -14,7 +14,7 @@ class LoginController extends Controller {
     public function index() 
     {
         Session::start();
-        $cacheKey = 'membre_connexion';
+        $cacheKey = 'membre_connexion_';
         if (Session::isLogged('membre')) Utils::redirect('membre/profile/'. Session::get('membre')->member_id);
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_login'])) $this->auth($_POST, $cacheKey);

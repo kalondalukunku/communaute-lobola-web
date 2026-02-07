@@ -272,6 +272,9 @@ class Helper {
         if (isset($_GET['search'])) {
             $baseUrl .= "&search=" . urlencode($_GET['search']);
         }
+        if (isset($_GET['stt'])) {
+            $baseUrl .= "&stt=" . urlencode($_GET['stt']);
+        }
 
         if ($isDisabled) {
             return '<button class="w-8 h-8 rounded-xl border border-gray-100 flex items-center justify-center text-gray-200 cursor-not-allowed transition" disabled>' . $content . '</button>';

@@ -115,6 +115,7 @@
                             $psnStatus = [
                                 'active' => 'Actif',
                                 'att_validation' => 'Attente Intégration',
+                                'att_rejete' => 'Intégration Réjété',
                                 'suspended' => 'Suspendu',
                                 'inactive' => 'Inactif',
                             ];
@@ -141,16 +142,7 @@
                                 echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium color-border rounded-2xl {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
                             }
                             ?>
-                        <!-- <button class="relative font-bold text-xs text-primary after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-primary after:rounded-full">Tous les membres</button>
-                        <button class="font-bold text-xs text-gray-400 hover:text-primary transition">Actifs</button>
-                        <button class="font-bold text-xs text-gray-400 hover:text-primary transition flex items-center gap-2">
-                            En attente <span class="bg-amber-100 text-amber-600 text-[10px] px-2 py-0.5 rounded-full">42</span>
-                        </button> -->
                     </div>
-                    <!-- <div class="flex gap-3">
-                        <button class="p-2 bg-gray-50 rounded-2xl text-gray-500 hover:bg-gray-100 transition"><i class="text-[13px] fas fa-filter"></i></button>
-                        <button class="p-2 bg-gray-50 rounded-2xl text-gray-500 hover:bg-gray-100 transition"><i class="text-[13px] fas fa-download"></i></button>
-                    </div> -->
                 </div>
 
                 <div class="overflow-x-auto custom-scrollbar">
@@ -197,6 +189,7 @@
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[0] || $membre->status === ARRAY_STATUS_MEMBER[1] ? 'A vérifier' : '' ?>  
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[2] ? 'Actif' : '' ?>
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[3] ? 'Suspendu' : '' ?>
+                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[4] ? 'Réjété' : '' ?>
                                                             <?= $membre->status === ARRAY_STATUS_MEMBER[5] ? 'Inactif' : '' ?>
                                                         </span>
                                                         </td>
@@ -212,7 +205,6 @@
                                                                 <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
                                                                 <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>
                                                             </form>
-                                                                <!-- <button class=""><i class="fas fa-ellipsis-h text-xs"></i></button> -->
                                                         </div>
                                                         </td>
                                                 </tr>
@@ -224,41 +216,6 @@
                                         </td>
                                     </tr>
                                 <?php endif; ?>                               
-
-                                <!-- Membre en Attente -->
-                                <!-- <tr class="color-border-b row-animate">
-                                        <td class="pl-10 pr-6 py-5">
-                                        <div class="flex items-center gap-4">
-                                                <div class="w-12 h-12 rounded-2xl bg-amber-50 border-2 border-amber-200 flex items-center justify-center font-bold text-amber-600 text-sm">
-                                                MA
-                                                </div>
-                                                <div>
-                                                <p class="font-bold text-sm">Marie Angélo</p>
-                                                <p class="text-[11px] text-gray-400 tracking-tight">marie.angelo@gmail.com</p>
-                                                </div>
-                                        </div>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                        <div class="flex flex-col">
-                                                <span class="text-sm font-bold text-secondary">Abonnement Mensuel</span>
-                                                <span class="text-[10px] text-amber-500 font-bold">Paiement à confirmer</span>
-                                        </div>
-                                        </td>
-                                        <td class="px-6 py-5">
-                                        <span class="status-badge bg-amber-50 text-amber-600">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> À vérifier
-                                        </span>
-                                        </td>
-                                        <td class="px-6 py-5 text-sm text-gray-400 italic">
-                                        Inscription le 02/01
-                                        </td>
-                                        <td class="pl-6 pr-10 py-5">
-                                        <div class="flex justify-end gap-3">
-                                                <button class="bg-secondary text-primary text-[10px] font-black px-5 py-2.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition">APPROUVER</button>
-                                                <button class="btn-action text-red-400"><i class="fas fa-times text-xs"></i></button>
-                                        </div>
-                                        </td>
-                                </tr> -->
                         </tbody>
                     </table>
                 </div>

@@ -77,6 +77,11 @@ class Membre extends Model {
         $queryMember = "DELETE FROM {$this->table} WHERE member_id = :member_id";
         $stmtMem = $this->db->prepare($queryMember);
         $stmtMem->execute(['member_id' => $memberId]);
+        
+        // 3. Suppression dans la table action_raisons
+        $queryMember = "DELETE FROM action_raisons WHERE member_id = :member_id";
+        $stmtMem = $this->db->prepare($queryMember);
+        $stmtMem->execute(['member_id' => $memberId]);
 
         // Validation des deux opérations
         return $this->db->commit();

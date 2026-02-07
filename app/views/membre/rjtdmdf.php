@@ -40,15 +40,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nom complet (Nom du KAMA)</label>
-                        <input type="text" name="nom_postnom" value="<?= Helper::getData($_POST, 'nom_postnom') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Mukendi Kitenge" required>
+                        <input type="text" name="nom_postnom" value="<?= Helper::getData($_POST, 'nom_postnom', $membre->nom_postnom) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Mukendi Kitenge" required>
                     </div>
 
                     <div class="group relative">
-                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Genre</label>
+                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Sexe</label>
                         <select name="sexe" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
                             <option value="" disabled selected>Sélectionnez votre genre...</option>
                             <?php foreach(ARRAY_TYPE_SEXE as $sexe): ?>
-                                <option value="<?= $sexe ?>" <?= Helper::getSelectedValue('sexe', $sexe) ?> ><?= $sexe ?></option>
+                                <option value="<?= $sexe ?>" <?= Helper::getSelectedValue('sexe', $sexe, $membre->genre) ?> ><?= $sexe ?></option>
                             <?php endforeach; ?>
                         </select>
                         <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
@@ -56,12 +56,12 @@
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Date de naissance</label>
-                        <input type="date" name="date_naissance" value="<?= Helper::getData($_POST, 'date_naissance') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="JJ/MM/AAAA..." required>
+                        <input type="date" name="date_naissance" value="<?= Helper::getData($_POST, 'date_naissance', $membre->date_naissance) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="JJ/MM/AAAA..." required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Domaine d'étude</label>
-                        <input type="text" name="domaine_etude" value="<?= Helper::getData($_POST, 'domaine_etude') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Science informatique" required>
+                        <input type="text" name="domaine_etude" value="<?= Helper::getData($_POST, 'domaine_etude', $membre->domaine_etude) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Science informatique" required>
                     </div>
                 </div>
             </section>
@@ -80,7 +80,7 @@
                         <select name="niveau_initiation" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
                             <option value="" disabled selected>Sélectionnez votre niveau d'initiation</option>
                             <?php foreach(ARRAY_TYPE_NIVEAU_INITIATION as $niveau): ?>
-                                <option value="<?= $niveau ?>" <?= Helper::getSelectedValue('niveau_initiation', $niveau) ?> ><?= $niveau ?></option>
+                                <option value="<?= $niveau ?>" <?= Helper::getSelectedValue('niveau_initiation', $niveau, $membre->niveau_initiation) ?> ><?= $niveau ?></option>
                             <?php endforeach; ?>
                         </select>
                         <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
@@ -90,7 +90,7 @@
                 <div class="space-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Pourquoi souhaitez-vous rejoindre la communauté ?</label>
-                        <textarea name="motivation" rows="3" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos motivations profondes..." required><?= Helper::getData($_POST, 'motivation') ?></textarea>
+                        <textarea name="motivation" rows="3" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos motivations profondes..." required><?= Helper::getData($_POST, 'motivation', $membre->motivation) ?></textarea>
                     </div>
                 </div>
             </section>
@@ -106,27 +106,27 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nationalité</label>
-                        <input type="text" name="nationalite" value="<?= Helper::getData($_POST, 'nationalite') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Votre pays d'origine..." required>
+                        <input type="text" name="nationalite" value="<?= Helper::getData($_POST, 'nationalite', $membre->nationalite) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Votre pays d'origine..." required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ville de résidence</label>
-                        <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
+                        <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville', $membre->ville) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
                     </div>
                     
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Lieu de résidence (Adresse)</label>
-                        <input type="text" name="adresse" value="<?= Helper::getData($_POST, 'adresse') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ville, Commune, Quartier..." required>
+                        <input type="text" name="adresse" value="<?= Helper::getData($_POST, 'adresse', $membre->adresse) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ville, Commune, Quartier..." required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Adresse Email</label>
-                        <input type="email" name="email" value="<?= Helper::getData($_POST, 'email') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="exemple@gmail.com" required>
+                        <input type="email" name="email" value="<?= Helper::getData($_POST, 'email', $membre->email) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="exemple@gmail.com" required>
                     </div>
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">WhatsApp / Appel</label>
-                        <input type="tel" name="phone" value="<?= Helper::getData($_POST, 'phone') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243 8*******" required>
+                        <input type="tel" name="phone" value="<?= Helper::getData($_POST, 'phone', $membre->phone_number) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243 8*******" required>
                     </div>
                 </div>
             </section>
@@ -139,13 +139,13 @@
                 </div>
                 <div class="w-full md:w-auto">
                     <div class="relative group">
-                        <input type="file" name="photo_file" id="photo-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" required>
+                        <input type="file" name="photo_file" id="photo-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*">
                         <div id="photo-preview-container" class="w-32 h-32 md:w-40 md:h-40 bg-white border border-gray-200 rounded-2xl shadow-sm group-hover:border-primary transition-all flex flex-col items-center justify-center overflow-hidden">
-                            <div id="preview-placeholder" class="text-center p-4">
+                            <div id="preview-placeholder" class="text-center p-4 hidden">
                                 <i class="fas fa-camera text-primary text-2xl mb-2"></i>
                                 <p class="text-[9px] uppercase font-bold text-gray-400">Ajouter une photo</p>
                             </div>
-                            <img id="image-display" src="" alt="Aperçu" class="hidden w-full h-full object-cover">
+                            <img id="image-display" src="../../<?= $membre->path_profile ?>" alt="Aperçu" class="w-full h-full object-cover">
                         </div>
                     </div>
                 </div>
@@ -153,9 +153,9 @@
 
             <!-- Bouton de Soumission -->
             <div class="flex flex-col items-center pt-8">
-                <button type="submit" name="c_lobola_integration" class="btn-sign w-full md:w-auto bg-primary text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
+                <button type="submit" name="cllil_membre_rjtdmdf" class="btn-sign w-full md:w-auto bg-primary text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
                     <i class="fas fa-paper-plane"></i>
-                    Envoyer ma Candidature
+                    Renvoyer ma Candidature
                 </button>
                 <div class="mt-8 flex items-center gap-3 text-gray-400">
                     <div class="w-10 h-px bg-gray-200"></div>

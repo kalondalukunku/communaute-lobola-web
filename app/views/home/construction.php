@@ -87,6 +87,12 @@
                 Nous peaufinons l'espace sacré pour votre éveil spirituel. Les portes s'ouvriront très prochainement pour une expérience inédite.
             </p>
         </div>
+        
+        <a href="/membre/profile/<?= Session::get('membre')['member_id'] ?>"
+            class="w-full bg-primary hover:bg-primary text-paper color-border font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <span id="btnText">Voir mon profil</span>
+            <i id="btnIcon" class="fa-solid fa-paper-plane"></i>
+        </a>
 
     </div>
 
