@@ -435,7 +435,7 @@ class MembreController extends Controller
                         $this->MembreModel->update([
                             'image_profile' => $nomFichier,
                             'member_id' => $membreId
-                        ], 'personnel_id');        
+                        ], 'member_id');        
                     }
 
                 } else {
