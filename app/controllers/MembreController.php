@@ -116,6 +116,12 @@ class MembreController extends Controller
                 $this->view('membre/integration',  $data);
                 return;
             }
+            if(!Utils::isMajeur($date_naissance))
+            {
+                Session::setFlash('error', "Vous devez avoir moins de 14 ans pour intégrer la communauté.");
+                $this->view('psn/add',  $data);
+                return;
+            }
             if(in_array($email, $dbEmails))
             {
                 Session::setFlash('error', 'Un membre avec cet email existe déjà.');
@@ -433,7 +439,7 @@ class MembreController extends Controller
                     if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
                     {
                         $this->MembreModel->update([
-                            'image_profile' => $nomFichier,
+                            'path_profile' => $fichierPath,
                             'member_id' => $membreId
                         ], 'member_id');        
                     }
@@ -448,7 +454,7 @@ class MembreController extends Controller
             if($this->MembreModel->update($submitted_data, 'member_id') && $this->ActionsRaisonsModel->update($dataUpdateAction))
             {
                 Session::setFlash('success', "Votre demande de réintégration a été envoyée avec succès.");
-                Utils::redirect('attitgt/'. $membreId);
+                Utils::redirect('../attitgt/'. $membreId);
             }
             else {
                 Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");

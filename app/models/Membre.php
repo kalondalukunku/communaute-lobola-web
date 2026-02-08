@@ -247,7 +247,7 @@ class Membre extends Model {
         // 2. Gestion de la recherche ($search)
         if (!empty($search)) {
             // Note : On ne peut plus chercher dans E.modalite_engagement ici car il n'y a pas de jointure
-            $whereClauses[] = "(M.nom_postnom LIKE :search OR M.email LIKE :search)";
+            $whereClauses[] = "(M.nom_postnom LIKE :search OR M.email LIKE :search OR M.niveau_initiation LIKE :search)";
             $params['search'] = "%$search%";
         }
 
@@ -263,7 +263,7 @@ class Membre extends Model {
         // 4. Requête pour les membres uniquement
         $sql = "SELECT M.* FROM $this->table M 
                 $whereSql 
-                ORDER BY M.member_id DESC 
+                ORDER BY M.nom_postnom ASC 
                 LIMIT {$limit} OFFSET {$offset}";
         
         $q = $this->db->prepare($sql);
