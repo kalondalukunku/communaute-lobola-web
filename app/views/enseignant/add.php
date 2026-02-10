@@ -153,7 +153,7 @@
             <div class="flex flex-col items-center pt-8">
                 <button type="submit" name="cllil_add_enseignement" class="btn-sign2 w-full md:w-auto bg-primary text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
                     <i class="fas fa-paper-plane"></i>
-                    Envoyer ma Candidature
+                    Transmettre ma sagesse
                 </button>
             </div>
         </form>

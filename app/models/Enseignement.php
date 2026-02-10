@@ -37,6 +37,13 @@ class Enseignement extends Model {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
     
+    public function all()
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table}");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    
     public function findAll($enseignantId)
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignant_id = :enseignant_id");

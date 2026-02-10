@@ -1,5 +1,5 @@
     <footer class="bg-paper color-border text-primary py-12 mt-20 border-t border-primary">
-        <div class="container mx-auto px-6 text-center text-sm">
+        <div class="container mx-auto px-6 text-center text-xs">
             <p>&copy; <?= date('Y') ?> Le Sanctuaire. Le respect de la vie privée est au cœur de notre engagement.</p>
         </div>
     </footer>

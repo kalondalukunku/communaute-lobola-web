@@ -6,12 +6,12 @@ class Enseignant extends Model {
 
     public function loginEnseignant($connect, $cacheKey) 
     {
-        if($data = Cache::get($cacheKey)) return $data;
+        // if($data = Cache::get($cacheKey)) return $data;
 
         $stmt = $this->db->prepare(
                                     "SELECT *
                                     FROM {$this->table} 
-                                    WHERE email = :email OR phone_number = :email
+                                    WHERE email = :email
                                     LIMIT 1");
         $stmt->execute([
             'email'         => $connect,
@@ -45,6 +45,30 @@ class Enseignant extends Model {
 
         $q = $this->db->prepare($query);
         return $q->execute($datas);
+    }
+
+    public function delete($memberId)
+    {
+        // Début de la transaction
+        $this->db->beginTransaction();
+
+        // 1. Suppression dans la table engagements
+        // $queryEngagements = "DELETE FROM engagements WHERE enseignant_id = :enseignant_id";
+        // $stmtEng = $this->db->prepare($queryEngagements);
+        // $stmtEng->execute(['enseignant_id' => $memberId]);
+
+        // 2. Suppression dans la table principale (enseignant)
+        $queryMember = "DELETE FROM {$this->table} WHERE enseignant_id = :enseignant_id";
+        $stmtMem = $this->db->prepare($queryMember);
+        $stmtMem->execute(['enseignant_id' => $memberId]);
+        
+        // 3. Suppression dans la table action_raisons
+        // $queryMember = "DELETE FROM action_raisons WHERE enseignant_id = :enseignant_id";
+        // $stmtMem = $this->db->prepare($queryMember);
+        // $stmtMem->execute(['enseignant_id' => $memberId]);
+
+        // Validation des deux opérations
+        return $this->db->commit();
     }
     
     public function getEmails() 

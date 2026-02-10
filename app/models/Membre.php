@@ -6,7 +6,7 @@ class Membre extends Model {
 
     public function loginMember($connect, $cacheKey) 
     {
-        if($data = Cache::get($cacheKey)) return $data;
+        // if($data = Cache::get($cacheKey)) return $data;
 
         $stmt = $this->db->prepare(
                                     "SELECT 

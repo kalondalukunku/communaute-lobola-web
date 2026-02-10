@@ -676,7 +676,7 @@ class AdminController extends Controller
                 'token'         => $token,
                 'status'        => $tokenStatus,
                 'expired_at'    => $expiryDate,
-                'admin_id'      => $enseignantId,
+                'member_id'      => $enseignantId,
             ];
 
             $dataAddEnseignant = [
@@ -786,6 +786,95 @@ class AdminController extends Controller
         $data = [
             'Enseignant' => $Enseignant,
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_enpause'])) 
+        {
+            if(isset($_POST['cllil_enseignant_enpause'])) 
+            {
+                $updateDataEnseignant = [
+                    'enseignant_id' => $enseignantId,
+                    'status' => ARRAY_STATUS_ENSEIGNANT[2]
+                ];
+                if($this->EnseignantModel->update($updateDataEnseignant, 'enseignant_id'))
+                {
+                    Session::setFlash('success', "Enseignant $Enseignant->nom_complet mis en pause avec succès.");
+                    Utils::redirect('../enseignants');
+                    // envoi de mail de notification
+                    // $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                    // ob_start();
+                    // include APP_PATH . 'templates/email/integration_active.php';
+                    // $messageBody = ob_get_clean();
+
+                    // if($this->sendEmailModel->sendEmail(
+                    //     $Membre->email, 
+                    //     'Intégration  - '. SITE_NAME, 
+                    //     $messageBody
+                    // )) 
+                    // {
+                    //     Session::setFlash('success', 'Membre approuvé avec succès.');
+                    //     Utils::redirect('../membres');
+                    // }
+                } 
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_active'])) 
+        {
+            if(isset($_POST['cllil_enseignant_active'])) 
+            {
+                $updateDataEnseignant = [
+                    'enseignant_id' => $enseignantId,
+                    'status' => ARRAY_STATUS_ENSEIGNANT[0]
+                ];
+                if($this->EnseignantModel->update($updateDataEnseignant, 'enseignant_id'))
+                {
+                    Session::setFlash('success', "Enseignant $Enseignant->nom_complet réactiver avec succès.");
+                    Utils::redirect('../enseignants');
+                    // envoi de mail de notification
+                    // $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                    // ob_start();
+                    // include APP_PATH . 'templates/email/integration_active.php';
+                    // $messageBody = ob_get_clean();
+
+                    // if($this->sendEmailModel->sendEmail(
+                    //     $Membre->email, 
+                    //     'Intégration  - '. SITE_NAME, 
+                    //     $messageBody
+                    // )) 
+                    // {
+                    //     Session::setFlash('success', 'Membre approuvé avec succès.');
+                    //     Utils::redirect('../membres');
+                    // }
+                } 
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_delete'])) 
+        {
+            if(isset($_POST['cllil_enseignant_delete'])) 
+            {
+                if($this->EnseignantModel->delete($enseignantId))
+                {
+                    Session::setFlash('success', "Enseignant $Enseignant->nom_complet supprimé avec succès.");
+                    Utils::redirect('../enseignants');
+                    // envoi de mail de notification
+                    // $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                    // ob_start();
+                    // include APP_PATH . 'templates/email/integration_active.php';
+                    // $messageBody = ob_get_clean();
+
+                    // if($this->sendEmailModel->sendEmail(
+                    //     $Membre->email, 
+                    //     'Intégration  - '. SITE_NAME, 
+                    //     $messageBody
+                    // )) 
+                    // {
+                    //     Session::setFlash('success', 'Membre approuvé avec succès.');
+                    //     Utils::redirect('../membres');
+                    // }
+                } 
+            }
+        }
 
         $this->view('admin/vwenseignant', $data);
     }

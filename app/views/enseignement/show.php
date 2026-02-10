@@ -13,9 +13,9 @@
             <!-- Breadcrumbs & Info -->
             <div class="mb-8">
                 <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-bold mb-2">
-                    <span class="bg-secondary text-dark px-2 py-0.5 rounded" style="background-color: #f3f4f6; color: #1a202c;">Cours Audio</span>
+                    <span class="bg-secondary text-light text-[10px] px-2 py-0.5 rounded">Cours Audio</span>
                     <span class="text-gray-400">•</span>
-                    <span class="text-white">Série : Enseignement avancé</span>
+                    <span class="text-white">Série : Prélude Enseignement avancé</span>
                 </div>
                 <h2 class="font-serif text-4xl md:text-5xl mb-4" style="color: #d4af37;"><?= $Enseignement->title ?></h2>
                 <p class="text-gray-500 italic">"Regardez en vous-même, non pas avec jugement, mais avec curiosité."</p>
@@ -83,7 +83,7 @@
                     </div>
 
                     <!-- Section Questions -->
-                    <div class="space-y-6">
+                    <!-- <div class="space-y-6">
                         <h5 class="font-serif text-2xl" style="color: #f3f4f6;">Espace d'Échange</h5>
                         <div class="p-6 rounded-2xl shadow-sm flex gap-4 color-border">
                             <div class="w-10 h-10 rounded-full color-border flex items-center justify-center flex-shrink-0" style="background-color: #1a202c;">
@@ -96,7 +96,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Colonne Droite -->

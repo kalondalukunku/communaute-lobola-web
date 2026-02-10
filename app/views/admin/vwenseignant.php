@@ -145,13 +145,21 @@
                 <div class="flex flex-col md:flex-row justify-between items-center gap-8 pt-8 border-t border-white/5">
                     <div class="flex items-center gap-6">
                         <div class="text-center md:text-left">
-                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Fréquence Email</p>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Adresse Email</p>
                             <a href="mailto:<?= $Enseignant->email ?>" class="text-[#D4AF37] hover:text-white transition-colors underline underline-offset-8 decoration-1">
                                 <?= $Enseignant->email ?>
                             </a>
                         </div>
                     </div>
-                    
+                    <div class="flex items-center gap-6">
+                        <div class="text-center md:text-left">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Mot de passe</p>
+                            <p class="text-[#D4AF37] hover:text-white transition-colors underline underline-offset-8 decoration-1">
+                                <?= $Enseignant->pswd ?>
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="flex gap-4">
                         <!-- Icônes de méditation ou réseaux -->
                         <!-- <div class="w-10 h-10 rounded-full spirit-border flex items-center justify-center cursor-pointer text-[#D4AF37] hover:bg-[#D4AF37]/10">
@@ -161,6 +169,21 @@
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                         </div> -->
                     </div>
+                </div>
+
+                <div class="flex justify-center items-center gap-3 pt-5">
+                    <?php if($Enseignant->status === ARRAY_STATUS_ENSEIGNANT[0]): ?>
+                        <form action="" method="post" class="hidden md:block">
+                            <button name="cllil_enseignant_enpause" class="px-4 py-3 rounded-xl border border-gray text-[11px] font-black tracking-widest bg-primary hover:bg-orange-90 transition">Mettre en pause</button>
+                        </form>
+                    <?php elseif($Enseignant->status === ARRAY_STATUS_ENSEIGNANT[1] || $Enseignant->status === ARRAY_STATUS_ENSEIGNANT[2]): ?>
+                        <form action="" method="post">
+                            <button name="cllil_enseignant_active" class="px-4 py-3 rounded-xl border border-green text-[11px] font-black tracking-widest bg-green-500 hover:bg-green-90 transition">Activer</button>
+                        </form>
+                    <?php endif; ?>
+                    <form action="" method="post" class="hidden md:block">
+                        <button name="cllil_enseignant_delete" class="px-4 py-3 rounded-xl border border-red text-[11px] font-black tracking-widest bg-red-500 text-light hover:bg-red-90 transition">Supprimer</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -82,6 +82,10 @@
                     <h3 class="font-serif text-lg text-white font-bold mb-4">Infos</h3>
                     <div class="space-y-4">
                         <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-mars-and-venus text-primary text-xs"></i>
+                            <span class="text-xs font-bold text-gray-600"><?= $Membre->genre ?></span>
+                        </div>
+                        <div class="flex items-center gap-3">
                             <i class="fa-solid fa-earth-africa text-primary text-xs"></i>
                             <span class="text-xs font-bold text-gray-600"><?= $Membre->nationalite ?></span>
                         </div>
@@ -263,6 +267,7 @@
                                 <h4 class="text-sm font-bold text-gray-400 mb-3">Informations du membre</h4>
                                 <ul class="text-xs text-gray-500 space-y-1">
                                     <li>Nom complet :<span class="font-bold text-gray-400"> <?= $Membre->nom_postnom ?></span></li>
+                                    <li>Genre :<span class="font-bold text-gray-400"> <?= Helper::formatDate($Membre->genre) ?></span></li>
                                     <li>Date de naissance :<span class="font-bold text-gray-400"> <?= Helper::formatDate($Membre->date_naissance) ?></span></li>
                                     <li>Nationalité :<span class="font-bold text-gray-400"> <?= $Membre->nationalite ?></span></li>
                                     <li>Ville :<span class="font-bold text-gray-400"> <?= $Membre->ville ?></span></li>

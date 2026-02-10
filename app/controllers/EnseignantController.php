@@ -46,10 +46,13 @@ class EnseignantController extends Controller
             return;
         }
 
+        $allEnseignements = $this->EnseignementModel->findAll($enseignantId);
+
         $data = [
             'title' => SITE_NAME .' | Profil de '. $Enseignant->nom_complet,
             'description' => 'Mon Profil',
             'Enseignant' => $Enseignant,
+            'allEnseignements' => $allEnseignements,
         ];
 
         $this->view('enseignant/profile', $data);
@@ -122,7 +125,7 @@ class EnseignantController extends Controller
                 if ($file['error'] !== UPLOAD_ERR_OK)
                 {
                     Session::setFlash('error', "Erreur lors de l'envoi du document");
-                    $this->view('membre/integration', $data);
+                    $this->view('enseignant/add', $data);
                     return;
                 }
                 // verif mime reel
@@ -131,7 +134,7 @@ class EnseignantController extends Controller
                 if (!in_array($mime, $allowedTypes))
                 {
                     Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
-                    $this->view('membre/integration', $data);
+                    $this->view('enseignant/add', $data);
                     return;
                 }
 
@@ -145,7 +148,7 @@ class EnseignantController extends Controller
                     if(!mkdir($pathDossier, 0777, true)) 
                     {
                         Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
-                        $this->view('membre/integration',  $data);
+                        $this->view('enseignant/add',  $data);
                         return;
                     }
                 }
@@ -161,7 +164,7 @@ class EnseignantController extends Controller
 
                 } else {
                     Session::setFlash('error', "Impossible d'enregistrer le document.");
-                    $this->view('membre/integration', ['data' => $data]);
+                    $this->view('enseignant/add', ['data' => $data]);
                     return;
                 }
             }
@@ -225,7 +228,7 @@ class EnseignantController extends Controller
     //             'token'         => $token,
     //             'status'        => $tokenStatus,
     //             'expired_at'    => $expiryDate,
-    //             'user_id'       => $Membre->member_id,
+    //             'member_id'       => $Membre->member_id,
     //         ];
 
     //         $dataUpdateMembre = [
@@ -275,32 +278,32 @@ class EnseignantController extends Controller
         if($connect === '' || $pswd === '')
         {
             Session::setFlash('error', 'Remplissez correctement le formulaire.');
-            $this->view('login/index', ['data' => $data]);
+            $this->view('enseignant/index', ['data' => $data]);
             return;
         }
 
         $Enseignant = $this->EnseignantModel->loginEnseignant($connect, $cacheKey);
         if(!$Enseignant) {
             Session::setFlash('error', 'Adresse mail ou numéro de téléphone incorrect.');
-            $this->view('login/index', ['data' => $data]);
+            $this->view('enseignant/index', ['data' => $data]);
             return;
         }
 
         if($Enseignant->status !== ARRAY_STATUS_ENSEIGNANT[0]) {
             Session::setFlash('error', 'Votre compte n\'est pas activé. Contactez l\'administrateur.');
-            $this->view('login/index', ['data' => $data]);
+            $this->view('enseignant/index', ['data' => $data]);
             return;
         }
 
-        if ($Enseignant && password_verify($pswd, $Enseignant->pswd)) 
+        if ($Enseignant && $pswd === $Enseignant->pswd)
         {
             Cache::set($cacheKey, $Enseignant);
             Session::set('enseignant', $Enseignant);
             Session::setFlash('success', 'Connecté.');
-            Utils::redirect('enseignant/profile/'.$Enseignant->enseignant_id);
+            Utils::redirect('/enseignant/profile/'.$Enseignant->enseignant_id);
         } else {
             Session::setFlash('error', 'Mot de passe incorrect.');
-            $this->view('login/index', ['data' => $data]);
+            $this->view('enseignant/index', ['data' => $data]);
             return;
         }
     }

@@ -21,11 +21,16 @@ class HomeController extends Controller {
 
     public function index()
     {
+        Auth::requireLogin(['membre','enseignant']);
+
+        $Enseignements = $this->EnseignementModel->all();
+
         $data = [
             'title' => SITE_NAME .' | Acceuil',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
+            'Enseignements' => $Enseignements,
         ];
-        $this->view('home/construction', $data);
+        $this->view('home/index', $data);
     }
 
     public function logout() {

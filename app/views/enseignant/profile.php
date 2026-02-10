@@ -77,7 +77,7 @@
                         <span class="text-[10px] text-gray-500 uppercase tracking-widest">Éveil Initial</span>
                     </div>
                     <div class="p-6 spirit-border rounded-xl text-center">
-                        <span class="block text-2xl font-serif text-[#D4AF37]">108</span>
+                        <span class="block text-2xl font-serif text-[#D4AF37]"><?= count($allEnseignements) ?></span>
                         <span class="text-[10px] text-gray-500 uppercase tracking-widest">Leçons Partagées</span>
                     </div>
                     <div class="p-6 spirit-border rounded-xl text-center col-span-2 md:col-span-1">
@@ -90,7 +90,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center gap-8 pt-8 border-t border-white/5">
                     <div class="flex items-center gap-6">
                         <div class="text-center md:text-left">
-                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Fréquence Email</p>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Adresse Email</p>
                             <a href="mailto:<?= $Enseignant->email ?>" class="text-[#D4AF37] hover:text-white transition-colors underline underline-offset-8 decoration-1">
                                 <?= $Enseignant->email ?>
                             </a>
@@ -99,12 +99,12 @@
                     
                     <div class="flex gap-4">
                         <!-- Icônes de méditation ou réseaux -->
-                        <div class="w-10 h-10 rounded-full spirit-border flex items-center justify-center cursor-pointer text-[#D4AF37] hover:bg-[#D4AF37]/10">
+                        <!-- <div class="w-10 h-10 rounded-full spirit-border flex items-center justify-center cursor-pointer text-[#D4AF37] hover:bg-[#D4AF37]/10">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                        </div>
-                        <div class="w-10 h-10 rounded-full spirit-border flex items-center justify-center cursor-pointer text-[#D4AF37] hover:bg-[#D4AF37]/10">
+                        </div> -->
+                        <!-- <div class="w-10 h-10 rounded-full spirit-border flex items-center justify-center cursor-pointer text-[#D4AF37] hover:bg-[#D4AF37]/10">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 

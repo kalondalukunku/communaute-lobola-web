@@ -35,7 +35,7 @@ class AuthController extends Controller {
             $Membre = $this->MembreModel->findByMemberId($membreId);
             $tokenDb = $this->TokensModel->find($membreId, $tokenId);
 
-            if(!$Membre || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->user_id !== $membreId || $Membre->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
+            if(!$Membre || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->member_id !== $membreId || $Membre->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
             {
                 Session::setFlash('error', "Lien d'activation invalide ou expiré.");
                 Utils::redirect('/login');
@@ -127,7 +127,7 @@ class AuthController extends Controller {
             $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
             $tokenDb = $this->TokensModel->find($enseignantId, $tokenId);
 
-            if(!$Enseignant || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->user_id !== $enseignantId || $Enseignant->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
+            if(!$Enseignant || !$tokenDb || $tokenDb->token_id !== $tokenId || $tokenDb->member_id !== $enseignantId || $Enseignant->token !== $tokenDb->token || $tokenDb->status !== ARRAY_STATUS_TOKEN[1] || Utils::isTokenExpired($tokenDb->expired_at)) 
             {
                 Session::setFlash('error', "Lien d'activation invalide ou expiré.");
                 Utils::redirect('/');
@@ -170,11 +170,9 @@ class AuthController extends Controller {
                     return;
                 }
 
-                $hashedPassword = password_hash($pswd, PASSWORD_ARGON2I);
-
                 $dataUpdateEnseignant = [
                     'status'        => ARRAY_STATUS_ENSEIGNANT[0],
-                    'pswd'          => $hashedPassword,
+                    'pswd'          => $pswd,
                     'token'         => null,
                     'enseignant_id'     => $enseignantId    
                 ];

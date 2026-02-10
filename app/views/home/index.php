@@ -1,5 +1,6 @@
 <?php 
-  include APP_PATH . 'views/layouts/header.php'; 
+    $title = $title;
+    include APP_PATH . 'views/layouts/header.php'; 
 ?>
 </head>
     
@@ -13,19 +14,70 @@
             <!-- Section Titre -->
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-primary/10 pb-6">
                 <div class="max-w-2xl">
-                    <h2 class="font-serif text-5xl text-primary mb-4">Bibliothèque Sacrée</h2>
-                    <p class="text-gray-500 text-lg italic">"La sagesse ne s'apprend pas, elle se reconnaît." Explorez les enseignements audio du mois.</p>
+                    <h2 class="font-serif text-3xl text-primary mb-4">Bibliothèque Sacrée</h2>
+                    <p class="text-gray-500 text-sm italic">"La sagesse ne s'apprend pas, elle se reconnaît." Explorez les enseignements audio du mois.</p>
                 </div>
-                <div class="bg-green-100 text-green-800 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 mt-6 md:mt-0 shadow-sm border border-green-200">
+                <!-- <div class="bg-green-100 text-green-800 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 mt-6 md:mt-0 shadow-sm border border-green-200">
                     <i class="fas fa-check-circle"></i> Engagement Actif • Décembre 2023
-                </div>
+                </div> -->
             </div>
 
             <!-- Grille des Enseignements -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+                <?php foreach ($Enseignements as $item): ?>
+                    <div class="audio-card rounded-2xl color-border group">
+                        <!-- Partie Supérieure : Visuel -->
+                        <!-- <div class="card-visual h-20 flex items-center justify-center relative"> -->
+                            <!-- <i class="fa-solid fa-people-arrows text-5xl text-primary group-hover:text-primary transition-colors duration-500"></i> -->
+                            
+                            <!-- Overlay au survol -->
+                            <!-- <div class="play-overlay absolute inset-0 flex items-center justify-center">
+                                <a href="enseignement/show/<?= $item->enseignant_id ?>" class="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-dark shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                    <i class="fas fa-play text-xl ml-1"></i>
+                                </a>
+                            </div> -->
+
+                            <!-- Durée / Badge -->
+                        <!-- </div> -->
+
+                        <!-- Partie Inférieure : Contenu -->
+                        <div class="p-6">
+                            <div class="flex items-center gap-2">
+                                <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
+                                <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold">Série : Prélude Enseignement avancé</span>
+                            </div>
+
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-white mb-2 mt-4 line-clamp-1 group-hover:text-primary transition-colors">
+                                    <?= Helper::textTruncate($item->title, 30) ?>
+                                </h3>
+                                <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
+                                    12:45
+                                </div>
+                            </div>
+
+                            <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
+                                <?= Helper::textTruncate($item->description, 91) ?>
+                            </p>
+                            <div class="color-border-b"></div>
+
+                            <div class="flex items-center justify-between pt-4">
+                                <div class="flex items-center gap-2 text-gray-500">
+                                    <i class="far fa-calendar-alt text-xs"></i>
+                                    <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
+                                </div>
+                                
+                                <a href="../../enseignement/show/<?= $item->enseignement_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                    Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
                 
                 <!-- Carte Enseignement 1 -->
-                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
                     <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
                         <i class="fas fa-om text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
                         <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Méditation</div>
@@ -42,10 +94,10 @@
                             <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
                         </a>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Carte Enseignement 2 -->
-                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
                     <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
                         <i class="fas fa-leaf text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
                         <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Philosophie</div>
@@ -62,10 +114,10 @@
                             <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
                         </a>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Carte Enseignement 3 -->
-                <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
+                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
                     <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
                         <i class="fas fa-heart text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
                         <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Cœur</div>
@@ -82,7 +134,7 @@
                             <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
                         </a>
                     </div>
-                </div>
+                </div> -->
 
             </div>
         </div>

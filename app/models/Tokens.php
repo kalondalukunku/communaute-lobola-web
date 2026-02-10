@@ -32,24 +32,24 @@ class Tokens extends Model {
 
     public function delete($memberId, $tokenId)
     {
-        $query = "DELETE FROM $this->table WHERE user_id = :user_id AND token_id = :token_id";
+        $query = "DELETE FROM $this->table WHERE member_id = :member_id AND token_id = :token_id";
         $q = $this->db->prepare($query);
-        return $q->execute(['user_id' => $memberId, 'token_id' => $tokenId]);
+        return $q->execute(['member_id' => $memberId, 'token_id' => $tokenId]);
     }
 
     public function find($memberId, $tokenId)
     {
-        $query = "SELECT * FROM $this->table WHERE user_id = :user_id AND token_id = :token_id ORDER BY expired_at DESC LIMIT 1";
+        $query = "SELECT * FROM $this->table WHERE member_id = :member_id AND token_id = :token_id ORDER BY expired_at DESC LIMIT 1";
         $q = $this->db->prepare($query);
-        $q->execute(['user_id' => $memberId, 'token_id' => $tokenId]);
+        $q->execute(['member_id' => $memberId, 'token_id' => $tokenId]);
         return $q->fetch(PDO::FETCH_OBJ);
     }
 
     public function findByMemberId($memberId)
     {
-        $query = "SELECT * FROM $this->table WHERE user_id = :user_id  ORDER BY expired_at DESC LIMIT 1";
+        $query = "SELECT * FROM $this->table WHERE member_id = :member_id  ORDER BY expired_at DESC LIMIT 1";
         $q = $this->db->prepare($query);
-        $q->execute(['user_id' => $memberId]);
+        $q->execute(['member_id' => $memberId]);
         return $q->fetch(PDO::FETCH_OBJ);
     }
 }

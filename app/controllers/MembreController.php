@@ -846,7 +846,7 @@ class MembreController extends Controller
                 'token'         => $token,
                 'status'        => $tokenStatus,
                 'expired_at'    => $expiryDate,
-                'user_id'       => $Membre->member_id,
+                'member_id'       => $Membre->member_id,
             ];
 
             $dataUpdateMembre = [
