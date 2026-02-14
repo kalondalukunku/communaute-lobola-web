@@ -3,25 +3,26 @@ require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Enseignant.php';
+require_once APP_PATH . 'models/Serie.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class EnseignantController extends Controller 
 {    
     private $MembreModel;  
-    private $EngagementModel;
+    private $SerieModel;
     private $EnseignementModel;
     private $EnseignantModel;
-    private $SendMailModel;
+    private $sendEmailModel;
     private $TokensModel;
 
     public function __construct()
     {        
         $this->MembreModel = new Membre();
-        $this->EngagementModel = new Engagement();
+        $this->SerieModel = new Serie();
         $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
-        $this->SendMailModel = new SendMail();
+        $this->sendEmailModel = new SendMail();
         $this->EnseignantModel = new Enseignant();
 
     }
@@ -86,21 +87,61 @@ class EnseignantController extends Controller
         Auth::requireLogin('enseignant');
 
         $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
+        
         if(!$Enseignant) {
             Utils::redirect('/');
             return;
+        }
+
+        $dbSeries = $this->SerieModel->getSeries();
+        foreach ($dbSeries as $dbSerie) 
+        {
+            $dbSeriess[] = $dbSerie->nom;
         }
 
         $data = [
             'title' => SITE_NAME .' | Ajouter un Enseignant',
             'description' => 'Ajouter un Enseignant',
             'Enseignant' => $Enseignant,
+            'dbSeries' => $dbSeriess,
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_add_serie'])) 
+        {
+            $nom = Utils::sanitize(trim($_POST['nom'] ?? ''));
+            if(!$nom)
+            {
+                Session::setFlash('error', 'Veuillez remplir correctement le formulaire.');
+                $this->view('enseignant/add',  $data);
+                return;   
+            }
+            $serieId = Utils::generateUuidV4();
+
+            $dataAddSerie = [
+                'serie_id'  => $serieId,
+                'nom'     => $nom
+            ];
+
+            if($this->SerieModel->insert($dataAddSerie)) 
+            {
+                Session::setFlash('success', 'Serie ajouté avec succès.');
+                Utils::redirect('../add/'.$enseignantId);
+            }
+            else {
+                Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
+                $this->view('enseignant/add',  $data);
+                return;
+            }
+
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_add_enseignement'])) {
             // Traitement du formulaire d'ajout d'enseignement
             $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
+            $serie = Utils::sanitize(trim($_POST['serie'] ?? ''));
             $description = Utils::sanitize(trim($_POST['description'] ?? ''));
+            $duration_minutes = Utils::sanitize(trim($_POST['duration_minutes'] ?? ''));
+            $duration_minutes = Utils::formatDuration($duration_minutes);
 
             if(!$titre) {
                 Session::setFlash('error', 'Veuillez remplir correctement le formulaire.');
@@ -108,9 +149,14 @@ class EnseignantController extends Controller
                 return;
             }
 
+            if(!$serie) $serieId = $dbSeries[array_search($serie,$dbSeries)]->serie_id;
+            else $serieId = null;
+
             $dataAddEnseignement = [
                 'title'             => $titre,
+                'serie_id'          => $serieId,
                 'description'       => $description,
+                'duration_minutes'  => $duration_minutes,
                 'enseignant_id'     => $enseignantId,
                 // Ajoutez d'autres champs nécessaires ici
             ];
@@ -120,7 +166,7 @@ class EnseignantController extends Controller
                 $file = $_FILES['audio_data'];
                 $filename = $file['name'];
                 $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                $allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/webm', 'audio/x-wav', 'audio/aac', 'audio/flac', 'audio/mp3'];
+                $allowedTypes = ['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4', 'audio/ogg', 'audio/x-ogg', 'audio/webm', 'audio/x-wav', 'audio/aac', 'audio/x-aac', 'audio/flac', 'audio/mp3','audio/x-m4a'];
                 // Verif erreur d'upload
                 if ($file['error'] !== UPLOAD_ERR_OK)
                 {
@@ -140,7 +186,7 @@ class EnseignantController extends Controller
 
                 $enseignementId = Utils::generateUuidV4();
                 $pathDossier = $this->EnseignementModel->cheminDossierPdf($enseignementId, "enseignements");
-                $nomFichier = str_replace([' ',"'"], '_', $titre) .'.'. $ext;
+                $nomFichier = str_replace([' ',"'","?"], '_', $titre) .'.'. $ext;
                 $fichierPath = $pathDossier ."/". $nomFichier;
                 $uploadPath = BASE_PATH . $fichierPath;
 
@@ -173,7 +219,7 @@ class EnseignantController extends Controller
             {
                 if($this->EnseignementModel->insert($dataAddEnseignement)) {
                     Session::setFlash('success', 'Enseignement ajouté avec succès.');
-                    Utils::redirect('../profile/'.$Enseignant->enseignant_id);
+                    Utils::redirect('../enseignements/'.$enseignantId);
                 } else {
                     Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
                     $this->view('enseignant/add',  $data);
@@ -187,6 +233,32 @@ class EnseignantController extends Controller
         }
 
         $this->view('enseignant/add', $data);
+    }
+
+    public function alertEmail($enseignementId)
+    {
+        $Enseignement = $this->EnseignementModel->find($enseignementId);
+        if(!$Enseignement) {
+            Utils::redirect('/');
+        }
+        // var_dump($Enseignement); die;
+        $allEmailsMembers = $this->MembreModel->getEmails();
+        $lien_enseignement = SITE_URL . '/enseignement/show/' . $enseignementId;
+
+        foreach($allEmailsMembers as $key => $email)
+        {
+            ob_start();
+            include APP_PATH . 'templates/email/alert_new_enseignement.php';
+            $messageBody = ob_get_clean();
+
+            $this->sendEmailModel->sendEmail(
+                $email->email, 
+                'Nouvel Enseignement Disponible - '. SITE_NAME, 
+                $messageBody
+            );
+        }
+        
+        Utils::redirect('../profile/'.$Enseignement->enseignant_id);
     }
 
     // public function forgot_pswd() 

@@ -141,13 +141,15 @@ class AdminController extends Controller
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
         $totalPayment = $this->PaymentModel->getTotalPayments();
         $tauxEngagement = $this->MembreModel->calculerTauxEngagementApprouve();
+        $nbrEnseignement = count($this->EnseignementModel->all());
 
         $data = [
             'allMembres' => $allMembres,
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente,
             'totalPayment' => $totalPayment,
-            'tauxEngagement' => $tauxEngagement
+            'tauxEngagement' => $tauxEngagement,
+            'nbrEnseignement' => $nbrEnseignement,
         ];
 
         $this->view('admin/dashboard', $data);
@@ -278,7 +280,7 @@ class AdminController extends Controller
                 $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
                 $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
 
-                $res = $this->EnseignementModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
+                $res = $this->MembreModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
 
                 if($res === true)
                 {
@@ -354,7 +356,7 @@ class AdminController extends Controller
                 $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
                 $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
 
-                $res = $this->EnseignementModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
+                $res = $this->MembreModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
 
                 if($res === true)
                 {

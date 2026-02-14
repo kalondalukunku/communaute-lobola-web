@@ -37,9 +37,10 @@
             text-align: center;
         }
         .header img {
-            max-width: 120px;
-            margin-bottom: 20px;
-            border-radius: 8px;
+            max-width: 90px;
+            border: 2px solid #cfbb30;
+            border-radius: 50%;
+            padding: 5px;
         }
         .header h1 {
             color: #cfbb30;

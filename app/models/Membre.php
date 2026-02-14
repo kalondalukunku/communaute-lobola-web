@@ -92,6 +92,11 @@ class Membre extends Model {
         return $this->db->query("SELECT email FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
     }
     
+    public function getEmailsAlert() 
+    {
+        return $this->db->query("SELECT email FROM $this->table WHERE status = 'active'")->fetchAll(PDO::FETCH_OBJ);
+    }
+    
     public function getPhoneNumbers() 
     {
         return $this->db->query("SELECT phone_number FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
@@ -148,84 +153,6 @@ class Membre extends Model {
         $q->execute(['member_id' => $memberId]); 
         return $q->fetch();
     }
-
-    // public function findAll(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null): array
-    // {
-    //     $limit = $per_page ?? $this->default_per_page ?? 10;
-    //     $page = max(1, $page);
-    //     $offset = ($page - 1) * $limit;
-
-    //     $params = [];
-    //     $whereClauses = [];
-
-    //     // 1. Gestion des conditions fixes ($conditions)
-    //     if (!empty($conditions)) {
-    //         foreach ($conditions as $key => $value) {
-    //             $whereClauses[] = "M.$key = :$key";
-    //             $params[$key] = $value;
-    //         }
-    //     }
-
-    //     // 2. Gestion de la recherche ($search)
-    //     if (!empty($search)) {
-    //         // On cherche dans le nom du membre ou les détails de l'engagement (exemple)
-    //         $whereClauses[] = "(M.nom_postnom LIKE :search OR M.email LIKE :search OR E.modalite_engagement LIKE :search)";
-    //         $params['search'] = "%$search%";
-    //     }
-
-    //     $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
-
-    //     // 3. Requête pour le nombre total d'enregistrements
-    //     $sql_count = "SELECT COUNT(DISTINCT M.member_id) 
-    //                   FROM $this->table M 
-    //                   LEFT JOIN engagements E ON M.member_id = E.member_id 
-    //                   $whereSql";
-        
-    //     $q_count = $this->db->prepare($sql_count);
-    //     $q_count->execute($params);
-    //     $total_records = (int) $q_count->fetchColumn();
-
-    //     // 4. Requête pour les enregistrements de la page actuelle
-    //     $sql = "SELECT 
-    //                 M.*,
-    //                 E.statut AS statut_engagement, 
-    //                 E.engagement_id, 
-    //                 E.modalite_engagement, 
-    //                 E.document_path, 
-    //                 E.document_ext, 
-    //                 E.document_header_type, 
-    //                 E.reference_code, 
-    //                 E.montant, 
-    //                 E.devise, 
-    //                 E.signed_at, 
-    //                 E.date_expiration
-                    
-    //             FROM $this->table M 
-    //             LEFT JOIN engagements E ON M.member_id = E.member_id 
-    //             $whereSql 
-    //             ORDER BY M.member_id DESC 
-    //             LIMIT {$limit} OFFSET {$offset}";
-        
-    //     $q = $this->db->prepare($sql);
-        
-    //     // Liaison des paramètres (conditions + search)
-    //     foreach ($params as $key => $value) {
-    //         $q->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
-    //     }
-        
-    //     $q->execute();
-    //     $results = $q->fetchAll(PDO::FETCH_OBJ);
-
-    //     // 5. Retour des données formatées
-    //     return [
-    //         'data'          => $results,
-    //         'total_records' => $total_records,
-    //         'current_page'  => $page,
-    //         'per_page'      => $limit,
-    //         'total_pages'   => ceil($total_records / $limit),
-    //         'search_query'  => $search
-    //     ];
-    // }
 
     public function findAllMembres(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null): array
     {
@@ -436,6 +363,53 @@ class Membre extends Model {
         $taux = ($membresEngagesApprouves / $totalMembres) * 100;
 
         return round($taux, 2);
+    }
+    
+    public function chiffreePdf($filePdf, $filePdfChiffree, $key)
+    {            
+        // $data = file_get_contents($filePdf);
+        // $iv = openssl_random_pseudo_bytes(16);
+        // $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        // if(file_put_contents($filePdfChiffree, $iv . $encrypted)) return true;
+
+        // 1. Lecture du contenu du fichier
+        $data = file_get_contents($filePdf);
+        if ($data === false) {
+            // En cas d'échec de lecture (fichier inexistant ou permission)
+            error_log("chiffreePdf: Echec de lecture du fichier PDF: " . $filePdf);
+            return false;
+        }
+
+        // 2. Chiffrement
+        $iv = openssl_random_pseudo_bytes(16);
+        $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        
+        // Si openssl_encrypt échoue
+        if ($encrypted === false) {
+            error_log("chiffreePdf: Echec du chiffrement OpenSSL pour: " . $filePdf);
+            return false;
+        }
+
+        // 3. Écriture du fichier chiffré (IV + données chiffrées)
+        $result = file_put_contents($filePdfChiffree, $iv . $encrypted);
+        
+        // file_put_contents retourne le nombre d'octets écrits ou FALSE en cas d'échec
+        if ($result !== false && $result > 0) {
+            return true;
+        } else {
+            error_log("chiffreePdf: Echec d'écriture du fichier chiffré: " . $filePdfChiffree);
+            return false;
+        }
+    }
+
+    public function dechiffreePdf($filePdf, $filePdfChiffree, $key)
+    {
+        $raw = file_get_contents($filePdfChiffree);
+        $iv = substr($raw, 0,16);
+        $encryptedData = substr($raw, 16);
+    
+        $decrypted = openssl_decrypt($encryptedData, 'AES-256-CBC', $key,OPENSSL_RAW_DATA, $iv);
+        if(file_put_contents($filePdf,$decrypted)) return true;                
     }
 
 }

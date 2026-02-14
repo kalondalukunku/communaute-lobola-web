@@ -42,7 +42,8 @@
                     <div class="p-6">
                         <div class="flex items-center gap-2">
                             <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
-                            <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold">Série : Enseignement avancé</span>
+                            <span class="text-gray-500 text-[10px]">•</span>
+                            <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold"><?= $item->type !== null ? "Série : $item->type" : '' ?></span>
                         </div>
 
                         <div class="flex justify-between items-center mb-2">
@@ -50,7 +51,7 @@
                                 <?= Helper::textTruncate($item->title, 30) ?>
                             </h3>
                             <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
-                                12:45
+                                <?= $item->duration_minutes ?>
                             </div>
                         </div>
 
@@ -65,7 +66,7 @@
                                 <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
                             </div>
                             
-                            <a href="../../enseignement/show/<?= $item->enseignement_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                            <a href="../../enseignement/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
                                 Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
                             </a>
                         </div>

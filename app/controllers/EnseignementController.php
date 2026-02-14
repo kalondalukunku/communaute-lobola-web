@@ -1,22 +1,22 @@
 <?php
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Vues.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 require_once APP_PATH . 'helpers/Logger.php';
 
 class EnseignementController extends Controller 
 {    
-    private $EnseignantModel;
+    private $VuesModel;
     private $EnseignementModel;
     private $loggerModel;
     private $SendMailModel;
 
     public function __construct()
     {
-        // Auth::requireLogin('user'); // protéger toutes les pages
-        // Auth::isRole(ARRAY_ROLE_USER[0]);
+        Auth::requireLogin(['membre','enseignant']);
         
-        $this->EnseignantModel = new Enseignant();
+        $this->VuesModel = new Vues();
         $this->EnseignementModel = new Enseignement();
         $this->loggerModel = new Logger();
         $this->SendMailModel = new SendMail();
@@ -38,7 +38,7 @@ class EnseignementController extends Controller
 
     // public function add() 
     // {
-    //     $cacheKey = 'user_connexion';
+    //     $cacheKey = 'membre_connexion';
         
     //     //recuperer tous les emails
     //     $rolesDb = $this->RoleModel->getElement('nom_role');
@@ -155,20 +155,34 @@ class EnseignementController extends Controller
     //     $this->view('us/add', $data);
     // }
 
-    public function show($enseignementId) 
+    public function show($serieId) 
     {
-        $cacheKey = 'user_connexion';
-        
-        $Enseignement = $this->EnseignementModel->find($enseignementId);
-        if(!$Enseignement) {
+        // var_dump(Utils::generateUuidV4()); die;
+        $cacheKey = 'membre_connexion';
+        $userId = Session::get('membre')['member_id'] ?? Session::get('enseignant')['enseignant_id'];
+
+        // $this->VuesModel->enregistrerVueUnique($enseignementId, $serieId, $userId);
+        $Series = $this->EnseignementModel->find($serieId);
+        $nbrSerieViews = $this->VuesModel->countAll(['serie_id' => $serieId]);
+
+        if(!$Series) {
             Session::setFlash('error', "Enseignement introuvable.");
             Utils::redirect('/');
         }
 
         $data = [
-            'Enseignement' => $Enseignement,
+            'Series' => $Series,
+            'nbrSerieViews' => $nbrSerieViews,
         ];
 
         $this->view('enseignement/show', $data);
+    }
+
+    public function add_view($enseignementId)
+    {
+        $serieId = $_GET['sr'];
+        $userId = Session::get('membre')['member_id'] ?? Session::get('enseignant')['enseignant_id'];
+
+        $this->VuesModel->enregistrerVueUnique($enseignementId, $serieId, $userId); 
     }
 }

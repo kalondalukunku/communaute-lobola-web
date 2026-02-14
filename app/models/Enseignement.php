@@ -30,23 +30,42 @@ class Enseignement extends Model {
         return $q->execute($datas);
     } 
     
-    public function find($enseignementId)
+    public function find($serieId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignement_id = :enseignement_id LIMIT 1");
-        $stmt->execute(['enseignement_id' => $enseignementId]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        $stmt = $this->db->prepare("SELECT
+                                    *,
+                                    S.*,
+                                    S.nom AS nom_serie 
+                                    FROM {$this->table} E
+                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    WHERE E.serie_id = :serie_id");
+        $stmt->execute(['serie_id' => $serieId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
     public function all()
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table}");
+        $stmt = $this->db->prepare("SELECT 
+                                    E.*, 
+                                    S.*, 
+                                    S.nom AS nom_serie 
+                                    FROM {$this->table} E
+                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    ORDER BY E.created_at DESC");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
     public function findAll($enseignantId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignant_id = :enseignant_id");
+        $stmt = $this->db->prepare("SELECT 
+                                    *,
+                                    S.*,
+                                    S.nom AS nom_serie 
+                                    FROM {$this->table} E
+                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    WHERE E.enseignant_id = :enseignant_id
+                                    ORDER BY E.created_at DESC");
         $stmt->execute(['enseignant_id' => $enseignantId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
@@ -71,42 +90,6 @@ class Enseignement extends Model {
         $unique = strtoupper(bin2hex(random_bytes(5)));
 
         return "{$codeEntreprise}_{$typeDoc}_{$date}_{$heure}_{$unique}.{$ext}";
-    }
-    
-    public function chiffreePdf($filePdf, $filePdfChiffree, $key)
-    {
-        $data = file_get_contents($filePdf);
-        if ($data === false) {
-            error_log("chiffreePdf: Echec de lecture du fichier PDF: " . $filePdf);
-            return false;
-        }
-
-        $iv = openssl_random_pseudo_bytes(16);
-        $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
-        
-        if ($encrypted === false) {
-            error_log("chiffreePdf: Echec du chiffrement OpenSSL pour: " . $filePdf);
-            return false;
-        }
-
-        $result = file_put_contents($filePdfChiffree, $iv . $encrypted);
-        
-        if ($result !== false && $result > 0) {
-            return true;
-        } else {
-            error_log("chiffreePdf: Echec d'écriture du fichier chiffré: " . $filePdfChiffree);
-            return false;
-        }
-    }
-
-    public function dechiffreePdf($filePdf, $filePdfChiffree, $key)
-    {
-        $raw = file_get_contents($filePdfChiffree);
-        $iv = substr($raw, 0,16);
-        $encryptedData = substr($raw, 16);
-    
-        $decrypted = openssl_decrypt($encryptedData, 'AES-256-CBC', $key,OPENSSL_RAW_DATA, $iv);
-        if(file_put_contents($filePdf,$decrypted)) return true;                
     }
 
     public function download_file($chemin, $type_file)

@@ -22,7 +22,7 @@ class SendMail {
         $this->mail->Username = ADMIN_EMAIL;
         $this->mail->Password = 'support@LOBOLA01'; // Mettre le mot de passe réel ici
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $this->mail->Port = 465;
+        $this->mail->Port = 587;
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Encoding = 'base64';
 

@@ -36,6 +36,12 @@ class MembreController extends Controller
 
     public function integration() 
     {
+        if(Session::get('membre') || Session::get('enseignant')) Utils::redirect('/');
+
+        if (date('d') == 15 && date('m') == 02)     
+        {
+            Utils::redirect('integrations');
+        }
         $ip = Utils::getUserIP();
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
         if($Membre) 
@@ -233,6 +239,16 @@ class MembreController extends Controller
         }
 
         $this->view('membre/integration', $data);
+    }
+
+    public function integrations()
+    {
+        $data = [
+            'title' => SITE_NAME .' | Nous ne prenons plus d\'integration',
+            'description' => 'Nous ne prenons plus d\'integration',
+        ];
+
+        $this->view('membre/integrations', $data);
     }
 
     public function attitgt($membreId)
@@ -604,7 +620,7 @@ class MembreController extends Controller
                 {
                     if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
                     {
-                        $resultUpload1 = $this->EnseignementModel->chiffreePdf($uploadPath, $pathFileEnc, CLEF_CHIFFRAGE_FILE);
+                        $resultUpload1 = $this->MembreModel->chiffreePdf($uploadPath, $pathFileEnc, CLEF_CHIFFRAGE_FILE);
 
                         if ($resultUpload1 === true)
                         {

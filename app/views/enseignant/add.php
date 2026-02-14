@@ -75,6 +75,13 @@
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
 
+        <div class="text-end">
+            <button 
+                id="openModalBtn"
+                class="bg-primary hover:bg-secondary text-white text-[11px] font-black py-3 px-8 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Ajouter une nouvelle série
+            </button>
+        </div>
         <div class="text-center mb-8 relative z-10">
             <h1 class="text-2xl font-bold text-white mb-2">Nouvel Enseignement</h1>
             <p class="text-slate-400 text-sm">Gestion du fichier audio</p>
@@ -87,6 +94,9 @@
                 <input type="file" name="audio_data" id="audioFile" 
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30" 
                     accept="audio/*">
+                
+                <!-- input duree -->
+                <input type="text" name="duration_minutes" id="duree" value="" hidden >
                 
                 <!-- Interface initiale -->
                 <div id="uploadUI" class="flex flex-col items-center pointer-events-none transition-all duration-300">
@@ -136,7 +146,23 @@
                         class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition"
                         placeholder="Ex: Shenuti Lobola"
                         value="<?= Helper::getData($_POST, 'titre') ?>"
+                        required
                         style="color: var(--primary);">
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-white">Série</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-white">
+                        <i class="fa-solid fa-arrows-to-circle"></i>
+                    </span>                    
+                    <select name="sexe" class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition" style="color: var(--primary);">
+                        <option value="" disabled selected>Sélectionnez la série...</option>
+                        <?php foreach($dbSeries as $serie): ?>
+                            <option value="<?= $serie ?>" <?= Helper::getSelectedValue('serie', $serie) ?> ><?= $serie ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
                 </div>
             </div>
 
@@ -160,6 +186,53 @@
     </div>
 
 </section>
+
+<div 
+    id="modalOverlay" 
+    class="hidden fixed inset-0 bg-transparent z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     
+    <!-- Conteneur du Modal -->
+    <div 
+        id="modalContent"
+        class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <h3 class="text-md font-bold text-gray-800">Ajouter une nouvelle série</h3>
+            <button id="closeIcon" class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form action="" method="post">
+            <!-- Corps du Modal -->
+            <div class="p-6 pt-0">
+                <div class="group">
+                    <input type="text" id="nom" name="nom" required 
+                        class="w-full px-4 py-2.5  color-border rounded-lg focus:ring-1 focus:border-primary outline-none transition"
+                        placeholder="Ex: Shenuti Lobola"
+                        value="<?= Helper::getData($_POST, 'nom') ?>"
+                        style="color: var(--primary);">
+                </div>
+            </div>
+
+            <!-- Footer / Boutons d'action -->
+            <div class="flex flex-col sm:flex-row-reverse gap-3 p-6 bg-gray-50 rounded-b-xl">
+                <button name="cllil_enseignant_add_serie" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">
+                    AJouter la série
+                </button>
+                <button 
+                    id="closeModalBtn"
+                    class="w-full sm:w-auto px-6 py-2.5 bg-white border border-gray-300 text-[12px] text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    
+<script src="<?= ASSETS ?>js/modules/modal.js"></script>
 <script src="<?= ASSETS ?>js/modules/recoder.js"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

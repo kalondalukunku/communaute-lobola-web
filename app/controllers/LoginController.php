@@ -56,7 +56,7 @@ class LoginController extends Controller {
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
             Session::setFlash('success', 'Connecté.');
-            Utils::redirect('membre/profile/'.$Membre->member_id);
+            Utils::redirect('/');
         } else {
             Session::setFlash('error', 'Mot de passe incorrect.');
             $this->view('login/index', ['data' => $data]);

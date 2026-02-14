@@ -58,7 +58,7 @@
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-[10px] uppercase tracking-tighter text-gray-400 font-black mb-2">Enseignements</p>
-                                <h3 class="text-xl leading-none text-amber-600"><?= $NbrAllMembresAttente ?></h3>
+                                <h3 class="text-xl leading-none text-amber-600"><?= $nbrEnseignement ?></h3>
                             </div>
                             <div class="w-12 h-12 bg-paper text-amber-500 rounded-2xl flex items-center justify-center">
                                 <i class="fas fa-hourglass-half text-xl"></i>

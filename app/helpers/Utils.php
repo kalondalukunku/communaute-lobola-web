@@ -417,4 +417,31 @@ class Utils {
         
         return $futureDate->format('Y-m-d H:i:s'); 
     }
+
+    public static function formatDuration($secondes): string {
+        $secondes = (int)$secondes;
+        
+        if ($secondes < 0) return "0:00";
+
+        $heures = floor($secondes / 3600);
+        $minutes = floor(($secondes % 3600) / 60);
+        $secondesRestantes = $secondes % 60;
+
+        // Si on a plus d'une heure, on affiche le format H:i:s
+        if ($heures > 0) {
+            return sprintf(
+                '%d:%02d:%02d',
+                $heures,
+                $minutes,
+                $secondesRestantes
+            );
+        }
+
+        // Sinon, on affiche uniquement i:s
+        return sprintf(
+            '%d:%02d',
+            $minutes,
+            $secondesRestantes
+        );
+    }
 }
