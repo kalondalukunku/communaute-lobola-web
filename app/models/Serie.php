@@ -14,7 +14,14 @@ class Serie extends Model {
     
     public function getSeries() 
     {
-        return $this->db->query("SELECT nom, serie_id FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+        return $this->db->query("SELECT nom FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+    }
+    
+    public function findByName($serieName)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE nom = :nom LIMIT 1");
+        $stmt->execute(['nom' => $serieName]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
 }

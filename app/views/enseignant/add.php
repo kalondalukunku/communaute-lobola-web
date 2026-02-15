@@ -156,7 +156,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-white">
                         <i class="fa-solid fa-arrows-to-circle"></i>
                     </span>                    
-                    <select name="sexe" class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition" style="color: var(--primary);">
+                    <select name="serie" class="w-full pl-10 pr-4 py-2.5  color-border rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none transition" style="color: var(--primary);">
                         <option value="" disabled selected>Sélectionnez la série...</option>
                         <?php foreach($dbSeries as $serie): ?>
                             <option value="<?= $serie ?>" <?= Helper::getSelectedValue('serie', $serie) ?> ><?= $serie ?></option>

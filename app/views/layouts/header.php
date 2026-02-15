@@ -6,12 +6,14 @@
     <!-- supporter tous les navigateur (safari) -->
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- support navigateur safari -->
-     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-     <meta name="apple-mobile-web-app-title" content="<?= SITE_NAME ?>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="<?= SITE_NAME ?>">
     
     <!-- Chargement de Tailwind CSS -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> -->
     
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">

@@ -6,7 +6,7 @@
         </a>
         
         <nav class="flex items-center gap-6">
-            <!-- <a href="index.html" class="text-accent border-b-2 border-accent pb-1 hidden md:block">Enseignements</a> -->
+            <a href="/" class="text-accent border-b-2 border-accent pb-1 <?= Helper::setActive('') ?> hidden md:block">Enseignements</a>
             <div class="h-8 w-px bg-white/20 hidden md:block"></div>
             <div class="flex items-center gap-4">
                 <span class="text-sm font-light hidden sm:block">EmEm Htp <span class="font-bold text-accent ml-1"><?= Session::get('membre')['nom_postnom'] ?? '' ?></span></span>

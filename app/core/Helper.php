@@ -41,8 +41,8 @@ class Helper {
     public static function setActive($url, $second = false)
     {
         if($second !== false) 
-            return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? "text-white bg-[var(--color-primary)] font-medium" : "text-gray-300 hover:text-white hover:bg-blue-900/50";
-        return Self::getUrlPart()[0] === $url ? "text-white bg-[var(--color-primary)]" : "text-gray-300 hover:text-white hover:bg-blue-900/50";
+            return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? "text-primary font-medium" : "text-white hover:text-gray-200";
+        return Self::getUrlPart()[0] === $url ? "text-primary" : "text-white hover:text-gray-200";
     }
 
     public static function setActiveAdmin($url, $second = false)

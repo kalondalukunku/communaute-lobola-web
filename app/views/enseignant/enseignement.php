@@ -43,7 +43,7 @@
                         <div class="flex items-center gap-2">
                             <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
                             <span class="text-gray-500 text-[10px]">•</span>
-                            <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold"><?= $item->type !== null ? "Série : $item->type" : '' ?></span>
+                            <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold"><?= $item->nom_serie ?></span>
                         </div>
 
                         <div class="flex justify-between items-center mb-2">

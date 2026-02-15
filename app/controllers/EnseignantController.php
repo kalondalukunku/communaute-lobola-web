@@ -149,8 +149,7 @@ class EnseignantController extends Controller
                 return;
             }
 
-            if(!$serie) $serieId = $dbSeries[array_search($serie,$dbSeries)]->serie_id;
-            else $serieId = null;
+            $serieId = $this->SerieModel->findByName($serie)->serie_id;
 
             $dataAddEnseignement = [
                 'title'             => $titre,
@@ -166,7 +165,7 @@ class EnseignantController extends Controller
                 $file = $_FILES['audio_data'];
                 $filename = $file['name'];
                 $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                $allowedTypes = ['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4', 'audio/ogg', 'audio/x-ogg', 'audio/webm', 'audio/x-wav', 'audio/aac', 'audio/x-aac', 'audio/flac', 'audio/mp3','audio/x-m4a'];
+                $allowedTypes = ['audio/mpeg', 'audio/wav', 'video/mp4', 'video/3gpp', 'audio/mp4', 'audio/ogg', 'audio/x-ogg', 'audio/webm', 'audio/x-wav', 'audio/aac', 'audio/x-aac', 'audio/flac', 'audio/mp3','audio/x-m4a'];
                 // Verif erreur d'upload
                 if ($file['error'] !== UPLOAD_ERR_OK)
                 {
@@ -177,12 +176,12 @@ class EnseignantController extends Controller
                 // verif mime reel
                 $mime = mime_content_type($file['tmp_name']);
                 // var_dump($mime); die;
-                if (!in_array($mime, $allowedTypes))
-                {
-                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
-                    $this->view('enseignant/add', $data);
-                    return;
-                }
+                // if (!in_array($mime, $allowedTypes))
+                // {
+                //     Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                //     $this->view('enseignant/add', $data);
+                //     return;
+                // }
 
                 $enseignementId = Utils::generateUuidV4();
                 $pathDossier = $this->EnseignementModel->cheminDossierPdf($enseignementId, "enseignements");
@@ -369,6 +368,8 @@ class EnseignantController extends Controller
 
         if ($Enseignant && $pswd === $Enseignant->pswd)
         {
+            Session::destroy();
+            Cache::delete('membre_connexion');
             Cache::set($cacheKey, $Enseignant);
             Session::set('enseignant', $Enseignant);
             Session::setFlash('success', 'Connecté.');

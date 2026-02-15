@@ -14,7 +14,7 @@ class LoginController extends Controller {
     public function index() 
     {
         Session::start();
-        $cacheKey = 'membre_connexion_';
+        $cacheKey = 'membre_connexion';
         if (Session::isLogged('membre')) Utils::redirect('membre/profile/'. Session::get('membre')['member_id']);
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_login'])) $this->auth($_POST, $cacheKey);
@@ -53,6 +53,8 @@ class LoginController extends Controller {
 
         if ($Membre && password_verify($pswd, $Membre->pswd)) 
         {
+            Session::destroy();
+            Cache::delete('enseignant_connexion');
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
             Session::setFlash('success', 'Connecté.');

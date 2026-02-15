@@ -170,9 +170,19 @@ class EnseignementController extends Controller
             Utils::redirect('/');
         }
 
+        $message = SITE_URL ."/enseignement/show/{$serieId}\n\n" .
+                "EmEm Htp 👋,\n\n" .
+                "J'écoute actuellement l'enseignement : *{$Series[0]->nom_serie}*. \n\n" .
+                "J'ai une question à ce sujet qui est celle-ci : ... ";
+
+        // Pour l'utiliser dans un lien <a> :
+        $urlEncodedMessage = urlencode($message);
+        $whatsappUrl = "https://wa.me/33644167499?text=" . $urlEncodedMessage;
+
         $data = [
             'Series' => $Series,
             'nbrSerieViews' => $nbrSerieViews,
+            'whatsappUrl' => $whatsappUrl,
         ];
 
         $this->view('enseignement/show', $data);
