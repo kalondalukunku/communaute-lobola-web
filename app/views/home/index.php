@@ -25,41 +25,27 @@
             <!-- Grille des Enseignements -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-                <?php foreach ($Enseignements as $item): ?>
+                <?php foreach ($Series as $item): ?>
                     <div class="audio-card rounded-2xl color-border group">
-                        <!-- Partie Supérieure : Visuel -->
-                        <!-- <div class="card-visual h-20 flex items-center justify-center relative"> -->
-                            <!-- <i class="fa-solid fa-people-arrows text-5xl text-primary group-hover:text-primary transition-colors duration-500"></i> -->
-                            
-                            <!-- Overlay au survol -->
-                            <!-- <div class="play-overlay absolute inset-0 flex items-center justify-center">
-                                <a href="enseignement/show/<?= $item->enseignant_id ?>" class="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-dark shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                    <i class="fas fa-play text-xl ml-1"></i>
-                                </a>
-                            </div> -->
-
-                            <!-- Durée / Badge -->
-                        <!-- </div> -->
-
                         <!-- Partie Inférieure : Contenu -->
                         <div class="p-6">
                             <div class="flex items-center gap-2">
                                 <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
                                 <span class="text-gray-500 text-[10px]">•</span>
-                                <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold"><?= $item->nom_serie !== null ? "Série : $item->nom_serie" : '' ?></span>
+                                <span class="text-gray-500 text-[8px] uppercase tracking-widest font-bold"><?= $item->nom !== null ? "Série : $item->nom" : '' ?></span>
                             </div>
 
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="text-xl font-bold text-white mb-2 mt-4 line-clamp-1 group-hover:text-primary transition-colors">
-                                    <?= Helper::textTruncate($item->title, 30) ?>
+                                    <?= Helper::textTruncate($item->nom, 30) ?>
                                 </h3>
                                 <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
-                                    <?= $item->duration_minutes ?>
+                                    <?= $VuesModel->countAll(['serie_id' => $item->serie_id]); ?> vue<?= $VuesModel->countAll(['serie_id' => $item->serie_id]) > 1 ? 's' : '' ?>
                                 </div>
                             </div>
 
                             <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
-                                <?= Helper::textTruncate($item->description, 91) ?>
+                                Cette série contient actuellement <?= $item->enseignements_count ?> enseignements au total.
                             </p>
                             <div class="color-border-b"></div>
 
@@ -76,66 +62,6 @@
                         </div>
                     </div>
                 <?php endforeach; ?>
-                
-                <!-- Carte Enseignement 1 -->
-                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
-                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
-                        <i class="fas fa-om text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
-                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Méditation</div>
-                    </div>
-                    <div class="p-8 flex-grow flex flex-col">
-                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">L'Essence de la Paix Intérieure</h3>
-                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
-                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 12 Oct 2023</span>
-                            <span><i class="far fa-clock mr-1 text-accent"></i> 45 min</span>
-                        </div>
-                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Une exploration profonde des mécanismes de l'ego et comment trouver le silence au milieu du chaos du monde moderne.</p>
-                        <a href="enseignement-1.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
-                            <span>Écouter l'Enseignement</span>
-                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
-                        </a>
-                    </div>
-                </div> -->
-
-                <!-- Carte Enseignement 2 -->
-                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
-                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
-                        <i class="fas fa-leaf text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
-                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Philosophie</div>
-                    </div>
-                    <div class="p-8 flex-grow flex flex-col">
-                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">Les Racines de l'Ancrage</h3>
-                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
-                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 28 Oct 2023</span>
-                            <span><i class="far fa-clock mr-1 text-accent"></i> 62 min</span>
-                        </div>
-                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Pourquoi nous sentons-nous déconnectés ? Ce cours audio travaille sur le premier centre énergétique et notre lien à la Terre.</p>
-                        <a href="enseignement-2.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
-                            <span>Écouter l'Enseignement</span>
-                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
-                        </a>
-                    </div>
-                </div> -->
-
-                <!-- Carte Enseignement 3 -->
-                <!-- <div class="bg-paper rounded-2xl overflow-hidden card-hover transition-all duration-300 border border-gray-100 flex flex-col">
-                    <div class="h-48 bg-primary/5 flex items-center justify-center relative group">
-                        <i class="fas fa-heart text-5xl text-primary group-hover:text-accent group-hover:scale-110 transition duration-500"></i>
-                        <div class="absolute top-4 right-4 bg-primary text-paper px-3 py-1 rounded-full text-xs font-bold tracking-widest ">Cœur</div>
-                    </div>
-                    <div class="p-8 flex-grow flex flex-col">
-                        <h3 class="font-serif text-2xl font-bold text-gray-200 mb-3 leading-snug">Le Pardon Radical</h3>
-                        <div class="flex items-center gap-4 text-xs text-gray-400 mb-4 uppercase tracking-tighter">
-                            <span><i class="far fa-calendar-alt mr-1 text-accent"></i> 05 Nov 2023</span>
-                            <span><i class="far fa-clock mr-1 text-accent"></i> 38 min</span>
-                        </div>
-                        <p class="text-gray-200 text-sm leading-relaxed mb-8 flex-grow">Le pardon n'est pas pour l'autre, mais pour soi. Libérez-vous du poids du passé grâce à cet enseignement transformateur.</p>
-                        <a href="enseignement-3.html" class="w-full bg-primary text-paper py-4 rounded-xl hover:bg-primaryLight transition shadow-lg flex items-center justify-center gap-3 font-bold group">
-                            <span>Écouter l'Enseignement</span>
-                            <i class="fas fa-play-circle text-accent text-xl group-hover:scale-110 transition"></i>
-                        </a>
-                    </div>
-                </div> -->
 
             </div>
         </div>

@@ -368,8 +368,8 @@ class EnseignantController extends Controller
 
         if ($Enseignant && $pswd === $Enseignant->pswd)
         {
-            Session::destroy();
-            Cache::delete('membre_connexion');
+            // Session::destroy();
+            // Cache::delete('membre_connexion');
             Cache::set($cacheKey, $Enseignant);
             Session::set('enseignant', $Enseignant);
             Session::setFlash('success', 'Connecté.');
@@ -385,6 +385,6 @@ class EnseignantController extends Controller
     {
         Session::destroy();
         Cache::delete('enseignant_connexion');
-        Utils::redirect('../enseignant');
+        Utils::redirect('/enseignant');
     }
 }

@@ -116,7 +116,7 @@
                                             <i class="fa-regular fa-clock"></i> <?= $ep->duration_minutes ?? '00:00' ?>
                                         </span>
                                         <span class="text-[10px] text-gray-500 flex items-center gap-1">
-                                            <i class="fa-regular fa-eye"></i> <?= number_format(count(array_filter($Series, fn($row) => isset($row->enseignement_id) && $row->enseignement_id === $ep->enseignement_id))) ?>
+                                            <i class="fa-regular fa-eye"></i> <?= number_format($VuesModel->countAll(['enseignement_id' => $ep->enseignement_id])) ?>
                                         </span>
                                     </div>
                                 </div>
@@ -165,115 +165,200 @@
         </div>
     </div>
 
-    <!-- <main class="flex-grow container mx-auto px-4 py-8 md:py-12 max-w-5xl">
-        <audio id="audioSource" src="../../<?= $Enseignement->audio_url ?>" hidden></audio>
+    <?php if($Series[0]->nom_serie === "Mâat • Introduction & Préparation"): ?>
+        <div class="w-[80%] mx-auto mt-12 mb-20">
 
-        <div class="fade-in">
-            <div class="mb-8">
-                <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-bold mb-2">
-                    <span class="bg-secondary text-light text-[10px] px-2 py-0.5 rounded">Cours Audio</span>
-                    <span class="text-gray-400">•</span>
-                    <span class="text-white">Série : Prélude Enseignement avancé</span>
+            <!-- SECTION PHOTOS / GALERIE (Droite - 5 colonnes) -->
+            <div class="lg:col-span-5 bg-paper color-border rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-primary/5 blur-[50px] rounded-full"></div>
+
+                <div class="relative z-10 flex flex-col h-full">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                            <i class="fa-solid fa-images text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold font-serif text-white">Galerie Photos</h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Archives & Documents</p>
+                        </div>
+                    </div>
+
+                    <!-- Grille de Photos -->
+                    <div class="grid grid-cols-2 gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                        <!-- Photo Item 1 -->
+                        <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (1).jpg?w=400&h=400&fit=crop" 
+                                    alt="Document 2" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-1 pb-1">
+                                <p class="text-[11px] text-gray-400 truncate mb-2 italic">Nfumu Kimbangu</p>
+                                <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (1).jpg" 
+                                download="Nfumu_Kimbangu.jpg" 
+                                class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
+                                    <i class="fa-solid fa-download"></i>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (3).jpg?w=400&h=400&fit=crop" 
+                                    alt="Document 2" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-1 pb-1">
+                                <p class="text-[11px] text-gray-400 truncate mb-2 italic">Nkumu Elim'e Nzale</p>
+                                <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (3).jpg" 
+                                download="Nkumu Elim'e Nzale.jpg" 
+                                class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
+                                    <i class="fa-solid fa-download"></i>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (5).jpg?w=400&h=400&fit=crop" 
+                                    alt="Document 2" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-1 pb-1">
+                                <p class="text-[11px] text-gray-400 truncate mb-2 italic">Kalala Omotunde</p>
+                                <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (5).jpg" 
+                                download="Kalala Omotunde.jpg" 
+                                class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
+                                    <i class="fa-solid fa-download"></i>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (4).jpg?w=400&h=400&fit=crop" 
+                                    alt="Document 2" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-1 pb-1">
+                                <p class="text-[11px] text-gray-400 truncate mb-2 italic">Mbuta Sankara</p>
+                                <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (4).jpg" 
+                                download="Mbuta Sankara.jpg" 
+                                class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
+                                    <i class="fa-solid fa-download"></i>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (2).jpg?w=400&h=400&fit=crop" 
+                                    alt="Document 2" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-1 pb-1">
+                                <p class="text-[11px] text-gray-400 truncate mb-2 italic">Mbuta Lumumba</p>
+                                <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (2).jpg" 
+                                download="Mbuta Lumumba.jpg" 
+                                class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
+                                    <i class="fa-solid fa-download"></i>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Note Footer Galerie -->
+                    <div class="mt-auto pt-6">
+                        <p class="text-xs text-gray-500 italic text-center">Cliquez sur une image pour l'agrandir</p>
+                    </div>
                 </div>
-                <h2 class="font-serif text-4xl md:text-5xl mb-4" style="color: #d4af37;"><?= $Enseignement->title ?></h2>
-                <p class="text-gray-500 italic">"Regardez en vous-même, non pas avec jugement, mais avec curiosité."</p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                
-                <div class="lg:col-span-2 space-y-8">
-                    
-                    
-                    <div class="audio-player-container">
-                        <div class="flex flex-col md:flex-row items-center gap-8">
-                            
-                            <div class="relative w-20 h-20 flex-shrink-0">
-                                <div id="audioVisualizer" class="absolute inset-0 rounded-2xl" style="background-color: #d4af37;"></div>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-people-arrows text-4xl"></i>
-                                    
-                                </div>
-                            </div>
-                            
-                            
-                            <div class="flex-grow w-full">
-                                <div class="flex justify-between items-center mb-4">
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-2">En cours de lecture</p>
-                                        <h4 class="font-bold text-lg" style="color: #d4af37;"><?= $Enseignement->title ?></h4>
-                                    </div>
-                                    <span id="playbackPercent" class="text-sm font-bold" style="color: #d4af37;">0% écouté</span>
-                                </div>
-                                
-                                
-                                <div class="progress-bar mb-2" id="progressBarContainer">
-                                    <div class="progress-filled" id="progressBarFill"></div>
-                                </div>
-                                
-                                <div class="flex justify-between items-center text-xs text-gray-400 font-mono mb-1">
-                                    <span id="timeCurrent">00:00</span>
-                                    <span id="timeDuration">00:00</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-center gap-8">
-                                    <button id="btnRewind" class="text-gray-400 hover:text-white transition"><i class="fas fa-undo-alt text-xl"></i></button>
-                                    <button id="btnPlayPause" class="control-btn">
-                                        <i id="playPauseIcon" class="fas fa-play text-xl ml-1"></i>
-                                    </button>
-                                    <button id="btnForward" class="text-gray-400 hover:text-white transition" disabled><i class="fas fa-redo-alt text-xl"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    
-                    <div class="bg-paper p-8 rounded-2xl shadow-sm color-border">
-                        <h5 class="font-serif text-2xl mb-4" style="color: #d4af37;">À propos de cet enseignement</h5>
-                        <div class="prose text-gray-200 leading-relaxed space-y-4">
-                            <p><?= $Enseignement->description ?></p>
-                            
-                            <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                                <li>Identifier le bruit mental incessant.</li>
-                                <li>La technique du témoin silencieux.</li>
-                                <li>Désamorcer les réactions émotionnelles automatiques.</li>
-                            </ul> 
-                        </div>
-                    </div>
-
-                    
-                    
-                        <h5 class="font-serif text-2xl" style="color: #f3f4f6;">Espace d'Échange</h5>
-                        <div class="p-6 rounded-2xl shadow-sm flex gap-4 color-border">
-                            <div class="w-10 h-10 rounded-full color-border flex items-center justify-center flex-shrink-0" style="background-color: #1a202c;">
-                                <i class="fas fa-user text-sm" style="color: #d4af37;"></i>
-                            </div>
-                            <div class="flex-grow">
-                                <textarea class="w-full bg-transparent color-border focus:border-primary outline-none text-primary py-2 resize-none" placeholder="Une question ou un partage sur cet enseignement ?" rows="2"></textarea>
-                                <div class="mt-4 flex justify-end">
-                                    <button class="px-6 py-2 rounded-full font-bold text-sm transition" style="background-color: #d4af37; color: #1a202c;">Envoyer ma question</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                
-                <div class="space-y-8">
-                    <div class="p-8 rounded-2xl shadow-sm color-border">
-                        <h5 class="font-serif text-xl mb-6" style="color: #d4af37;">Ressources (A venir)</h5>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-3 rounded-xl border border-transparent hover:border-gray-600 transition cursor-not-allowed opacity-50">
-                                <div class="flex items-center gap-3">
-                                    <i class="fas fa-file-pdf text-red-400"></i>
-                                    <span class="text-sm text-gray-200 font-medium">Guide de pratique (PDF)</span>
-                                </div>
-                                <i class="fas fa-lock text-xs text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </main> -->
+    <?php endif; ?>
+
+    <?php if($Series[0]->nom_serie === "Mâat • Module 1 : Religions & Spiritualités"): ?>
+        <div class="w-[80%] mx-auto mt-12 mb-20">
+
+            <!-- SECTION VIDÉOS YOUTUBE (Gaucher - 7 colonnes) -->
+            <div class="lg:col-span-7 bg-paper color-border rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-12 -left-12 w-32 h-32 bg-red-500/5 blur-[50px] rounded-full"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center text-red-500">
+                            <i class="fa-brands fa-youtube text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold font-serif text-white">Vidéos Complémentaires</h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Immersion Visuelle</p>
+                        </div>
+                    </div>
+
+                    <!-- Lecteur Principal Vidéo -->
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden color-border bg-black/40">
+                        <iframe 
+                            id="youtube-player"
+                            class="w-full h-full"
+                            src="https://www.youtube.com/embed/" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+
+                    <!-- Liste des autres vidéos (Miniatures) -->
+                    <div class="flex gap-4 mt-6 overflow-x-auto pb-2 custom-scrollbar">
+                        <!-- Exemple de miniature cliquable -->
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/RJcdgFIwm0k'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/RJcdgFIwm0k/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/vV0_S8ZXERA'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/vV0_S8ZXERA/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/dFF_WTNixMo'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/dFF_WTNixMo/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/5Cr4Ghsq9zM'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/5Cr4Ghsq9zM/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/sBXo4tdQsGI'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/sBXo4tdQsGI/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/WoNz_gy6Tmg'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
+                            <img src="https://img.youtube.com/vi/WoNz_gy6Tmg/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </button>
+                        <!-- Répéter pour d'autres vidéos -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    <?php endif; ?>
+
 <script src="<?= ASSETS ?>js/modules/player.js?v=2"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

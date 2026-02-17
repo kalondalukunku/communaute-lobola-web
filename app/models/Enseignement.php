@@ -38,7 +38,8 @@ class Enseignement extends Model {
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
                                     INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
-                                    WHERE E.serie_id = :serie_id");
+                                    WHERE E.serie_id = :serie_id
+                                    ORDER BY E.created_at ASC");
         $stmt->execute(['serie_id' => $serieId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }

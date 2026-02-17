@@ -171,7 +171,7 @@ class EnseignementController extends Controller
         }
 
         $message = SITE_URL ."/enseignement/show/{$serieId}\n\n" .
-                "EmEm Htp 👋,\n\n" .
+                "EmEm Htp,\n\n" .
                 "J'écoute actuellement l'enseignement : *{$Series[0]->nom_serie}*. \n\n" .
                 "J'ai une question à ce sujet qui est celle-ci : ... ";
 
@@ -183,6 +183,7 @@ class EnseignementController extends Controller
             'Series' => $Series,
             'nbrSerieViews' => $nbrSerieViews,
             'whatsappUrl' => $whatsappUrl,
+            'VuesModel' => $this->VuesModel,
         ];
 
         $this->view('enseignement/show', $data);

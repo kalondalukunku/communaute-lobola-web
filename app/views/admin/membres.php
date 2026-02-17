@@ -13,14 +13,14 @@
                 <i class="fas fa-bars text-xl"></i>
             </button>
 
-            <div>
+            <div class="hidden xl:block">
                 <h1 class="font-serif text-xl md:text-md font-bold text-primary">Membres de la communauté</h1>
                 <p class="text-xs text-gray-400 mt-1 font-medium italic">Accueillez et gérez les âmes du sanctuaire</p>
             </div>
             
             <div class="flex items-center gap-6">
                 <form action="" method="get">
-                    <div class="relative hidden xl:block">
+                    <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
                         <input type="text" name="q" placeholder="Rechercher un membre..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="pl-10 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-64 transition-all" style="color: var(--primary);">                    
                     </div>
