@@ -32,10 +32,27 @@ class HomeController extends Controller {
         $Enseignements = $this->EnseignementModel->all();
         $Series = $this->SerieModel->all();
 
+        $isGlobalNew = false;
+        $lastItem = $Series[0]; // Récupère le dernier élément du tableau
+        reset($Series); // Remet le pointeur du tableau au début pour le foreach
+
+        if ($lastItem && !empty($lastItem->created_at)) {
+            $lastDate = new DateTime($lastItem->created_at);
+            $now = new DateTime();
+            $interval = $now->diff($lastDate);
+            $totalHours = ($interval->days * 24) + $interval->h;
+
+            // Si le dernier élément a moins de 24h (ajustez 24 selon vos besoins)
+            if ($totalHours < 24 && $interval->invert == 1) {
+                $isGlobalNew = true;
+            }
+        }
+
         $data = [
             'title' => SITE_NAME .' | Acceuil',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'Series' => $Series,
+            'isGlobalNew' => $isGlobalNew,
             'VuesModel' => $this->VuesModel,
         ];
         $this->view('home/index', $data);

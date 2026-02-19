@@ -157,7 +157,12 @@ class EnseignantController extends Controller
                 'description'       => $description,
                 'duration_minutes'  => $duration_minutes,
                 'enseignant_id'     => $enseignantId,
-                // Ajoutez d'autres champs nécessaires ici
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ];
+
+            $dataUpdateSerie = [
+                'updated_at'        => date('Y-m-d H:i:s'),
+                'serie_id'          => $serieId,
             ];
 
             if (!empty($_FILES['audio_data']['name']))
@@ -216,7 +221,7 @@ class EnseignantController extends Controller
 
             if($resultUpload === true) 
             {
-                if($this->EnseignementModel->insert($dataAddEnseignement)) {
+                if($this->EnseignementModel->insert($dataAddEnseignement) && $this->SerieModel->update($dataUpdateSerie)) {
                     Session::setFlash('success', 'Enseignement ajouté avec succès.');
                     Utils::redirect('../enseignements/'.$enseignantId);
                 } else {

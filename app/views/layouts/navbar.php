@@ -1,8 +1,11 @@
 <header class="bg-paper text-white shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
         <a href="/" class="flex items-center gap-3">
-            <i class="fas fa-seedling text-primary text-2xl"></i>
-            <h1 class="font-serif text-primary text-xl md:text-2xl tracking-wide text-medium"><?= SITE_NAME ?></h1>
+            <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-primary shadow-lg shadow-primary/20 -rotate-13">
+                <img class="w-9 rounded-2xl" src="<?= ASSETS ?>images/logo.jpg" alt="">
+            </div>
+            <!-- <i class="fas fa-seedling text-primary text-2xl"></i>
+            <h1 class="font-serif text-primary text-xl md:text-2xl tracking-wide text-medium"><?= SITE_NAME ?></h1> -->
         </a>
         
         <nav class="flex items-center gap-6">

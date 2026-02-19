@@ -11,6 +11,24 @@ class Serie extends Model {
         $q = $this->db->prepare($query);
         return $q->execute($datas);
     }
+
+    public function update(array $datas, string $where = 'serie_id')
+    {
+        $query = "UPDATE $this->table SET ";
+
+        foreach ($datas as $key => $data) 
+        {
+            if($key !== $where)
+            {
+                $query .= "$key = :$key, ";
+            }
+        }
+        $query = substr($query, 0, -2);
+        $query .= " WHERE $where = :$where";
+
+        $q = $this->db->prepare($query);
+        return $q->execute($datas);
+    } 
     
     public function all()
     {
@@ -19,7 +37,7 @@ class Serie extends Model {
                 FROM teachings t 
                 WHERE t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci) as enseignements_count
                 FROM {$this->table} s
-                ORDER BY s.updated_at DESC";
+                ORDER BY s.created_at DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
