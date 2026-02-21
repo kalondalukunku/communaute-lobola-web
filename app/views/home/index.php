@@ -11,6 +11,62 @@
 
     <main class="flex-grow container mx-auto px-4 py-12">
         <div class="fade-in">
+
+            <?php if ($showRestriction): ?>
+                <!-- Bloc Avertissement Privations -->
+                <div class="mb-12 relative overflow-hidden rounded-2xl border border-primary/30 bg-black/40 backdrop-blur-md p-6 shadow-2xl">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                    
+                    <div class="flex flex-col lg:flex-row items-center gap-8">
+                        <div class="flex-shrink-0 text-center lg:text-left">
+                            <span class="text-primary text-[10px] font-black uppercase tracking-[0.3em] block mb-2">Période de Sanctification</span>
+                            <h2 class="font-serif text-2xl text-white">Engagement Spirituel</h2>
+                        </div>
+
+                        <div class="flex flex-wrap justify-center gap-6 lg:gap-12 flex-grow">
+                            <!-- Abstinence Sexe -->
+                            <div class="flex items-center gap-3 group">
+                                <div class="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center bg-primary/5 group-hover:bg-primary/20 transition-colors">
+                                    <i class="fas fa-heart-broken text-primary"></i>
+                                </div>
+                                <div class="text-[11px] uppercase tracking-wider">
+                                    <span class="text-gray-500 block">Abstinence</span>
+                                    <span class="text-white font-bold">Pas de sexe</span>
+                                </div>
+                            </div>
+
+                            <!-- Abstinence Viande -->
+                            <div class="flex items-center gap-3 group">
+                                <div class="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center bg-primary/5 group-hover:bg-primary/20 transition-colors">
+                                    <i class="fas fa-leaf text-primary"></i>
+                                </div>
+                                <div class="text-[11px] uppercase tracking-wider">
+                                    <span class="text-gray-500 block">Régime</span>
+                                    <span class="text-white font-bold">Pas de Viande</span>
+                                </div>
+                            </div>
+
+                            <!-- Abstinence Alcool -->
+                            <div class="flex items-center gap-3 group">
+                                <div class="w-12 h-12 rounded-full border border-primary/20 flex items-center justify-center bg-primary/5 group-hover:bg-primary/20 transition-colors">
+                                     <i class="fa-solid fa-ban text-primary"></i>
+                                </div>
+                                <div class="text-[11px] uppercase tracking-wider">
+                                    <span class="text-gray-500 block">Sobriété</span>
+                                    <span class="text-white font-bold">Pas d'Alcool</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:text-right">
+                            <div class="inline-block px-4 py-2 rounded-lg bg-primary/10 border border-primary/20">
+                                <span class="text-primary text-[10px] font-bold italic">"Purifie ton temple pour recevoir la Lumière"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Section Titre -->
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-primary/10 pb-6">
                 <div class="max-w-2xl">
@@ -91,156 +147,5 @@
             </div>
         </div>
     </main>
-
-    <!-- TEMPLATES (Cachés, utilisés par JS) -->
-
-    <!-- VUE 1: LOGIN -->
-    <!-- <template id="tpl-login">
-        <div class="flex flex-col items-center justify-center min-h-[60vh] fade-in">
-            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md border-t-4 border-primary">
-                <div class="text-center mb-8">
-                    <h2 class="font-serif text-3xl text-primary mb-2">Espace Membre</h2>
-                    <p class="text-gray-500 italic">Accédez aux enseignements sacrés</p>
-                </div>
-                <form onsubmit="app.handleLogin(event)" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Identifiant</label>
-                        <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="votre@email.com">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-                        <input type="password" required class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="w-full bg-primary text-white py-3 rounded hover:bg-primaryLight transition duration-300 font-semibold shadow-md">
-                        Entrer dans le Sanctuaire
-                    </button>
-                </form>
-                <div class="mt-6 text-center text-xs text-gray-400">
-                    <p>L'accès est réservé aux membres engagés.</p>
-                </div>
-            </div>
-        </div>
-    </template> -->
-
-    <!-- VUE 2: RENOUVELLEMENT ENGAGEMENT (BLOCAGE) -->
-    <!-- <template id="tpl-engagement">
-        <div class="max-w-3xl mx-auto mt-10 fade-in">
-            <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
-                <div class="bg-red-50 p-6 border-b border-red-100 flex items-center gap-4">
-                    <div class="bg-red-100 p-3 rounded-full text-red-600">
-                        <i class="fas fa-lock text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-red-800">Renouvellement Requis</h2>
-                        <p class="text-red-600 text-sm">Votre engagement éthique a expiré. Veuillez le renouveler pour accéder aux enseignements.</p>
-                    </div>
-                </div>
-
-                <div class="p-8 md:p-12 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]">
-                    <h3 class="font-serif text-3xl text-center text-primary mb-8">Charte d'Engagement Spirituel</h3>
-                    
-                    <div class="prose max-w-none text-justify text-gray-700 mb-8 p-6 border border-primary/20 bg-white/50 rounded italic font-serif leading-relaxed">
-                        <p>Je soussigné(e), en tant que membre de cette communauté :</p>
-                        <p class="mt-4">- M'engage à respecter la confidentialité des enseignements partagés ici.</p>
-                        <p>- M'engage à utiliser ces connaissances pour mon élévation personnelle et le bien d'autrui.</p>
-                        <p>- Reconnais que cet accès est un privilège qui nécessite une pratique régulière et sincère.</p>
-                        <p>- Renouvelle mon vœu de bienveillance envers le formateur et les autres membres.</p>
-                        <p class="mt-6 text-right font-bold text-primary">Fait pour valoir ce que de droit.</p>
-                    </div>
-
-                    <form onsubmit="app.signContract(event)" class="flex flex-col items-center gap-6">
-                        <label class="flex items-center gap-3 cursor-pointer select-none">
-                            <input type="checkbox" required class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded">
-                            <span class="text-gray-800">Je lis, j'accepte et je signe cet engagement pour ce mois.</span>
-                        </label>
-                        
-                        <div class="w-full h-px bg-gray-200 my-2"></div>
-
-                        <button type="submit" class="bg-accent text-primary px-8 py-3 rounded-full font-bold hover:bg-yellow-500 transition shadow-lg flex items-center gap-2">
-                            <i class="fas fa-file-signature"></i>
-                            Signer et Accéder
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </template> -->
-
-    <!-- VUE 3: DASHBOARD (LISTE AUDIOS) -->
-    <!-- <template id="tpl-dashboard">
-        <div class="fade-in">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-primary/10 pb-4">
-                <div>
-                    <h2 class="font-serif text-4xl text-primary">Enseignements</h2>
-                    <p class="text-gray-500 mt-2">Explorez la bibliothèque des sagesses audio.</p>
-                </div>
-                <div class="bg-green-50 text-green-800 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 mt-4 md:mt-0">
-                    <i class="fas fa-check-circle"></i> Engagement Actif
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="audio-grid">
-            </div>
-        </div>
-    </template> -->
-
-    <!-- VUE 4: DÉTAIL AUDIO & Q&A -->
-    <!-- <template id="tpl-audio-detail">
-        <div class="fade-in max-w-4xl mx-auto">
-            <button onclick="app.loadView('dashboard')" class="text-gray-500 hover:text-primary mb-6 flex items-center gap-2 transition">
-                <i class="fas fa-arrow-left"></i> Retour aux enseignements
-            </button>
-
-            <div class="bg-white rounded-xl shadow-xl overflow-hidden mb-8">
-                <div class="bg-primary p-8 text-white relative overflow-hidden">
-                    <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
-                        <i class="fas fa-om text-9xl"></i>
-                    </div>
-                    <div class="relative z-10">
-                        <span class="bg-accent text-primary text-xs font-bold px-2 py-1 rounded mb-2 inline-block" id="detail-category">Catégorie</span>
-                        <h2 class="font-serif text-3xl md:text-4xl mb-2" id="detail-title">Titre de l'enseignement</h2>
-                        <p class="opacity-80 flex items-center gap-4 text-sm">
-                            <span><i class="far fa-calendar-alt mr-1"></i> <span id="detail-date">Date</span></span>
-                            <span><i class="far fa-clock mr-1"></i> <span id="detail-duration">Durée</span></span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="p-6 md:p-8">
-                    <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                        <audio id="main-audio-player" class="w-full" controls controlsList="nodownload">
-                            <source src="" type="audio/mpeg">
-                            Votre navigateur ne supporte pas l'audio.
-                        </audio>
-                        <p class="text-xs text-center text-gray-400 mt-2"><i class="fas fa-shield-alt"></i> Téléchargement désactivé - Écoute en streaming uniquement</p>
-                    </div>
-
-                    <div class="prose max-w-none text-gray-200 mb-6">
-                        <h4 class="font-bold text-primary mb-2">À propos de cet enseignement</h4>
-                        <p id="detail-desc">Description...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <h3 class="font-serif text-2xl text-primary mb-6 flex items-center gap-3">
-                    <i class="far fa-comments"></i> Questions & Réponses
-                </h3>
-
-                <form onsubmit="app.postQuestion(event)" class="mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Poser une question au formateur</label>
-                    <textarea required id="question-input" rows="3" class="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary outline-none mb-3" placeholder="Votre question sur cet enseignement..."></textarea>
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-primary text-white px-5 py-2 rounded hover:bg-primaryLight transition text-sm">
-                            Envoyer la question
-                        </button>
-                    </div>
-                </form>
-
-                <div class="space-y-6" id="qa-list">
-                </div>
-            </div>
-        </div>
-    </template> -->
 
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

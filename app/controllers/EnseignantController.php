@@ -118,8 +118,9 @@ class EnseignantController extends Controller
             $serieId = Utils::generateUuidV4();
 
             $dataAddSerie = [
-                'serie_id'  => $serieId,
-                'nom'     => $nom
+                'serie_id'      => $serieId,
+                'nom'           => $nom,
+                'updated_at'    => date('Y-m-d H:i:s'),
             ];
 
             if($this->SerieModel->insert($dataAddSerie)) 

@@ -32,19 +32,32 @@ class HomeController extends Controller {
         $Enseignements = $this->EnseignementModel->all();
         $Series = $this->SerieModel->all();
 
-        $isGlobalNew = false;
-        $lastItem = $Series[0]; // Récupère le dernier élément du tableau
-        reset($Series); // Remet le pointeur du tableau au début pour le foreach
+        /**
+         * LOGIQUE DE DISPARITION AUTOMATIQUE
+         * Fenêtre active uniquement du 22 au (22 + 15 jours)
+         */
+        $showRestriction = false;
+        $now = new DateTime(); // Date actuelle
+        
+        // Liste des mois de début (Février, Avril, Juin, Août, Octobre, Décembre)
+        $startMonths = [2, 4, 6, 8, 10, 12];
+        
+        foreach ($startMonths as $m) {
+            $currentYear = (int)$now->format('Y');
+            
+            // On définit le point de départ : le 22 du mois pair à minuit
+            $startDate = new DateTime("$currentYear-$m-21 00:00:00");
+            
+            // On définit le point de sortie : Exactement 15 jours plus tard
+            // Note : PHP gère nativement le passage au mois suivant (ex: 22/02 + 15j = 09/03)
+            $endDate = clone $startDate;
+            $endDate->modify('+15 days');
 
-        if ($lastItem && !empty($lastItem->created_at)) {
-            $lastDate = new DateTime($lastItem->created_at);
-            $now = new DateTime();
-            $interval = $now->diff($lastDate);
-            $totalHours = ($interval->days * 24) + $interval->h;
-
-            // Si le dernier élément a moins de 24h (ajustez 24 selon vos besoins)
-            if ($totalHours < 24 && $interval->invert == 1) {
-                $isGlobalNew = true;
+            // Vérification de l'intervalle
+            if ($now >= $startDate && $now <= $endDate) {
+                $showRestriction = true;
+                $displayEndDate = $endDate->format('d/m'); // Pour rappel interne si besoin
+                break;
             }
         }
 
@@ -52,7 +65,7 @@ class HomeController extends Controller {
             'title' => SITE_NAME .' | Acceuil',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'Series' => $Series,
-            'isGlobalNew' => $isGlobalNew,
+            'showRestriction' => $showRestriction,
             'VuesModel' => $this->VuesModel,
         ];
         $this->view('home/index', $data);
