@@ -15,7 +15,7 @@ class AdminController extends Controller
     private $EnseignementModel;
     private $EnseignantModel;
     private $EngagementModel;
-    private $adminModel;
+    private $AdminModel;
     private $PaymentModel;
     private $TokensModel;
     private $ActionsRaisonsModel;
@@ -24,7 +24,7 @@ class AdminController extends Controller
     public function __construct()
     {        
 
-        $this->adminModel = new Admin();
+        $this->AdminModel = new Admin();
         $this->MembreModel = new Membre();
         $this->EnseignementModel = new Enseignement();
         $this->EnseignantModel = new Enseignant();
@@ -45,7 +45,7 @@ class AdminController extends Controller
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
-        $admin = $this->adminModel->find(Session::get('admin')['admin_id'], $cacheKey);
+        $admin = $this->AdminModel->find(Session::get('admin')['admin_id'], $cacheKey);
         if(!$admin) {
             Utils::redirect('/admin/dashboard');
             return;
@@ -101,7 +101,7 @@ class AdminController extends Controller
                 'admin_id'  => $admin->admin_id,
             ];
 
-            if($this->adminModel->update($dataEdtPswdUs, 'admin_id'))
+            if($this->AdminModel->update($dataEdtPswdUs, 'admin_id'))
             {
                 Session::setFlash('success', 'Mot de passe modifié avec succès.');
                 Utils::redirect('dashboard');
@@ -170,7 +170,7 @@ class AdminController extends Controller
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
             }
             else {
-                $existingAdmin = $this->adminModel->findByEmail($email, $cacheKey);
+                $existingAdmin = $this->AdminModel->findByEmail($email, $cacheKey);
                 if ($existingAdmin) 
                 {
                     Session::setFlash('error', 'Un administrateur avec cet email existe déjà.');
@@ -198,7 +198,7 @@ class AdminController extends Controller
                     <p style='margin-top: 15px;'>Nous vous recommandons de changer votre mot de passe après votre première connexion pour des raisons de sécurité.</p>
                     <p>Cordialement,<br>L'équipe de ". SITE_NAME ."</p>";
 
-                    if ($this->adminModel->insert($adminData)) 
+                    if ($this->AdminModel->insert($adminData)) 
                     {
                         if($this->sendEmailModel->sendEmail(
                             $email, 
@@ -622,6 +622,23 @@ class AdminController extends Controller
         $this->view('admin/membre', $data);
     }
 
+    public function membre_suivi()
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $membreSuivi = $this->MembreModel->getMembersActivityReport();
+        // var_dump($membreSuivi); die;
+        
+        $data = [
+            'title' => SITE_NAME .' | Liste des membres qui suivent les enseignements',
+            'description' => 'Liste des membres qui suivent les enseignements',
+            'membreSuivi' => $membreSuivi,
+        ];
+        
+        $this->view('admin/membre_suivi', $data);
+    }
+
     public function addenseignant() 
     {
         Auth::requireLogin('admin');
@@ -895,6 +912,20 @@ class AdminController extends Controller
         $this->view('admin/enseignants', $data);
     }
 
+    public function admins() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $allAdmins = $this->AdminModel->all();
+        
+        $data = [
+            'allAdmins' => $allAdmins,
+        ];
+
+        $this->view('admin/admins', $data);
+    }
+
     public function login() 
     {
         Session::start();
@@ -920,7 +951,7 @@ class AdminController extends Controller
             Session::setFlash('error', 'Remplissez correctement le formulaire.');
         }
 
-        $admin = $this->adminModel->findByEmail($email, $cacheKey);
+        $admin = $this->AdminModel->findByEmail($email, $cacheKey);
 
         if ($admin && password_verify($password, $admin->pswd)) {
             Session::set('admin', $admin);

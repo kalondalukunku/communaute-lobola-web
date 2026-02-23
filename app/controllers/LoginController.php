@@ -53,8 +53,8 @@ class LoginController extends Controller {
 
         if ($Membre && password_verify($pswd, $Membre->pswd)) 
         {
-            Session::destroy();
-            Cache::delete('enseignant_connexion');
+            // Session::destroy();
+            // Cache::delete('enseignant_connexion');
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
             Session::setFlash('success', 'Connecté.');

@@ -46,4 +46,12 @@ class Admin extends Model {
         return $q->fetch();
     }
 
+    public function all()
+    {
+        $query = "SELECT * FROM $this->table ORDER BY created_at DESC";
+        $q = $this->db->prepare($query);
+        $q->execute();
+        return $q->fetchAll();
+    }
+
 }

@@ -814,10 +814,13 @@ class MembreController extends Controller
             return;
         }
 
+        $evaluationSpirituel = $this->MembreModel->getMemberProgress($membreId);
+
         $data = [
             'title' => SITE_NAME .' | Profil de '. $Membre->nom_postnom,
             'description' => 'Mon Profil',
             'Membre' => $Membre,
+            'evaluationSpirituel' => $evaluationSpirituel,
         ];
 
         $this->view('membre/profile', $data);

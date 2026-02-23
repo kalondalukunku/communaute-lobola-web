@@ -412,4 +412,92 @@ class Membre extends Model {
         if(file_put_contents($filePdf,$decrypted)) return true;                
     }
 
+    public function getMemberProgress($member_id) 
+    {
+        // 1. Compter le total des enseignements actifs
+        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM teachings WHERE is_active = '1'");
+        $stmtTotal->execute();
+        $totalActive = (int)$stmtTotal->fetchColumn();
+
+        if ($totalActive === 0) return 0;
+
+        // 2. Compter les enseignements uniques vus par ce membre
+        // On utilise DISTINCT au cas où un membre aurait cliqué plusieurs fois sur le même enseignement
+        $stmtSeen = $this->db->prepare("
+            SELECT COUNT(DISTINCT enseignement_id) 
+            FROM enseignement_vues
+            WHERE user_id = :mid 
+            AND enseignement_id IN (SELECT enseignement_id COLLATE utf8mb4_unicode_ci FROM teachings WHERE is_active = 1)
+        ");
+        $stmtSeen->execute(['mid' => $member_id]);
+        $totalSeen = (int)$stmtSeen->fetchColumn();
+
+        // 3. Calculer le pourcentage
+        $percentage = ($totalSeen / $totalActive) * 100;
+
+        return min(100, round($percentage)); // Plafonné à 100%
+    }
+
+    public function getMembersActivityReport() 
+    {
+        // 1. Obtenir le dénominateur (total des enseignements actifs)
+        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM teachings WHERE is_active = '1'");
+        $stmtTotal->execute();
+        $totalActive = (int)$stmtTotal->fetchColumn();
+
+        if ($totalActive === 0) {
+            return [];
+        }
+
+        // 2. Requête principale avec Jointure
+        // On lie la table des vues (enseignement_vues) à la table des membres (members)
+        $query = "
+            SELECT 
+                m.member_id,
+                m.nom_postnom,
+                m.email,
+                m.path_profile,
+                COUNT(DISTINCT ev.enseignement_id) as total_seen,
+                MAX(ev.viewed_at) as last_seen_date
+            FROM members m
+            INNER JOIN enseignement_vues ev 
+                ON m.member_id COLLATE utf8mb4_unicode_ci = ev.user_id COLLATE utf8mb4_unicode_ci
+            WHERE ev.enseignement_id IN (
+                SELECT enseignement_id COLLATE utf8mb4_unicode_ci 
+                FROM teachings 
+                WHERE is_active = '1'
+            )
+            GROUP BY m.member_id
+            ORDER BY total_seen DESC
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $membersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $report = [];
+
+        // 3. Construction du tableau final avec calcul du score
+        foreach ($membersData as $member) {
+            $totalSeen = (int)$member['total_seen'];
+            $calcPercentage = ($totalSeen / $totalActive) * 100;
+
+            $report[] = [
+                'member_id' => $member['member_id'],
+                'nom_postnom' => $member['nom_postnom'],
+                'email' => $member['email'],
+                'path_profile' => $member['path_profile'],
+                'stats' => [
+                    'read_count' => $totalSeen,
+                    'total_to_read' => $totalActive,
+                    'progress_bar' => min(100, round($calcPercentage)),
+                    'last_activity' => $member['last_seen_date']
+                ]
+            ];
+        }
+
+        return $report;
+
+    }
+
 }

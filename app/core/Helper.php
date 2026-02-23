@@ -382,4 +382,12 @@ class Helper {
         // Retourner en majuscules
         return mb_strtoupper($initials);
     }
+    
+    public static function getAssiduityGrade($score) {
+        if ($score >= 90) return "Élite";
+        if ($score >= 75) return "Avancé";
+        if ($score >= 50) return "Régulier";
+        if ($score >= 25) return "Novice";
+        return "Débutant";
+    }
 }

@@ -35,6 +35,14 @@
                 <i class="fas fa-book-open w-5 group-hover:text-primary transition"></i> 
                 <span class="text-sm font-medium">Enseignants</span>
             </a>
+            <a href="/admin/admins" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/admins', true) ?>">
+                <i class="fas fa-users-gear w-5 group-hover:text-primary transition"></i> 
+                <span class="text-sm font-medium">Gestion des Admins</span>
+            </a>
+            <a href="/admin/membre_suivi" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/membre_suivi', true) ?>">
+                <i class="fas fa-user-check w-5 group-hover:text-primary transition"></i> 
+                <span class="text-sm font-medium">Suivi Membre</span>
+            </a>
             
             <div class="pt-8">
                 <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Système</p>
