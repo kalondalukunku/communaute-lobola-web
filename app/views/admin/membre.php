@@ -305,6 +305,60 @@
                             </div>
                         </div>
                     </div>
+                <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[4]): ?>
+                    <div class="glass-card color-border rounded-[2.5rem] overflow-hidden">
+                        <div class="p-4 flex justify-between items-center bg-[#cfbb30]/20">
+                            <div class="flex items-center gap-4">
+                                <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">1</span>
+                                <h3 class="font-serif text-white text-md md:text-sm font-bold">Intégration Rejetée</h3>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black text-red-500 uppercase tracking-tighter">
+                                    <i class="fas fa-times-circle mr-2"></i>Rejeté
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <p class="text-[10px] tracking-widest text-gray-400 font-black mb-4">L'intégration de ce membre a été réjetée. Veuillez consulter les raisons du réjet pour plus d'informations.</p>
+                            <div class="p-4 rounded-xl border mb-6" style="border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <h4 class="text-sm font-bold text-gray-400 mb-3">Motif de réjet</h4>
+                                <p class="text-xs text-gray-500"><?= $MembreMotif->raison ?></p>
+                            </div>
+                            <!-- <div class="mt-4 flex justify-end gap-3">
+                                <form action="" method="post">
+                                    <button name="cllil_membre_integration_approuve" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Approuver l'intégration</button>
+                                </form>
+                            </div> -->
+                        </div>
+                    </div>
+                <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[5]): ?>
+                    <div class="glass-card color-border rounded-[2.5rem] overflow-hidden">
+                        <div class="p-4 flex justify-between items-center bg-[#cfbb30]/20">
+                            <div class="flex items-center gap-4">
+                                <span class="w-8 h-8 bg-paper text-primary rounded-full flex items-center justify-center font-black text-xs">1</span>
+                                <h3 class="font-serif text-white text-md md:text-sm font-bold">Intégration Validée</h3>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black text-green-500 uppercase tracking-tighter">
+                                    <i class="fas fa-check-circle mr-2"></i>Approuvé
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-8">
+                            <p class="text-[10px] tracking-widest text-gray-400 font-black mb-4">L'intégration de ce membre a été validée.</p>
+                            <div class="p-4 rounded-xl border mb-6" style="border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <h4 class="text-sm font-bold text-gray-400 mb-3">Renvoyez l'email de confirmation</h4>
+                                <p class="text-xs text-gray-500">Vous pouvez renvoyer l'email de confirmation d'intégration à ce membre pour lui permettre d'accéder à son compte et aux enseignants.</p>
+                                <div class="flex gap-3 mt-4">
+                                    <form action="" method="post">
+                                        <button name="cllil_membre_renvoyer_email" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">Renvoyer l'email de confirmation</button>
+                                    </form>
+                                    <a href="https://wa.me/<?= str_replace('+', '', $Membre->phone_number) ?>" target="_blank" class="inline-block bg-green-500 text-paper px-8 py-3 rounded-lg text-[11px] font-bold hover:bg-green-600 transition">Contacter sur WhatsApp</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 <?php endif; ?>
             </div>
         </div>
@@ -354,5 +408,7 @@
         </form>
     </div>
 </div>
+
+<script src="<?= ASSETS ?>js/modules/modal.js"></script>
     
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

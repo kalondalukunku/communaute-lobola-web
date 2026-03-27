@@ -403,11 +403,13 @@ class AdminController extends Controller
             return;
         }
 
+        $MembreMotif = $this->ActionsRaisonsModel->find($membreId, ARRAY_ACTIONS_RAISONS[0]);
         $Payment = $this->PaymentModel->getPayment($membreId, $Membre->engagement_id);
 
         $data = [
             'membreId' => $membreId,
             'Membre' => $Membre,
+            'MembreMotif' => $MembreMotif,
             'Payment' => $Payment,
             'name' => $name
         ];
@@ -438,6 +440,28 @@ class AdminController extends Controller
                         Utils::redirect('../membres');
                     }
                 } 
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_renvoyer_email'])) 
+        {
+            if(isset($_POST['cllil_membre_renvoyer_email'])) 
+            {
+                // envoi de mail de notification
+                $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                ob_start();
+                include APP_PATH . 'templates/email/integration_active.php';
+                $messageBody = ob_get_clean();
+
+                if($this->sendEmailModel->sendEmail(
+                    $Membre->email, 
+                    'Intégration  - '. SITE_NAME, 
+                    $messageBody
+                )) 
+                {
+                    Session::setFlash('success', "L'email de notification a été renvoyé avec succès.");
+                    Utils::redirect('../membres');
+                }
             }
         }
 

@@ -38,10 +38,10 @@ class MembreController extends Controller
     {
         if(Session::get('membre') || Session::get('enseignant')) Utils::redirect('/');
 
-        if (date('d') >= 15 && date('m') == 02 || date('d') >= 1 && date('m') == 03)   
-        {
-            Utils::redirect('integrations');
-        }
+        // if (date('d') >= 15 && date('m') == 02 || date('d') >= 1 && date('m') == 03)   
+        // {
+        //     Utils::redirect('integrations');
+        // }
         $ip = Utils::getUserIP();
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
         if($Membre) 
@@ -70,6 +70,16 @@ class MembreController extends Controller
         {
             $dbEmails[] = $dbEmail->email;
         }
+        
+        $allPays = $this->PaysModel->getPays();
+        $dbNationalite = [];
+        $dbPays = [];
+        foreach ($allPays as $allPay) 
+        {
+            $dbNationalite[] = $allPay->nationalite;
+            $dbPays[] = $allPay->pays;
+        }
+        // var_dump($allPays); die;
 
         $dbPhoneNumbers = $this->MembreModel->getPhoneNumbers();
         foreach ($dbPhoneNumbers as $dbPhoneNumber) 
@@ -80,6 +90,7 @@ class MembreController extends Controller
         $data = [
             'title' => 'Intégration',
             'description' => "Demande d'intégration à la communauté Lobola",
+            'allPays' => $allPays,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_integration']))
@@ -92,11 +103,13 @@ class MembreController extends Controller
             $email = filter_var(Utils::sanitize(trim($_POST['email'] ?? '')), FILTER_SANITIZE_EMAIL);
             $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
             $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
+            $ou_connu = Utils::sanitize(trim($_POST['ou_connu'] ?? ''));
+            $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
             $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
 
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ville || !$phone || !$adresse)
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ou_connu || !$nationalite || !$ville || !$phone || !$adresse)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/integration',  $data);
@@ -125,12 +138,18 @@ class MembreController extends Controller
             if(!Utils::isMajeur($date_naissance))
             {
                 Session::setFlash('error', "Vous devez avoir moins de 14 ans pour intégrer la communauté.");
-                $this->view('psn/add',  $data);
+                $this->view('membre/integration',  $data);
                 return;
             }
             if(in_array($email, $dbEmails))
             {
                 Session::setFlash('error', 'Un membre avec cet email existe déjà.');
+                $this->view('membre/integration', $data);
+                return;
+            }
+            if(!in_array($nationalite, $dbNationalite))
+            {
+                Session::setFlash('error', 'Le pays saisi n\'est pas valide.');
                 $this->view('membre/integration', $data);
                 return;
             }
@@ -163,6 +182,8 @@ class MembreController extends Controller
                 'email'                => $email,
                 'niveau_initiation'    => $niveau_initiation,
                 'motivation'           => $motivation,
+                'ou_connu'             => $ou_connu,
+                'nationalite'          => $nationalite,
                 'ville'                => $ville,
                 'phone_number'         => $phone,
                 'adresse'              => $adresse,
@@ -865,6 +886,38 @@ class MembreController extends Controller
         ];
 
         $this->view('membre/profile', $data);
+    }
+
+    public function profile_edit($membreId)
+    {
+        Auth::requireLogin('membre');
+
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
+            if($Membre->status !== ARRAY_STATUS_MEMBER[0]) {
+                Utils::redirect('../integration');
+                return;
+            }
+        }
+
+        $myApiKey = "dd2e5a29b84c2f80c15cc476295998af6ef4fde9400ea7b66d2e71401ff99550"; 
+
+        $countries = Helper::getCountriesFromAPI($myApiKey);
+        var_dump($countries);die;
+        $this->MembreModel->insert2($countries);
+        
+
+        $data = [
+            'title' => 'Modifier le profil de '. $Membre->nom_postnom,
+            'description' => 'Modifier mon Profil',
+            'Membre' => $Membre,
+        ];
+
+        $this->view('membre/profile_edit', $data);
     }
 
     public function forgot_pswd() 

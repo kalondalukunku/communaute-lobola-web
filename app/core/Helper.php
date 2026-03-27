@@ -1,5 +1,92 @@
 <?php
 class Helper {
+    
+    public static function getCountriesFromAPI($apiKey) {
+        $url = "https://api.countrystatecity.in/v1/countries";
+
+        $ch = curl_init();
+
+        // Configuration de cURL
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => [
+                "X-CSCAPI-KEY: " . $apiKey
+            ],
+            // Optionnel : Désactiver la vérification SSL si vous avez des problèmes en local (WAMP/XAMPP)
+            // CURLOPT_SSL_VERIFYPEER => false, 
+        ]);
+
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($err) {
+            return ["error" => "Erreur cURL : " . $err];
+        }
+
+        if ($httpCode !== 200) {
+            return ["error" => "Erreur API (Code $httpCode) : " . $response];
+        }
+
+        return json_decode($response, true);
+    }
+
+    public static function makeRequest($endpoint) {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => "https://api.countrystatecity.in/v1" . $endpoint,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ["X-CSCAPI-KEY: " . "dd2e5a29b84c2f80c15cc476295998af6ef4fde9400ea7b66d2e71401ff99550"],
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ($httpCode === 200) ? json_decode($response, true) : null;
+    }
+
+    public static function generateFullJson() {
+        echo "Début de la récupération des pays...\n";
+        $countries = self::makeRequest("/countries");
+        
+        if (!$countries) {
+            die("Erreur : Impossible de récupérer les pays.");
+        }
+
+        $fullData = [];
+
+        foreach ($countries as $country) {
+            $iso = $country['iso2'];
+            echo "Récupération des provinces pour : " . $country['name'] . " ($iso)...\n";
+            
+            $states = self::makeRequest("/countries/$iso/states");
+            
+            $fullData[] = [
+                "id" => $country['id'],
+                "name" => $country['name'],
+                "iso2" => $iso,
+                "emoji" => $country['emoji'],
+                "states" => $states ? $states : []
+            ];
+
+            // Petite pause pour ne pas saturer l'API et respecter les limites de débit
+            usleep(100000); // 0.1 seconde
+        }
+
+        return $fullData;
+
+        // $jsonContent = json_encode($fullData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        // file_put_contents($outputPath, $jsonContent);
+        
+        // echo "Terminé ! Fichier généré : $outputPath\n";
+    }
 
     public static function formatDate($date)
     {

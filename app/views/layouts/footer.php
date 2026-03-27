@@ -3,7 +3,5 @@
             <p>&copy; <?= date('Y') ?> Le Sanctuaire. Le respect de la vie privée est au cœur de notre engagement.</p>
         </div>
     </footer>
-
-    <script src="<?= ASSETS ?>js/app.js?v=<?= APP_VERSION ?>"></script>
 </body>
 </html>

@@ -104,9 +104,15 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                    <div class="group">
-                        <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nationalité</label>
-                        <input type="text" name="nationalite" value="<?= Helper::getData($_POST, 'nationalite') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Votre pays d'origine..." required>
+                    <div class="group relative">
+                        <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Votre nationalité</label>
+                        <select name="nationalite" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
+                            <option value="" disabled selected>Sélectionnez votre nationnalité</option>
+                            <?php foreach($allPays as $pays): ?>
+                                <option value="<?= $pays->nationalite ?>" <?= Helper::getSelectedValue('nationalite', $pays->nationalite) ?> ><?= $pays->nationalite ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
                     </div>
 
                     <div class="group">
@@ -127,6 +133,10 @@
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">WhatsApp / Appel</label>
                         <input type="tel" name="phone" value="<?= Helper::getData($_POST, 'phone') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="+243 8*******" required>
+                    </div>
+                    <div class="group">
+                        <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ou est-ce que vous avez connus notre communauté ?</label>
+                        <textarea name="ou_connu" rows="2" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Dites-nous comment vous avez découvert notre communauté..." required><?= Helper::getData($_POST, 'ou_connu') ?></textarea>
                     </div>
                 </div>
             </section>

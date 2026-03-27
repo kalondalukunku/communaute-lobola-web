@@ -30,18 +30,54 @@
                     </div>
 
                     <!-- Profil Dropdown ou simple lien -->
-                    <a href="<?= Session::get('membre') ? "/membre/profile/". Session::get('membre')['member_id'] : "" ?><?= Session::get('enseignant') ? "/enseignant/profile/". Session::get('enseignant')['enseignant_id'] : "" ?>" 
+                    <!-- <a href="<?= Session::get('membre') ? "/membre/profile/". Session::get('membre')['member_id'] : "" ?><?= Session::get('enseignant') ? "/enseignant/profile/". Session::get('enseignant')['enseignant_id'] : "" ?>" 
                        class="relative group">
                         <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 blur transition duration-500"></div>
                         <div class="relative w-11 h-11 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">
                             <img src="/<?= Session::get('membre')['path_profile'] ?? Session::get('enseignant')['path_profile'] ?>" 
                                  alt="Avatar" class="w-full h-full object-cover">
                         </div>
-                    </a>
+                    </a> -->
 
-                    <a href="/logout" class="flex items-center justify-center w-10 h-10 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-lg shadow-red-500/5" title="Déconnexion">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" class="relative group focus:outline-none">
+                            <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 blur transition duration-500"></div>
+                            <div class="relative w-11 h-11 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">
+                                <img src="/<?= Session::get('membre')['path_profile'] ?? Session::get('enseignant')['path_profile'] ?>" 
+                                    alt="Avatar" class="w-full h-full object-cover">
+                            </div>
+                        </button>
+
+                        <div x-show="open" 
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 mt-3 w-65 bg-paper rounded-xl shadow-xl color-border py-2 z-50 origin-top-right"
+                            style="display: none;"
+                        >
+                            <a href="<?= Session::get('membre') ? "/membre/profile/". Session::get('membre')['member_id'] : "" ?><?= Session::get('enseignant') ? "/enseignant/profile/". Session::get('enseignant')['enseignant_id'] : "" ?>" 
+                            class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
+                                Mon Profil
+                            </a>
+                            <a href="#" 
+                            class="block px-4 py-2 text-sm text-gray-400 hover:bg-[#CFBB30] hover:text-white transition-colors" disabled>
+                                Modifier mes informations (A venir)
+                            </a>
+
+                            <hr class="my-1 border-gray-100">
+
+                            <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                Déconnexion
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- <a href="/logout" class="flex items-center justify-center w-10 h-10 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-lg shadow-red-500/5" title="Déconnexion">
                         <i class="fas fa-power-off text-sm"></i>
-                    </a>
+                    </a> -->
                 </div>
             </nav>
         </div>

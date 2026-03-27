@@ -116,9 +116,9 @@
                                 $psnStatus = [
                                     'active' => 'Actif',
                                     'att_validation' => 'Attente Intégration',
+                                    'inactive' => 'Intégration Validée',
                                     'att_rejete' => 'Intégration Réjété',
                                     'suspended' => 'Suspendu',
-                                    'inactive' => 'Inactif',
                                 ];
 
                                 $current_status = $_GET['stt'] ?? 'active';

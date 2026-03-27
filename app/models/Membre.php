@@ -83,8 +83,39 @@ class Membre extends Model {
         $stmtMem = $this->db->prepare($queryMember);
         $stmtMem->execute(['member_id' => $memberId]);
 
+        // 4. Suppression de l avatar du membre
+        $fileavatar = STORAGE_UPLOAD . "avatar/" . $memberId;
+        if(file_exists($fileavatar)) {
+            unlink($fileavatar);
+        }
+
         // Validation des deux opérations
         return $this->db->commit();
+    }
+
+    public function insert2(array $datas)
+    {
+        $keys = array_keys($datas);
+        $query = "INSERT INTO pays (pays_id, pays, iso2, iso3, phonecode, timezones, latitude, longitude) VALUES(:pays_id, :pays, :iso2, :iso3, :phonecode, :timezones, :latitude, :longitude) ON DUPLICATE KEY UPDATE pays = VALUES(pays)";
+        $q = $this->db->prepare($query);
+        $this->db->beginTransaction();
+    
+    foreach ($datas as $item) {
+        // On lie uniquement les colonnes autorisées pour éviter les erreurs SQL
+        $q->execute([
+            ':pays_id'   => $item['id'] ?? null,
+            ':pays'      => $item['name'] ?? null,
+            ':iso2'      => $item['iso2'] ?? null,
+            ':iso3'      => $item['iso3'] ?? null,
+            ':phonecode' => $item['phonecode'] ?? null,
+            ':timezones' => $item['timezones'] ?? null,
+            ':latitude'  => $item['latitude'] ?? null,
+            ':longitude' => $item['longitude'] ?? null,
+        ]);
+    }
+
+    return $this->db->commit();
+        // return $q->execute($datas);
     }
     
     public function getEmails() 
@@ -190,7 +221,7 @@ class Membre extends Model {
         // 4. Requête pour les membres uniquement
         $sql = "SELECT M.* FROM $this->table M 
                 $whereSql 
-                ORDER BY M.nom_postnom ASC 
+                ORDER BY M.updated_at ASC 
                 LIMIT {$limit} OFFSET {$offset}";
         
         $q = $this->db->prepare($sql);
