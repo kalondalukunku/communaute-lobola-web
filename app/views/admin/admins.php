@@ -5,14 +5,29 @@
     include APP_PATH . 'templates/alertView.php'; 
 ?>
 
-        <main class="flex-grow flex flex-col min-w-0">
+    <main class="flex-grow flex flex-col min-w-0">
+        <!-- Header Mobile Dédié -->
+        <div class="lg:hidden p-4 bg-paper border-b border-slate-200 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <button @click="sidebarOpen = true" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <img class="w-7 h-7 rounded-lg" src="<?= ASSETS ?>images/logo.jpg" alt="">
+                <span class="font-bold text-sm text-white tracking-tight"><?= SITE_NAME ?></span>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex gap-2">
+                    <button class="w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 transition relative">
+                        <i class="far fa-bell"></i>
+                        <span class="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
         
         <!-- Header -->
         <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
-            <!-- Bouton Hamburger -->
-            <button id="openSidebar" class="lg:hidden w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-primary hover:bg-gray-100 transition shadow-sm">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
 
             <div>
                 <h1 class="font-serif text-xl md:text-md font-bold text-primary">Enseignants de la communauté</h1>
@@ -21,21 +36,11 @@
             
             <div class="flex items-center gap-6">
                 <form action="" method="get">
-                    <div class="relative hidden xl:block">
+                    <div class="relative hidden sm:block">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
                         <input type="text" name="q" placeholder="Rechercher un membre..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="pl-10 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-64 transition-all" style="color: var(--primary);">                    
                     </div>
                 </form>
-                
-                <div class="flex gap-2">
-                    <button class="w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100 transition relative">
-                        <i class="far fa-bell"></i>
-                        <span class="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
-                    </button>
-                    <!-- <button class="bg-primary text-paper font-bold text-xs tracking-widest px-6 py-3 rounded-2xl shadow-xl shadow-secondary/10 hover:scale-105 transition-transform active:scale-95">
-                        Nouveau membre
-                    </button> -->
-                </div>
             </div>
         </header>
 
@@ -66,7 +71,7 @@
                                 <div class="absolute inset-0 bg-primary/20 rounded-full blur-md group-hover:blur-xl transition-all duration-500"></div>
                                 <div class="relative w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-primary to-primary/30">
                                     <div class="w-full h-full rounded-full overflow-hidden border-2 border-[#cfbb30]">
-                                        <img src="/assets/images/logo.jpg" 
+                                        <img src="<?= ASSETS ?>images/logo.jpg" 
                                             alt="Photo de <?= htmlspecialchars($admin->nom) ?>" 
                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                     </div>

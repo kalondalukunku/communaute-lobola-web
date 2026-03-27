@@ -946,6 +946,13 @@ class MembreController extends Controller
                 return;
             }
 
+            if($Membre->status !== ARRAY_STATUS_MEMBER[2]) 
+            {
+                Session::setFlash('error', 'Le compte associé à cette adresse email n\'est pas actif.');
+                $this->view('membre/forgot_pswd',  $data);
+                return;
+            }
+
             $tokenDb = $this->TokensModel->findById($Membre->member_id);
             if($tokenDb) $this->TokensModel->delete($Membre->member_id, $tokenDb->token_id);
             

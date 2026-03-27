@@ -17,9 +17,9 @@ function closeModal() {
 }
 
 // Événements
-openBtn.addEventListener('click', openModal);
-closeBtn.addEventListener('click', closeModal);
-closeIcon.addEventListener('click', closeModal);
+if(openBtn) openBtn.addEventListener('click', openModal);
+if(closeBtn) closeBtn.addEventListener('click', closeModal);
+if(closeIcon) closeIcon.addEventListener('click', closeModal);
 
 // Optionnel : Fermer avec la touche Echap
 window.addEventListener('keydown', (e) => {

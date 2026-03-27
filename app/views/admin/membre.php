@@ -7,13 +7,21 @@
 
     <!-- Main Content -->
     <main class="flex-grow">
-        <!-- Top Bar -->
-        <header class="h-20 bg-paper border-b border-gray-100 px-3 flex items-center justify-between">
-            <!-- Bouton Hamburger -->
-            <button id="openSidebar" class="lg:hidden w-11 h-11 rounded-2xl bg-gray-50 flex items-center justify-center text-primary hover:bg-gray-100 transition shadow-sm">
-                <i class="fas fa-bars text-xl"></i>
+        <!-- Header Mobile Dédié -->
+        <div class="lg:hidden p-4 bg-paper border-b border-slate-200 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <button @click="sidebarOpen = true" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                <i class="fas fa-bars-staggered"></i>
             </button>
-
+            <div class="flex items-center gap-2">
+                <img class="w-7 h-7 rounded-lg" src="<?= ASSETS ?>images/logo.jpg" alt="">
+                <span class="font-bold text-sm text-white tracking-tight"><?= SITE_NAME ?></span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
+                <?= Helper::getFirstTwoInitials(Session::get('admin')['nom']) ?>
+            </div>
+        </div>
+        
+        <header class="h-20 bg-paper border-b border-gray-100 px-3 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <a href="<?= RETOUR_EN_ARRIERE ?>" class="text-gray-400 hover:text-secondary"><i class="fas fa-arrow-left"></i></a>
                 <span class="font-serif text-xl md:text-sm font-bold italic text-gray-400">Dossier / <span class="text-primary"><?= $Membre->nom_postnom ?></span></span>
@@ -409,6 +417,6 @@
     </div>
 </div>
 
-<script src="<?= ASSETS ?>js/modules/modal.js"></script>
+<script src="<?= ASSETS ?>js/modules/modal.js?v=<?= APP_VERSION ?>"></script>
     
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

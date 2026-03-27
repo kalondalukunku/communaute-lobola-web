@@ -13,7 +13,7 @@
 
     define('ADMIN_EMAIL', 'communaute.lobola@ankhing.com');
 
-    define('APP_VERSION', '1.0.1');
+    define('APP_VERSION', '1.0.3');
 
     define('BASE_URL', $protocol . $domain . $projetFolder);
     define('BASE_PATH', __DIR__ . '/');

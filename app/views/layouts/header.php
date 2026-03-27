@@ -6,22 +6,18 @@
     <!-- supporter tous les navigateur (safari) -->
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- support navigateur safari -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?= SITE_NAME ?>">
     
     <!-- Chargement de Tailwind CSS -->
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="<?= ASSETS ?>js/app.js?v=<?= APP_VERSION ?>"></script>
-    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> -->
     
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
     <!-- Main css -->
     <link rel="stylesheet" href="<?= ASSETS ?>css/main.css?v=<?= APP_VERSION ?>">
 
@@ -32,19 +28,21 @@
     <title><?= $title ?? SITE_NAME ?></title>
 
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#CFBB30', // Nouvelle couleur principale demandée
-                        primaryDark: '#b5a32a',
-                        secondary: '#16302B', // L'ancien vert conservé pour le contraste
-                        paper: '#Fdfbf7',
-                        textMain: '#2D3748',
-                    },
-                    fontFamily: {
-                        serif: ['"Cormorant Garamond"', 'serif'],
-                        sans: ['"Lato"', 'sans-serif'],
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#CFBB30', // Nouvelle couleur principale demandée
+                            primaryDark: '#b5a32a',
+                            secondary: '#16302B', // L'ancien vert conservé pour le contraste
+                            paper: '#Fdfbf7',
+                            textMain: '#2D3748',
+                        },
+                        fontFamily: {
+                            serif: ['"Cormorant Garamond"', 'serif'],
+                            sans: ['"Lato"', 'sans-serif'],
+                        }
                     }
                 }
             }
