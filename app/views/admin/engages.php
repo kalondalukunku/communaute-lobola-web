@@ -1,5 +1,5 @@
 <?php 
-    $title = "Gestion des membres engagés";
+    $title = "Admin - Gestion des membres engagés";
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 

@@ -12,7 +12,7 @@ class Enseignement extends Model {
         return $q->execute($datas);
     }
 
-    public function update(array $datas, string $where = 'id')
+    public function update(array $datas, string $where = 'enseignement_id')
     {
         $query = "UPDATE $this->table SET ";
 
@@ -30,18 +30,25 @@ class Enseignement extends Model {
         return $q->execute($datas);
     } 
     
-    public function find($serieId)
+    public function findWithSerie($serieId)
     {
         $stmt = $this->db->prepare("SELECT
-                                    *,
+                                    E.*,
                                     S.*,
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
                                     INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
-                                    WHERE E.serie_id = :serie_id
+                                    WHERE E.serie_id = :serie_id AND E.is_active = 1
                                     ORDER BY E.created_at ASC");
         $stmt->execute(['serie_id' => $serieId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    
+    public function find($enseignantId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE enseignement_id = :enseignement_id ORDER BY created_at ASC");
+        $stmt->execute(['enseignement_id' => $enseignantId]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
     
     public function all()
@@ -56,7 +63,71 @@ class Enseignement extends Model {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    public function allWithView($search = null)
+    {
+        $params = [];
+        $whereClause = "";
+
+        // On prépare la condition WHERE si une recherche est fournie
+        if (!empty($search)) {
+            // On utilise COLLATE sur le paramètre pour qu'il s'adapte à la colonne, 
+            // ou on force tout en unicode_ci pour la cohérence.
+            $whereClause = " WHERE (E.title LIKE :search COLLATE utf8mb4_unicode_ci 
+                            OR S.nom LIKE :search COLLATE utf8mb4_unicode_ci) ";
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        $sql = "SELECT 
+                    E.*, 
+                    S.nom AS nom_serie,
+                    (
+                        SELECT COUNT(*) 
+                        FROM enseignement_vues EV 
+                        WHERE EV.enseignement_id = E.enseignement_id
+                    ) AS total_vues
+                FROM {$this->table} E
+                INNER JOIN series S ON E.serie_id = S.serie_id
+                {$whereClause}
+                ORDER BY E.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        
+        // On exécute
+        $stmt->execute($params);
+        
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
     
+    // public function allWithView($search = null)
+    // {
+    //     $params = [];
+    //     $whereClause = "";
+
+    //     if (!empty($search)) {
+    //         // On force la collation ici aussi pour éviter le conflit entre unicode_ci et general_ci
+    //         $whereClause = " WHERE (
+    //             E.title COLLATE utf8mb4_unicode_ci LIKE :search 
+    //             OR S.nom COLLATE utf8mb4_unicode_ci LIKE :search
+    //         ) ";
+    //         $params[':search'] = '%' . $search . '%';
+    //     }
+
+    //     $sql = "SELECT 
+    //                 E.*, 
+    //                 S.nom AS nom_serie,
+    //                 (SELECT COUNT(*) FROM enseignement_vues EV WHERE EV.enseignement_id = E.enseignement_id) AS total_vues
+    //             FROM {$this->table} E
+    //             INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+    //             {$whereClause}
+    //             ORDER BY E.created_at DESC";
+
+    //     $stmt = $this->db->prepare($sql);
+    //     $stmt->execute($params);
+        
+    //     return $stmt->fetchAll(PDO::FETCH_OBJ);
+    // }
+
     public function findAll($enseignantId)
     {
         $stmt = $this->db->prepare("SELECT 

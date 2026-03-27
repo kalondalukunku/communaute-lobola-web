@@ -157,12 +157,12 @@ class EnseignementController extends Controller
 
     public function show($serieId) 
     {
-        // var_dump(Utils::generateUuidV4()); die;
+        $isOn = true;
         $cacheKey = 'membre_connexion';
         $userId = Session::get('membre')['member_id'] ?? Session::get('enseignant')['enseignant_id'];
 
         // $this->VuesModel->enregistrerVueUnique($enseignementId, $serieId, $userId);
-        $Series = $this->EnseignementModel->find($serieId);
+        $Series = $this->EnseignementModel->findWithSerie($serieId);
         $nbrSerieViews = $this->VuesModel->countAll(['serie_id' => $serieId]);
 
         if(!$Series) {
@@ -184,6 +184,7 @@ class EnseignementController extends Controller
             'nbrSerieViews' => $nbrSerieViews,
             'whatsappUrl' => $whatsappUrl,
             'VuesModel' => $this->VuesModel,
+            'isOn' => $isOn
         ];
 
         $this->view('enseignement/show', $data);

@@ -32,11 +32,15 @@ class Serie extends Model {
     
     public function all()
     {
-        $sql = "SELECT s.*, 
-                (SELECT COUNT(*) 
-                FROM teachings t 
-                WHERE t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci) as enseignements_count
+        $sql = "SELECT 
+                    s.*, 
+                    COUNT(t.enseignement_id) AS enseignements_count
                 FROM {$this->table} s
+                LEFT JOIN teachings t 
+                    ON t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci 
+                    AND t.is_active = 1
+                WHERE s.is_active = 1
+                GROUP BY s.serie_id
                 ORDER BY s.created_at DESC";
 
         $stmt = $this->db->prepare($sql);
@@ -53,6 +57,22 @@ class Serie extends Model {
     {
         $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE nom = :nom LIMIT 1");
         $stmt->execute(['nom' => $serieName]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+    
+    public function find($serieID)
+    {
+        $stmt = $this->db->prepare("SELECT 
+                                        *,
+                                        COUNT(t.enseignement_id) AS enseignements_count
+                                    FROM $this->table 
+                                    LEFT JOIN teachings t 
+                                        ON t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci 
+                                        AND t.is_active = 1
+                                    WHERE serie_id = :serie_id
+                                    GROUP BY s.serie_id
+                                    LIMIT 1");
+        $stmt->execute(['serie_id' => $serieID]);
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 

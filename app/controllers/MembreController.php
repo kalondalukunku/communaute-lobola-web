@@ -38,7 +38,7 @@ class MembreController extends Controller
     {
         if(Session::get('membre') || Session::get('enseignant')) Utils::redirect('/');
 
-        if (date('d') == 15 && date('m') == 02)     
+        if (date('d') >= 15 && date('m') == 02 || date('d') >= 1 && date('m') == 03)   
         {
             Utils::redirect('integrations');
         }
@@ -78,7 +78,7 @@ class MembreController extends Controller
         }
 
         $data = [
-            'title' => SITE_NAME .' | Intégration',
+            'title' => 'Intégration',
             'description' => "Demande d'intégration à la communauté Lobola",
         ];
 
@@ -244,7 +244,7 @@ class MembreController extends Controller
     public function integrations()
     {
         $data = [
-            'title' => SITE_NAME .' | Nous ne prenons plus d\'integration',
+            'title' => 'Nous ne prenons plus d\'integration',
             'description' => 'Nous ne prenons plus d\'integration',
         ];
 
@@ -271,7 +271,7 @@ class MembreController extends Controller
             return;
         }
         $data = [
-            'title' => SITE_NAME .' | Attente d\'approbation',
+            'title' => 'Attente d\'approbation',
             'description' => 'Attente d\'approbation de votre intégration',
             'membre' => $Membre,
         ];
@@ -303,7 +303,7 @@ class MembreController extends Controller
             return;
         }
         $data = [
-            'title' => SITE_NAME .' | Intégration rejétée',
+            'title' => 'Intégration rejétée',
             'description' => 'Demande de votre intégration rejétée',
             'membre' => $Membre,
             'RaisonRejet' => $RaisonRejet,
@@ -336,7 +336,7 @@ class MembreController extends Controller
             return;
         }
         $data = [
-            'title' => SITE_NAME .' | Modification des informations incorrectes',
+            'title' => 'Modification des informations incorrectes',
             'description' => 'Votre demande d\'engagement a été rejétée',
             'membre' => $Membre,
         ];
@@ -511,7 +511,7 @@ class MembreController extends Controller
         }
 
         $data = [
-            'title' => SITE_NAME .' | Engagement',
+            'title' => 'Engagement',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
         ];
 
@@ -651,7 +651,7 @@ class MembreController extends Controller
                 if($this->EngagementModel->insert($dataAddEngagement))
                 {
                     Session::setFlash('success', "Engagement enregistré avec succès. Vous serez contacté pour la suite du processus.");
-                    Utils::redirect('attente/'. $membreId);
+                    Utils::redirect('../eg_pay/'. $membreId);
                 }
                 else {
                     Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
@@ -663,6 +663,43 @@ class MembreController extends Controller
         }
 
         $this->view('membre/engagement', $data);
+    }
+    
+    public function eg_pay($membreId) 
+    {
+        Auth::requireLogin('membre');
+
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
+            return;
+        }
+        if(!$Membre->engagement_id && $Membre->status !== ARRAY_STATUS_MEMBER[0]) {
+            Utils::redirect('../engagement/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
+        {
+            Utils::redirect('../rjtd/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1])
+        {
+            // Utils::redirect('../profile/'. $membreId);
+            // return;
+        }
+        
+        $data = [
+            'title' => 'Effectuer le paiement de l\'engagement',
+            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
+            'membre' => $Membre,
+        ];
+
+        $this->view('membre/eg_pay', $data);
     }
     
     public function attente($membreId) 
@@ -689,12 +726,12 @@ class MembreController extends Controller
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1])
         {
-            Utils::redirect('../profile/'. $membreId);
-            return;
+            // Utils::redirect('../profile/'. $membreId);
+            // return;
         }
         
         $data = [
-            'title' => SITE_NAME .' | En attente d\'engagement',
+            'title' => 'En attente d\'engagement',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'membre' => $Membre,
         ];
@@ -723,7 +760,7 @@ class MembreController extends Controller
         }
         
         $data = [
-            'title' => SITE_NAME .' | Engagement Rejeté',
+            'title' => 'Engagement Rejeté',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'Membre' => $Membre,
         ];
@@ -744,7 +781,7 @@ class MembreController extends Controller
             return;
         }
         $data = [
-            'title' => SITE_NAME .' | Mise à jour du mot de passe',
+            'title' => 'Mise à jour du mot de passe',
             'description' => 'Mise à jour du mot de passe',
         ];
 
@@ -810,17 +847,21 @@ class MembreController extends Controller
             return;
         }
         if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
-            Utils::redirect('../integration');
-            return;
+            if($Membre->status !== ARRAY_STATUS_MEMBER[0]) {
+                Utils::redirect('../integration');
+                return;
+            }
         }
 
+        $isOn = false;
         $evaluationSpirituel = $this->MembreModel->getMemberProgress($membreId);
 
         $data = [
-            'title' => SITE_NAME .' | Profil de '. $Membre->nom_postnom,
+            'title' => 'Profil de '. $Membre->nom_postnom,
             'description' => 'Mon Profil',
             'Membre' => $Membre,
             'evaluationSpirituel' => $evaluationSpirituel,
+            'isOn' => $isOn,
         ];
 
         $this->view('membre/profile', $data);
@@ -829,7 +870,7 @@ class MembreController extends Controller
     public function forgot_pswd() 
     {
         $data = [
-            'title' => SITE_NAME .' | Mot de passe oublié',
+            'title' => 'Mot de passe oublié',
             'description' => 'Mot de passe oublié',
         ];
 
@@ -852,7 +893,7 @@ class MembreController extends Controller
                 return;
             }
 
-            $tokenDb = $this->TokensModel->findByMemberId($Membre->member_id);
+            $tokenDb = $this->TokensModel->findById($Membre->member_id);
             if($tokenDb) $this->TokensModel->delete($Membre->member_id, $tokenDb->token_id);
             
             $tokenid = Utils::generateUuidV4();
@@ -865,15 +906,16 @@ class MembreController extends Controller
                 'token'         => $token,
                 'status'        => $tokenStatus,
                 'expired_at'    => $expiryDate,
-                'member_id'       => $Membre->member_id,
+                'user_id'       => $Membre->member_id,
+                'user_type'     => "membre",
             ];
 
-            $dataUpdateMembre = [
+            $dataUpdateUser = [
                 'token'         => $token,
                 'member_id'     => $Membre->member_id,
             ];
 
-            if($this->TokensModel->insert($dataAddToken) && $this->MembreModel->update($dataUpdateMembre, 'member_id'))
+            if($this->TokensModel->insert($dataAddToken) && $this->MembreModel->update($dataUpdateUser))
             {
                 // Envoi de l'email
                 $lien_reset = SITE_URL . '/auth/uatvt/' . $Membre->member_id . '?tk=' . $tokenid;

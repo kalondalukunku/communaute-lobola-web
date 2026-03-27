@@ -148,4 +148,5 @@
 </div>
 
 <script src="<?= ASSETS ?>js/modules/main.js"></script>
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>
     

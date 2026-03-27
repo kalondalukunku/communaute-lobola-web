@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <!-- Main css -->
-    <link rel="stylesheet" href="<?= ASSETS ?>css/main.css">
+    <link rel="stylesheet" href="<?= ASSETS ?>css/main.css?v=<?= APP_VERSION ?>">
 
     <!-- icon du domaine -->
     <link rel="icon" href="<?= ASSETS ?>images/logo.jpg" type="image/png">
@@ -50,3 +50,21 @@
     </script>
 </head>
 <body class="bg-paper text-textMain font-sans min-h-screen flex flex-col">
+    <div id="spiritual-loader" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-paper transition-opacity duration-700">
+        <!-- Animation de Géométrie Sacrée (SVG) -->
+        <div class="relative w-18 h-18 mb-8">
+            <!-- Cercle pulsant extérieur -->
+            <div class="absolute inset-0 rounded-full border-2 border-[#cfbb30] animate-ping"></div>
+            
+            <!-- Icône centrale (Fleur de vie ou Lotus simplifié) -->
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-4xl bg-primary shadow-lg shadow-primary/20 -rotate-13 animate-spin-slow">
+                <img src="<?= ASSETS ?>images/logo.jpg" alt="Logo" srcset="" class="w-18 h-18 rounded-4xl text-primary">
+            </div>
+        </div>
+
+        <!-- Texte de chargement spirituel -->
+        <div class="text-center">
+            <p class="text-primary font-serif italic text-lg animate-pulse mb-2">Éveil de la conscience...</p>
+            <p id="loader-quote" class="text-gray-500 text-[10px] uppercase tracking-[0.3em] opacity-0 transition-opacity duration-1000">Purification du temple intérieur</p>
+        </div>
+    </div>

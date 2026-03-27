@@ -242,7 +242,7 @@ class EnseignantController extends Controller
 
     public function alertEmail($enseignementId)
     {
-        $Enseignement = $this->EnseignementModel->find($enseignementId);
+        $Enseignement = $this->EnseignementModel->findWithSerie($enseignementId);
         if(!$Enseignement) {
             Utils::redirect('/');
         }
@@ -292,7 +292,7 @@ class EnseignantController extends Controller
     //             return;
     //         }
 
-    //         $tokenDb = $this->TokensModel->findByMemberId($Membre->member_id);
+    //         $tokenDb = $this->TokensModel->findById($Membre->member_id);
     //         if($tokenDb) $this->TokensModel->delete($Membre->member_id, $tokenDb->token_id);
             
     //         $tokenid = Utils::generateUuidV4();

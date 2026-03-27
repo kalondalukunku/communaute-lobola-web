@@ -26,15 +26,16 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Identifiant ou Email</label>
+                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Nom ou Email</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                             <i class="fas fa-user"></i>
                         </span>
                         <input type="text" id="email" required
-                            name="email"
+                            name="connect"
                             class="custom-input w-full pl-10 pr-4 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
                             placeholder="admin@exemple.com"
+                            value="<?= Helper::getData($_POST, 'connect') ?>"
                             style="color: var(--primary);">
                     </div>
                 </div>
@@ -42,7 +43,7 @@
                 <div class="input-group">
                     <div class="flex justify-between items-center mb-1.5">
                         <label for="password" class="block text-sm font-medium text-slate-300 transition-all">Mot de passe</label>
-                        <a href="#" class="text-xs text-primary hover:text-primary transition-colors">Oublié ?</a>
+                        <a href="forgot_pswd" class="text-xs text-primary hover:text-primary transition-colors">Oublié ?</a>
                     </div>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
@@ -51,7 +52,8 @@
                         <input type="password" id="password" required
                             name="pswd"
                             class="custom-input w-full pl-10 pr-12 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="••••••••" style="color: var(--primary);">
+                            placeholder="••••••••" style="color: var(--primary);"
+                            value="<?= Helper::getData($_POST, 'pswd') ?>">
                         <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                             <i id="eyeIcon" class="fas fa-eye"></i>
                         </button>
@@ -87,3 +89,4 @@
         }
     }
 </script>
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>

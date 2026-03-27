@@ -21,7 +21,7 @@
             <form method="post" id="loginForm" class="space-y-6">
 
                 <div class="input-group">
-                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Identifiant ou Email</label>
+                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Adresse mail</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                             <i class="fas fa-user"></i>
@@ -44,3 +44,5 @@
         </div>
     </div>
 </section>
+
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>

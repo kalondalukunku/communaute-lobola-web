@@ -46,9 +46,13 @@ class LoginController extends Controller {
         }
 
         if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
-            Session::setFlash('error', 'Votre compte n\'est pas activé. Contactez l\'administrateur.');
-            $this->view('login/index', ['data' => $data]);
-            return;
+            if($Membre->status !== ARRAY_STATUS_MEMBER[0])
+            {
+                Session::setFlash('error', 'Votre compte n\'est pas activé. Contactez l\'administrateur.');
+                $this->view('login/index', ['data' => $data]);
+                return;
+            }
+            
         }
 
         if ($Membre && password_verify($pswd, $Membre->pswd)) 

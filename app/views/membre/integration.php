@@ -170,3 +170,4 @@
 
 <script src="<?= ASSETS ?>js/modules/main2.js"></script>
     
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>

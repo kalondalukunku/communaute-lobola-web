@@ -4,74 +4,82 @@
     include APP_PATH . 'templates/alertView.php'; 
 ?>
 
-    <div class="container mx-auto py-[80px] px-4 md:px-0">
-        
-        <div class="status-container fade-in text-center p-8 md:p-6">
-            
-            <!-- Icône de chargement stylisée -->
-            <div class="mb-2 flex justify-center">
-                <div class="relative">
-                    <div class="w-9 h-9 border-2 border-primary border-t-primary rounded-full animate-spin"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-hourglass-half text-primary text-md"></i>
-                    </div>
-                </div>
-            </div>
-
-            <h1 class="font-serif text-2xl text-primary mb-4">Engagement en cours de vérification</h1>
-            <p class="text-gray-500 mb-8 text-sm italic">
-                Votre document a bien été reçu. Nos modérateurs valident votre accès manuellement pour préserver l'intégrité de la communauté.
-            </p>
-
-            <!-- Section Paiement -->
-            <div class="text-left mb-5">
-                <h2 class="font-bold text-primary uppercase tracking-widest text-xs mb-4 text-center">Finalisation de l'adhésion</h2>
+    <div class="container mx-auto py-[60px] px-4 md:px-0">
+        <div class="max-w-md mx-auto">
+            <div class="status-container fade-in bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 border border-gray-100 text-center p-10 md:p-8">
                 
-                <div class="payment-card space-y-4">
-                    <div class="flex justify-between items-center border-b border-primary/10 pb-3">
-                        <span class="text-sm text-gray-500">Montant de la contribution :</span>
-                        <span class="text-md font-bold text-primary"><?= Utils::getMonthsNumber($membre->modalite_engagement) * $membre->montant .' '. $membre->devise   ?> </span>
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <span class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Numéro de transfert (Mpsea) :</span>
-                        <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-gray-100">
-                            <span class="font-mono text-sm text-primary font-bold tracking-wider"> <?= SITE_PHONE ?></span>
-                            <span class="copy-btn" onclick="copyToClipboard('<?= SITE_PHONE ?>')">
-                                <i class="far fa-copy"></i> Copier
-                            </span>
+                <!-- Icône de validation en attente -->
+                <div class="mb-6 flex justify-center">
+                    <div class="relative">
+                        <!-- Cercle rotatif discret -->
+                        <div class="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-primary text-md"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!-- <div class="space-y-2">
-                        <span class="text-xs text-gray-500 uppercase font-bold tracking-tighter">Référence à inclure :</span>
-                        <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-gray-100">
-                            <span class="font-mono text-sm text-primary">ENG-2024-8842</span>
-                            <span class="copy-btn" onclick="copyToClipboard('ENG-2024-8842')">
-                                <i class="far fa-copy"></i> Copier
-                            </span>
+                <h1 class="font-serif text-2xl text-primary font-bold mb-3">Paiement reçu !</h1>
+                <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+                    Votre contribution a bien été enregistrée. Nos modérateurs procèdent actuellement à la <strong>vérification finale</strong> de votre engagement pour activer votre accès.
+                </p>
+
+                <!-- Résumé de la transaction -->
+                <div class="text-left mb-8">
+                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                        <h2 class="text-[10px] text-gray-400 font-extrabold uppercase tracking-[0.2em] mb-4 text-center">Détails de la validation</h2>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200/50">
+                                <span class="text-xs text-gray-500">Statut actuel</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wider">
+                                    <i class="fas fa-clock mr-1"></i> En attente
+                                </span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200/50">
+                                <span class="text-xs text-gray-500">Montant versé</span>
+                                <span class="text-sm font-bold text-primary">
+                                    <?= Utils::getMonthsNumber($membre->modalite_engagement) * $membre->montant .' '. $membre->devise ?>
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-xs text-gray-500">ID Transaction</span>
+                                <span class="font-mono text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
+                                    TXN-<?= strtoupper(substr(md5(time()), 0, 8)) ?>
+                                </span>
+                            </div>
                         </div>
-                    </div> -->
+                    </div>
+                </div>
+
+                <!-- Note d'information -->
+                <div class="bg-primary/5 p-4 rounded-2xl mb-8 border border-primary/10">
+                    <p class="text-[11px] text-primary leading-relaxed flex items-start text-left">
+                        <i class="fas fa-info-circle mt-0.5 mr-3 opacity-70"></i>
+                        <span>
+                            La validation prend généralement <strong>1 à 4 heures</strong>. Vous recevrez une notification par email dès que votre espace membre sera déverrouillé.
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="flex flex-col gap-3">
+                    <button onclick="window.location.reload()" class="w-full bg-primary text-white py-4 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                        <i class="fas fa-sync-alt mr-2"></i> Actualiser mon statut
+                    </button>
+                    <a href="/" class="text-[11px] text-gray-400 font-bold hover:text-primary transition-colors uppercase tracking-widest">
+                        Retour à l'accueil
+                    </a>
                 </div>
             </div>
 
-            <div class="bg-primary/10 p-4 rounded-xl mb-8">
-                <p class="text-xs text-primary leading-relaxed">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Une fois le transfert effectué, la validation prend généralement entre <strong>1 et 4 heures</strong> durant les heures d'ouverture. Vous recevrez un email dès que votre accès sera ouvert.
+            <div class="mt-10 text-center">
+                <p class="text-[10px] text-gray-400 uppercase tracking-[0.1em]">
+                    Besoin d'aide ? <a href="mailto:<?= ADMIN_EMAIL ?>" class="text-primary font-bold underline decoration-primary/30">Contactez le support</a>
                 </p>
             </div>
-
-            <div class="flex flex-col gap-4">
-                <button onclick="window.location.reload()" class="bg-primary text-white py-3 px-8 rounded-xl font-bold hover:opacity-90 transition">
-                    <i class="fas fa-sync-alt mr-2"></i> Actualiser mon statut
-                </button>
-            </div>
-
-        </div>
-
-        <div class="mt-8 text-center">
-            <p class="text-xs text-gray-400">Besoin d'aide ? Contactez le support : <span class="font-bold"><?= ADMIN_EMAIL ?></span></p>
         </div>
     </div>
 

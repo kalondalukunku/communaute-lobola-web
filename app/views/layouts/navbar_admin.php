@@ -17,42 +17,54 @@
             </button>
         </div>
 
-        <nav class="flex-grow px-6 space-y-1">
+        <nav class="flex-grow px-2 space-y-1">
             <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Menu Principal</p>
             <a href="/admin/dashboard" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/dashboard', true) ?>">
                 <i class="fas fa-th-large w-5 group-hover:text-primary transition"></i> 
-                <span class="text-sm font-medium">Tableau de bord</span>
-            </a>
-            <a href="/admin/membres" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/membres', true) ?>">
-                <i class="fas fa-user-friends w-5"></i> 
-                <span class="text-sm">Gestion Membres</span>
-            </a>
-            <a href="/admin/engages" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/engages', true) ?>">
-                <i class="fas fa-users w-5"></i> 
-                <span class="text-sm">Gestion des Engagés</span>
-            </a>
-            <a href="/admin/enseignants" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/enseignants', true) ?>">
-                <i class="fas fa-book-open w-5 group-hover:text-primary transition"></i> 
-                <span class="text-sm font-medium">Enseignants</span>
+                <span class="text-[12px] font-medium">Tableau de bord</span>
             </a>
             <a href="/admin/admins" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/admins', true) ?>">
                 <i class="fas fa-users-gear w-5 group-hover:text-primary transition"></i> 
-                <span class="text-sm font-medium">Gestion des Admins</span>
+                <span class="text-[12px] font-medium">Gestion des Admins</span>
             </a>
-            <a href="/admin/membre_suivi" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/membre_suivi', true) ?>">
-                <i class="fas fa-user-check w-5 group-hover:text-primary transition"></i> 
-                <span class="text-sm font-medium">Suivi Membre</span>
-            </a>
+            
+            <div class="pt-5">
+                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Membres</p>
+                <a href="/admin/membres" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/membres', true) ?>">
+                    <i class="fas fa-user-friends w-5"></i> 
+                    <span class="text-[12px]">Gestion Membres</span>
+                </a>
+                <a href="/admin/membres_suivi" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/membres_suivi', true) ?>">
+                    <i class="fas fa-user-check w-5 group-hover:text-primary transition"></i> 
+                    <span class="text-[12px] font-medium">Suivi Membre</span>
+                </a>
+                <a href="/admin/engages" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/engages', true) ?>">
+                    <i class="fas fa-users w-5"></i> 
+                    <span class="text-[12px]">Gestion des Engagés</span>
+                </a>
+            </div>
+
+            <div class="pt-5">
+                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Enseignants / Enseignements</p>
+                <a href="/admin/enseignants" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/enseignants', true) ?>">
+                    <i class="fas fa-book-open w-5 group-hover:text-primary transition"></i> 
+                    <span class="text-[12px] font-medium">Gestion des Enseignants</span>
+                </a>
+                <a href="/admin/enseignements" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/enseignements', true) ?>">
+                    <i class="fas fa-chalkboard-teacher w-5 group-hover:text-primary transition"></i>
+                    <span class="text-[12px] font-medium">Gestion des Enseignements</span>
+                </a>
+            </div>
             
             <div class="pt-8">
                 <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold px-4 mb-4">Système</p>
                 <!-- <a href="#" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition text-gray-400 group">
                     <i class="fas fa-cog w-5 group-hover:text-primary transition"></i> 
-                    <span class="text-sm font-medium">Paramètres</span>
+                    <span class="text-[12px] font-medium">Paramètres</span>
                 </a> -->
                 <a href="/admin/edtpswd" class="flex items-center gap-4 p-4 rounded-2xl <?= Helper::setActiveAdmin('admin/edtpswd', true) ?>">
                     <i class="fas fa-edit w-5 group-hover:text-primary transition"></i> 
-                    <span class="text-sm font-medium">Modifier Mot de passe</span>
+                    <span class="text-[12px] font-medium">Modifier Mot de passe</span>
                 </a>
             </div>
         </nav>
@@ -72,4 +84,6 @@
     </aside>
 
     <!-- Overlay de fond (Flou) -->
-    <div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
+    <div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0">
+
+    </div>

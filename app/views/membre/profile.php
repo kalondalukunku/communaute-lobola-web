@@ -47,29 +47,31 @@
                             </p>
                         </div>
 
-                        <!-- Cartes de Stats Fluides -->
-                        <div class="w-full space-y-3">
-                            <!-- Score de Progression -->
-                            <div class="group/stat bg-white/[0.03] hover:bg-white/[0.06] rounded-2xl p-5 color-border transition-all duration-300">
-                                <div class="flex justify-between items-center mb-3">
-                                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Progression Spirituelle</span>
-                                    <span class="text-[12px] font-black text-primary"><?= $evaluationSpirituel; ?>%</span>
+                        <?php if ($isOn): ?>
+                            <!-- Cartes de Stats Fluides -->
+                            <div class="w-full space-y-3">
+                                <!-- Score de Progression -->
+                                <div class="group/stat bg-white/[0.03] hover:bg-white/[0.06] rounded-2xl p-5 color-border transition-all duration-300">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Progression Spirituelle</span>
+                                        <span class="text-[12px] font-black text-primary"><?= $evaluationSpirituel; ?>%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary from-primary/60 to-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)] transition-all duration-1000 ease-out" 
+                                            style="width: <?= $evaluationSpirituel; ?>%"></div>
+                                    </div>
                                 </div>
-                                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                                    <div class="h-full bg-primary from-primary/60 to-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)] transition-all duration-1000 ease-out" 
-                                        style="width: <?= $evaluationSpirituel; ?>%"></div>
-                                </div>
-                            </div>
 
-                            <!-- Grade d'Assiduité -->
-                            <div class="flex items-center justify-between bg-white/[0.03] hover:bg-white/[0.06] rounded-2xl p-5 color-border transition-all duration-300">
-                                <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Assiduité</span>
-                                <div class="text-right">
-                                    <span class="block text-sm font-bold text-white leading-none mb-1"><?= Helper::getAssiduityGrade($evaluationSpirituel); ?></span>
-                                    <span class="text-[9px] text-primary font-medium italic">Niveau Actuel</span>
+                                <!-- Grade d'Assiduité -->
+                                <div class="flex items-center justify-between bg-white/[0.03] hover:bg-white/[0.06] rounded-2xl p-5 color-border transition-all duration-300">
+                                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Assiduité</span>
+                                    <div class="text-right">
+                                        <span class="block text-sm font-bold text-white leading-none mb-1"><?= Helper::getAssiduityGrade($evaluationSpirituel); ?></span>
+                                        <span class="text-[9px] text-primary font-medium italic">Niveau Actuel</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -146,16 +148,28 @@
                             </div>
                         </div>
 
-                        <?php if ($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[3]):?>
-                            <!-- <div class="mt-12 flex justify-end">
-                                <a href="../engagement/<?= $Membre->member_id ?>" 
-                                class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
-                                    <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
-                                        Confirmer mon Engagement
-                                        <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
-                                    </span>
-                                </a>
-                            </div> -->
+                        <?php if ($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[2]):?>
+                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
+                                <div class="mt-12 flex justify-end">
+                                    <a href="../attente/<?= $Membre->member_id ?>" 
+                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                        <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
+                                            Voir mon Attente
+                                            <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <div class="mt-12 flex justify-end">
+                                    <a href="../engagement/<?= $Membre->member_id ?>" 
+                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                        <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
+                                            Confirmer mon Engagement
+                                            <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>

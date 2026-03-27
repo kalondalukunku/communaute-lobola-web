@@ -1,4 +1,5 @@
 <?php 
+    $title = "Admin - Détails du membre - " . $Membre->nom_postnom;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 
@@ -354,5 +355,4 @@
     </div>
 </div>
     
-<script src="<?= ASSETS ?>js/modules/modal.js"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

@@ -39,6 +39,9 @@ define('ENABLE_SSL', true);
 //taille max des telechargements
 define('MAX_UPLOAD_SIZE', 256000);
 
+//apiKey
+define('API_KEY_CALL_APP', "api_lobola_access_rYJ1TBGfPkSkgpLwkIoVni1fBkN4RRIIEcQ2YSXADxuomlO");
+
 // others
 define('ARRAY_ROLE_USER',['Admin','Enseignant','Membre']);
 define('ARRAY_TYPE_ENGAGEMENT',['Menseul','Trimestriel','Semestriel','Annuel']);

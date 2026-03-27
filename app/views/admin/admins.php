@@ -1,4 +1,5 @@
 <?php 
+    $title = "Admin - Liste des administrateurs";
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 

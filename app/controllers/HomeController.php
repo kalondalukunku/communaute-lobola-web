@@ -31,6 +31,7 @@ class HomeController extends Controller {
 
         $Enseignements = $this->EnseignementModel->all();
         $Series = $this->SerieModel->all();
+        $isOn = true;
 
         /**
          * LOGIQUE DE DISPARITION AUTOMATIQUE
@@ -67,6 +68,7 @@ class HomeController extends Controller {
             'Series' => $Series,
             'showRestriction' => $showRestriction,
             'VuesModel' => $this->VuesModel,
+            'isOn' => $isOn
         ];
         $this->view('home/index', $data);
     }

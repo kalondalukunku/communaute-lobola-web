@@ -61,15 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const playTrack = (element) => {
         const data = getTrackData(element);        
 
-        if (data.es) {
-            fetch(`/lobola/enseignement/add_view/${data.es}?sr=${data.sr}`)
-                .then(response => {
-                    // console.log(response);
-                    
-                    if (!response.ok) console.warn("Erreur lors de l'ajout de la vue");
-                })
-                .catch(error => console.error("Erreur réseau pour les statistiques:", error));
-        }
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            if (progress >= 90) {
+                if (data.es) {
+                    fetch(`/lobola/enseignement/add_view/${data.es}?sr=${data.sr}`)
+                        .then(response => {
+                            // console.log(response);
+                            if (!response.ok) console.warn("Erreur lors de l'ajout de la vue");
+                        })
+                        .catch(error => console.error("Erreur réseau pour les statistiques:", error));
+                }
+            }
+        });
         
         // Mise à jour visuelle
         trackItems.forEach(item => item.classList.remove('active'));
@@ -129,11 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isNaN(audio.duration)) {
             timeTotal.textContent = formatTime(audio.duration);
         }
-    });
-
-    seekBar.addEventListener('input', () => {
-        const time = (seekBar.value / 100) * audio.duration;
-        audio.currentTime = time;
     });
 
     function formatTime(seconds) {

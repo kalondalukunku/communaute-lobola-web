@@ -33,6 +33,47 @@ class Helper {
         return $truncated . '...';
     }
 
+    public static function formatDurationReadable($duration) 
+    {
+        if (empty($duration)) return "0 séc";
+
+        // On sépare la chaîne par les deux-points
+        $parts = explode(':', $duration);
+        $count = count($parts);
+
+        $hours = 0;
+        $minutes = 0;
+        $seconds = 0;
+
+        if ($count === 3) {
+            // Format HH:MM:SS
+            $hours = (int)$parts[0];
+            $minutes = (int)$parts[1];
+            $seconds = (int)$parts[2];
+        } elseif ($count === 2) {
+            // Format MM:SS
+            $minutes = (int)$parts[0];
+            $seconds = (int)$parts[1];
+        } else {
+            // Format imprévu (juste des secondes par exemple)
+            $seconds = (int)$parts[0];
+        }
+
+        $result = [];
+
+        if ($hours > 0) {
+            $result[] = $hours . " h";
+        }
+        if ($minutes > 0) {
+            $result[] = $minutes . " min";
+        }
+        if ($seconds > 0 || empty($result)) {
+            $result[] = $seconds . " séc";
+        }
+
+        return implode(' ', $result);
+    }
+
     public static function getUrlPart()
     {
         return explode('/', $_GET['url']);

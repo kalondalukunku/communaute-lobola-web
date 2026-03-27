@@ -12,7 +12,7 @@ class Admin extends Model {
         return $q->execute($datas);
     }
 
-    public function update(array $datas, string $where = 'id')
+    public function update(array $datas, string $where = 'admin_id')
     {
         $query = "UPDATE $this->table SET ";
 
@@ -38,11 +38,19 @@ class Admin extends Model {
         return $q->fetch();
     }
 
-    public function findByEmail($email, $cacheKey = null)
+    public function findByWhere($where, $parameter)
     {
-        $query = "SELECT * FROM $this->table WHERE email = :email LIMIT 1";
+        $query = "SELECT * FROM $this->table WHERE $where = :$where LIMIT 1";
         $q = $this->db->prepare($query);
-        $q->execute(['email' => $email]);
+        $q->execute([$where => $parameter]); 
+        return $q->fetch();
+    }
+
+    public function loginAdmin($connect, $cacheKey = null)
+    {
+        $query = "SELECT * FROM $this->table WHERE email = :email OR nom = :email LIMIT 1";
+        $q = $this->db->prepare($query);
+        $q->execute(['email' => $connect]);
         return $q->fetch();
     }
 

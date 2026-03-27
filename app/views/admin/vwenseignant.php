@@ -1,4 +1,5 @@
 <?php 
+    $title = "Admin - Détails de l'enseignant - " . $Enseignant->nom_complet;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 

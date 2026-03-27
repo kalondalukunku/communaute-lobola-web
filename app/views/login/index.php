@@ -89,3 +89,4 @@
         }
     }
 </script>
+<?php include APP_PATH . 'views/layouts/footer.php'; ?>

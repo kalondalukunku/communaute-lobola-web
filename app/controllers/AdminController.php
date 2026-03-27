@@ -7,6 +7,7 @@ require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
+require_once APP_PATH . 'models/Pdf.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AdminController extends Controller 
@@ -19,11 +20,11 @@ class AdminController extends Controller
     private $PaymentModel;
     private $TokensModel;
     private $ActionsRaisonsModel;
+    private $PdfModel;
     private $sendEmailModel;
     
     public function __construct()
-    {        
-
+    {   
         $this->AdminModel = new Admin();
         $this->MembreModel = new Membre();
         $this->EnseignementModel = new Enseignement();
@@ -32,6 +33,7 @@ class AdminController extends Controller
         $this->PaymentModel = new Payment();
         $this->TokensModel = new Tokens();
         $this->ActionsRaisonsModel = new ActionsRaisons();
+        $this->PdfModel = new PDF();
         $this->sendEmailModel = new SendMail();
  
     }
@@ -170,7 +172,7 @@ class AdminController extends Controller
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
             }
             else {
-                $existingAdmin = $this->AdminModel->findByEmail($email, $cacheKey);
+                $existingAdmin = $this->AdminModel->loginAdmin($email, $cacheKey);
                 if ($existingAdmin) 
                 {
                     Session::setFlash('error', 'Un administrateur avec cet email existe déjà.');
@@ -622,18 +624,49 @@ class AdminController extends Controller
         $this->view('admin/membre', $data);
     }
 
-    public function membre_suivi()
+    public function membres_suivi()
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
 
-        $membreSuivi = $this->MembreModel->getMembersActivityReport();
+        $search = isset($_GET['q']) ? trim($_GET['q']) : null;
+
+        $membreSuivi = $this->MembreModel->getMembersActivityReport($search);
         // var_dump($membreSuivi); die;
         
         $data = [
-            'title' => SITE_NAME .' | Liste des membres qui suivent les enseignements',
+            'title' => 'Liste des membres qui suivent les enseignements',
             'description' => 'Liste des membres qui suivent les enseignements',
             'membreSuivi' => $membreSuivi,
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_suivi']))
+        {
+            $this->PdfModel->generateMembersActivityReport($membreSuivi);
+        }
+        
+        $this->view('admin/membres_suivi', $data);
+    }
+
+    public function membre_suivi($memberId)
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $membre = $this->MembreModel->findByMemberId($memberId);
+        if(!$membre) {
+            Utils::redirect('../membres_suivi');
+            return;
+        }
+
+        $suiviDetails = $this->MembreModel->getMemberDetailedReport($memberId);
+
+
+        $data = [
+            'title' => 'Détails du suivi du membre',
+            'description' => 'Détails du suivi du membre',
+            'membre' => $membre,
+            'suiviDetails' => $suiviDetails,
         ];
         
         $this->view('admin/membre_suivi', $data);
@@ -912,6 +945,22 @@ class AdminController extends Controller
         $this->view('admin/enseignants', $data);
     }
 
+    public function enseignements() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $search = isset($_GET['q']) ? trim($_GET['q']) : null;
+
+        $allEnseignements = $this->EnseignementModel->allWithView($search);
+        
+        $data = [
+            'allEnseignements' => $allEnseignements,
+        ];
+
+        $this->view('admin/enseignements', $data);
+    }
+
     public function admins() 
     {
         Auth::requireLogin('admin');
@@ -943,22 +992,113 @@ class AdminController extends Controller
 
     public function auth($Post, $cacheKey) 
     {
-        $email = Utils::sanitize(trim($Post['email'] ?? ''));
+        $connect = Utils::sanitize(trim($Post['connect'] ?? ''));
         $password = Utils::sanitize(trim($Post['pswd'] ?? ''));
 
-        if($email === '' || $password === '')
+        $data = [
+            'connect'   => $connect,
+            'pswd'      => $password
+        ];
+
+        if($connect === '' || $password === '')
         {
             Session::setFlash('error', 'Remplissez correctement le formulaire.');
+            $this->view('admin/login', ['data' => $data]);
+            return;
         }
 
-        $admin = $this->AdminModel->findByEmail($email, $cacheKey);
+        $admin = $this->AdminModel->loginAdmin($connect, $cacheKey);
+        if(!$admin) {
+            Session::setFlash('error', 'Adresse mail ou nom incorrect.');
+            $this->view('admin/login', ['data' => $data]);
+            return;
+        }
 
-        if ($admin && password_verify($password, $admin->pswd)) {
+        if (password_verify($password, $admin->pswd)) {
             Session::set('admin', $admin);
             Session::setFlash('success', 'Connecté.');
             Utils::redirect('../admin/dashboard');
         } else {
-            Session::setFlash('error', 'Email ou mot de passe incorrect.');
+            Session::setFlash('error', 'Mot de passe incorrect.');
+            $this->view('admin/login', ['data' => $data]);
+            return;
         }
+    }
+
+    public function forgot_pswd() 
+    {
+        $data = [
+            'title' => 'Mot de passe oublié',
+            'description' => 'Mot de passe oublié',
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_forgot_pswd']))
+        {
+            $email = Utils::sanitize(trim($_POST['email'] ?? ''));
+
+            if(!$email)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/forgot_pswd',  $data);
+                return;
+            }
+
+            $Admin = $this->AdminModel->findByWhere('email', $email);
+            if(!$Admin)
+            {
+                Session::setFlash('error', 'L\'adresse email n\'est pas correcte.');
+                $this->view('admin/forgot_pswd',  $data);
+                return;
+            }
+
+            $tokenDb = $this->TokensModel->findById($Admin->admin_id);
+            if($tokenDb) $this->TokensModel->delete($Admin->admin_id, $tokenDb->token_id);
+            
+            $tokenid = Utils::generateUuidV4();
+            $token = Utils::generateToken(60);
+            $tokenStatus = ARRAY_STATUS_TOKEN[1]; // non utilisé
+            $expiryDate = Utils::getExpiryDateToken();
+
+            $dataAddToken = [
+                'token_id'      => $tokenid,
+                'token'         => $token,
+                'status'        => $tokenStatus,
+                'expired_at'    => $expiryDate,
+                'user_id'       => $Admin->admin_id,
+                'user_type'     => "admin",
+            ];
+
+            $dataUpdateUser = [
+                'token'         => $token,
+                'admin_id'       => $Admin->admin_id,
+            ];
+
+            if($this->TokensModel->insert($dataAddToken) && $this->AdminModel->update($dataUpdateUser))
+            {
+                // Envoi de l'email
+                $lien_reset = SITE_URL . '/auth/uatvtdm/' . $Admin->admin_id . '?tk=' . $tokenid;
+                ob_start();
+                include APP_PATH . 'templates/email/forgot_pswd.php';
+                $messageBody = ob_get_clean();
+
+                if($this->sendEmailModel->sendEmail(
+                    $Admin->email, 
+                    'Réinitialisation de votre mot de passe - '. SITE_NAME, 
+                    $messageBody
+                )) 
+                {
+                    Session::setFlash('success', 'Un email de réinitialisation a été envoyé à votre adresse email.');
+                    Utils::redirect('login');
+                }
+            }
+            else {
+                Session::setFlash('error', "Une erreur est survenue. Veuillez réessayez plutard.");
+                $this->view('admin/forgot_pswd',  $data);
+                return;
+            }
+        
+        }
+
+        $this->view('admin/forgot_pswd', $data);
     }
 }
