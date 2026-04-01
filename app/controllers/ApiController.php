@@ -5,6 +5,7 @@
     require_once APP_PATH . 'models/Enseignement.php';
     require_once APP_PATH . 'models/Api.php';
     require_once APP_PATH . 'models/Vues.php';
+    require_once APP_PATH . 'models/Appels.php';
 
 class ApiController extends Controller {
     
@@ -14,6 +15,7 @@ class ApiController extends Controller {
     private $EnseignementModel;
     private $ApiModel;
     private $VuesModel;
+    private $AppelsModel;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class ApiController extends Controller {
         $this->EnseignementModel = new Enseignement();
         $this->ApiModel = new Api();
         $this->VuesModel = new Vues();
+        $this->AppelsModel = new Appels();
     }
 
     public function enseignement_state_view($enseignementId) 
@@ -61,6 +64,41 @@ class ApiController extends Controller {
     {
         if($apiKey === API_KEY_CALL_APP) echo $this->ApiModel->getAllUsersAsJson();
         // header("Location: /www.google.com");
+    }
+
+    public function set_live_status()
+    {
+        // 1. Récupérer le contenu JSON envoyé par l'application Flutter
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+
+        // 2. Vérifier si la donnée 'isLive' est présente
+        if (isset($data['isLive'])) {
+            $isLive = $data['isLive'] ? 1 : 0;
+
+            // Connexion BDD (Adaptez à votre instance PDO/DB)
+            if($this->AppelsModel->insert(['is_live' => $isLive, 'appel_id' => 1]))
+            {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'success', 'isLive' => (bool)$isLive]);
+            }
+
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Données isLive manquantes']);
+        }
+        exit;
+    }
+
+    public function get_live_status()
+    {
+        $result = $this->AppelsModel->getLiveStatus();
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'isLive' => $result ? (bool)$result->is_live : false
+        ]);
+        exit;
     }
    
 }

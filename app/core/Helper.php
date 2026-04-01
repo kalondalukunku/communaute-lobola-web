@@ -1,6 +1,18 @@
 <?php
 class Helper {
-    
+
+    public static function getUserIp() {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Gère les cas où l'utilisateur est derrière un proxy
+            $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return trim($ip);
+    }
+
     public static function getCountriesFromAPI($apiKey) {
         $url = "https://api.countrystatecity.in/v1/countries";
 
@@ -37,55 +49,105 @@ class Helper {
         return json_decode($response, true);
     }
 
-    public static function makeRequest($endpoint) {
+    public static function getCitiesByCountry($countryName) {
+        $url = "https://countriesnow.space/api/v0.1/countries/cities";
+        
+        $data = json_encode(["country" => $countryName]);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+        
+        return $result['data'] ?? [];
+    }
+
+    public static function getCountryByIp($ip = null) {
+        if ($ip === null) {
+            $ip = self::getUserIp();
+        }
+
+        // Note : l'API ne fonctionne pas sur '127.0.0.1' ou '::1' (localhost)
+        // On simule une IP réelle pour le test local si besoin
+        if ($ip === '127.0.0.1' || $ip === '::1') {
+            $ip = '197.157.211.164'; // Exemple IP de Kinshasa, RDC
+        }
+
+        $url = "http://ip-api.com/json/{$ip}?fields=status,message,country,countryCode,city,timezone";
+
         $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => "https://api.countrystatecity.in/v1" . $endpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["X-CSCAPI-KEY: " . "dd2e5a29b84c2f80c15cc476295998af6ef4fde9400ea7b66d2e71401ff99550"],
-        ]);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            return ['error' => "CURL Error: " . $error];
+        }
+
+        $data = json_decode($response, true);
+
+        if ($data && $data['status'] === 'success') {
+            return [
+                'pays' => $data['country'],      // ex: Democratic Republic of the Congo
+                'code' => $data['countryCode'],  // ex: CD
+                'ville' => $data['city'],        // ex: Kinshasa
+                'ip' => $ip
+            ];
+        }
+
+        return null;
+    }
+
+    public static function getCitiesFromApi($countryName) {
+        $url = "https://countriesnow.space/api/v0.1/countries/cities";
+        
+        $postData = json_encode(['country' => $countryName]);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        return ($httpCode === 200) ? json_decode($response, true) : null;
+        if ($httpCode !== 200) {
+            return [];
+        }
+
+        $result = json_decode($response, true);
+        $villes = $result['data'] ?? [];
+
+        // Tri alphabétique
+        sort($villes);
+
+        return $villes;
     }
 
-    public static function generateFullJson() {
-        echo "Début de la récupération des pays...\n";
-        $countries = self::makeRequest("/countries");
-        
-        if (!$countries) {
-            die("Erreur : Impossible de récupérer les pays.");
+    /**
+     * Fonction principale : Combine les deux APIs
+     */
+    public static function getCitiesOfUserCountryDirectly() {
+        $ip = self::getUserIp();
+        $country = self::getCountryByIp($ip);
+
+        if (!$country) {
+            return ["Erreur" => "Impossible de détecter le pays."];
         }
 
-        $fullData = [];
-
-        foreach ($countries as $country) {
-            $iso = $country['iso2'];
-            echo "Récupération des provinces pour : " . $country['name'] . " ($iso)...\n";
-            
-            $states = self::makeRequest("/countries/$iso/states");
-            
-            $fullData[] = [
-                "id" => $country['id'],
-                "name" => $country['name'],
-                "iso2" => $iso,
-                "emoji" => $country['emoji'],
-                "states" => $states ? $states : []
-            ];
-
-            // Petite pause pour ne pas saturer l'API et respecter les limites de débit
-            usleep(100000); // 0.1 seconde
-        }
-
-        return $fullData;
-
-        // $jsonContent = json_encode($fullData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        // file_put_contents($outputPath, $jsonContent);
-        
-        // echo "Terminé ! Fichier généré : $outputPath\n";
+        return self::getCitiesFromApi($country);
     }
 
     public static function formatDate($date)

@@ -30,16 +30,16 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                         <div class="group">
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Nom complet (Nom du KAMA)</label>
-                            <input type="text" name="nom_postnom" value="<?= Helper::getData($_POST, 'nom_postnom', $Membre->nom_postnom) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Mukendi Kitenge" required>
+                            <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Autre Nom</label>
+                            <input type="text" name="autre_nom" value="<?= Helper::getData($_POST, 'autre_nom', $Membre->autre_nom) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Ex: Shenuti">
                         </div>
 
                         <div class="group relative">
                             <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Genre</label>
-                            <select name="sexe" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
+                            <select name="genre" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
                                 <option value="" disabled selected>Sélectionnez votre genre...</option>
-                                <?php foreach(ARRAY_TYPE_SEXE as $sexe): ?>
-                                    <option value="<?= $sexe ?>" <?= Helper::getSelectedValue('sexe', $sexe, $Membre->genre) ?> ><?= $sexe ?></option>
+                                <?php foreach(ARRAY_TYPE_SEXE as $genre): ?>
+                                    <option value="<?= $genre ?>" <?= Helper::getSelectedValue('genre', $genre, $Membre->genre) ?> ><?= $genre ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
@@ -53,7 +53,7 @@
                 </section>
 
                 <!-- Section 2 : Parcours Spirituel -->
-                <section>
+                <!-- <section>
                     <div class="flex items-center gap-4 mb-8">
                         <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-lg">2</span>
                         <h3 class="text-sm uppercase tracking-widest font-bold text-gray-800">Cheminement Spirituel</h3>
@@ -72,27 +72,30 @@
                             <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
                         </div>
                     </div>
-
-                    <!-- <div class="space-y-8">
-                        <div class="group">
-                            <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Pourquoi souhaitez-vous rejoindre la communauté ?</label>
-                            <textarea name="motivation" rows="3" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent resize-none font-serif" placeholder="Partagez vos motivations profondes..." required><?= Helper::getData($_POST, 'motivation', $Membre->motivation) ?></textarea>
-                        </div>
-                    </div> -->
-                </section>
+                </section> -->
 
                 <!-- Section 3 : Engagements Locaux -->
                 <section>
                     <div class="flex items-center gap-4 mb-8">
-                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-lg">3</span>
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-lg">2</span>
                         <h3 class="text-sm uppercase tracking-widest font-bold text-gray-800">Localisation & Contact</h3>
                         <div class="flex-grow h-px bg-gray-100"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                        <div class="group relative">
+                            <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Votre nationalité</label>
+                            <select id="select-nationalite" name="nationalite" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
+                                <option value="" disabled selected>Sélectionnez votre nationnalité</option>
+                                <?php foreach($allPays as $pays): ?>
+                                    <option value="<?= $pays->nationalite ?>" <?= Helper::getSelectedValue('nationalite', $pays->nationalite, $Membre->nationalite) ?> ><?= $pays->nationalite ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
+                        </div>
                         <div class="group">
                             <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ville de résidence</label>
-                            <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville', $Membre->ville) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
+                            <input type="text" name="ville" value="<?= $Pays['ville'] ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" disabled required>
                         </div>
                         
                         <div class="group">
@@ -115,13 +118,13 @@
                     </div>
                     <div class="w-full md:w-auto">
                         <div class="relative group">
-                            <input type="file" name="photo_file" id="photo-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" required>
+                            <input type="file" name="photo_file" id="photo-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*">
                             <div id="photo-preview-container" class="w-32 h-32 md:w-40 md:h-40 bg-white border border-gray-200 rounded-2xl shadow-sm group-hover:border-primary transition-all flex flex-col items-center justify-center overflow-hidden">
-                                <div id="preview-placeholder" class="text-center p-4">
+                                <img id="image-display" src="../../<?= $Membre->path_profile ?>" alt="Aperçu" class="relative w-full h-full object-cover">
+                                <div id="preview-placeholder" class="absolute text-center p-4">
                                     <i class="fas fa-camera text-primary text-2xl mb-2"></i>
-                                    <p class="text-[9px] uppercase font-bold text-gray-400">Modifier ma photo</p>
+                                    <p class="text-[9px] uppercase font-bold text-primary">Modifier ma photo</p>
                                 </div>
-                                <img id="image-display" src="../../<?= $Membre->path_profile ?>" alt="Aperçu" class="hidden w-full h-full object-cover">
                             </div>
                         </div>
                     </div>
@@ -129,7 +132,7 @@
 
                 <!-- Bouton de Soumission -->
                 <div class="flex flex-col items-center pt-8">
-                    <button type="submit" name="c_lobola_integration" class="btn-sign w-full md:w-auto bg-primary text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
+                    <button type="submit" name="c_lobola_membre_edit" class="btn-sign w-full md:w-auto bg-primary text-white px-16 py-5 rounded-full font-bold shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
                         <i class="fas fa-edit"></i>
                         Modifier mes informations
                     </button>

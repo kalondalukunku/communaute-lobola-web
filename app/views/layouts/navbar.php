@@ -62,9 +62,9 @@
                             class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
                                 Mon Profil
                             </a>
-                            <a href="#" 
-                            class="block px-4 py-2 text-sm text-gray-400 hover:bg-[#CFBB30] hover:text-white transition-colors" disabled>
-                                Modifier mes informations (A venir)
+                            <a href="<?= Session::get('membre') ? "/membre/profile_edit/". Session::get('membre')['member_id'] : "" ?>" 
+                            class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
+                                Modifier mes informations
                             </a>
 
                             <hr class="my-1 border-gray-100">

@@ -106,7 +106,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <div class="group relative">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Votre nationalité</label>
-                        <select name="nationalite" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
+                        <select id="select-nationalite" name="nationalite" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none" required>
                             <option value="" disabled selected>Sélectionnez votre nationnalité</option>
                             <?php foreach($allPays as $pays): ?>
                                 <option value="<?= $pays->nationalite ?>" <?= Helper::getSelectedValue('nationalite', $pays->nationalite) ?> ><?= $pays->nationalite ?></option>
@@ -117,7 +117,7 @@
 
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ville de résidence</label>
-                        <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville') ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" required>
+                        <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville', $Pays['ville']) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" disabled required>
                     </div>
                     
                     <div class="group">

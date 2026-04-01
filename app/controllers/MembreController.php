@@ -5,6 +5,7 @@ require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pays.php';
+require_once APP_PATH . 'models/Villes.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class MembreController extends Controller 
@@ -16,6 +17,7 @@ class MembreController extends Controller
     private $TokensModel;
     private $ActionsRaisonsModel;
     private $PaysModel;
+    private $VillesModel;
 
     public function __construct()
     {        
@@ -25,6 +27,7 @@ class MembreController extends Controller
         $this->EnseignementModel = new Enseignement();
         $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->PaysModel = new Pays();
+        $this->VillesModel = new Villes();
         $this->SendMailModel = new SendMail();
  
     }
@@ -43,6 +46,8 @@ class MembreController extends Controller
         //     Utils::redirect('integrations');
         // }
         $ip = Utils::getUserIP();
+        $pays = Helper::getCountryByIp();
+        
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
         if($Membre) 
         {
@@ -72,14 +77,16 @@ class MembreController extends Controller
         }
         
         $allPays = $this->PaysModel->getPays();
+        // $allVilles = $this->VillesModel->getVilles();
+
         $dbNationalite = [];
         $dbPays = [];
+
         foreach ($allPays as $allPay) 
         {
             $dbNationalite[] = $allPay->nationalite;
             $dbPays[] = $allPay->pays;
         }
-        // var_dump($allPays); die;
 
         $dbPhoneNumbers = $this->MembreModel->getPhoneNumbers();
         foreach ($dbPhoneNumbers as $dbPhoneNumber) 
@@ -91,6 +98,8 @@ class MembreController extends Controller
             'title' => 'Intégration',
             'description' => "Demande d'intégration à la communauté Lobola",
             'allPays' => $allPays,
+            // 'allVilles' => $allVilles,
+            'Pays' => $pays,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_integration']))
@@ -904,18 +913,145 @@ class MembreController extends Controller
             }
         }
 
-        $myApiKey = "dd2e5a29b84c2f80c15cc476295998af6ef4fde9400ea7b66d2e71401ff99550"; 
+        $allPays = $this->PaysModel->getPays();
+        $pays = Helper::getCountryByIp();
+        $villes = Helper::getCitiesOfUserCountryDirectly();
 
-        $countries = Helper::getCountriesFromAPI($myApiKey);
-        var_dump($countries);die;
-        $this->MembreModel->insert2($countries);
-        
+        $dbNationalite = [];
+
+        foreach ($allPays as $allPay) 
+        {
+            $dbNationalite[] = $allPay->nationalite;
+        }
 
         $data = [
             'title' => 'Modifier le profil de '. $Membre->nom_postnom,
             'description' => 'Modifier mon Profil',
             'Membre' => $Membre,
+            'allPays' => $allPays,
+            'Pays' => $pays,
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_membre_edit']))
+        {
+            $autre_nom = Utils::sanitize(trim($_POST['autre_nom'] ?? null));
+            $genre = Utils::sanitize(trim($_POST['genre'] ?? ''));
+            $domaine_etude = Utils::sanitize(trim($_POST['domaine_etude'] ?? ''));
+            $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
+            $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
+            $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
+
+            if($genre === '' OR $domaine_etude === '' OR $adresse === '' OR $phone === '')
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('membre/profile_edit',  $data);
+                return;
+            }
+
+            if(!in_array($genre, ARRAY_TYPE_SEXE)) 
+            {
+                Session::setFlash('error', "Entrée correctement le sexe.");
+                $this->view('membre/profile_edit',  $data);
+                return;
+            }
+            if(!in_array($nationalite, $dbNationalite))
+            {
+                Session::setFlash('error', 'La nationnalité choisie n\'est pas valide.');
+                $this->view('membre/profile_edit', $data);
+                return;
+            }
+
+            $submitted_data = [
+                'autre_nom' => $autre_nom,
+                'genre' => $genre,
+                'domaine_etude' => $domaine_etude,
+                'nationalite' => $nationalite,
+                'ville' => $pays['ville'],
+                'adresse' => $adresse,
+                'phone_number' => $phone,
+            ];
+
+            $is_identical = Utils::hasDataChanged($submitted_data, $Membre);
+
+            if (!empty($_FILES['photo_file']['name']))
+            {
+                $file = $_FILES['photo_file'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('membre/profile_edit', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('membre/profile_edit', $data);
+                    return;
+                }
+
+                $pathDossier = "storage/uploads/avatar/$membreId/";
+                $nomFichierNouveau = "IMG-MEMBRE-". date('Y-m-d') ."-". date('H\hi\ms\s') .".". $ext;
+                $fichierPath = $pathDossier ."/". $nomFichierNouveau;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('membre/profile_edit',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    $parts = explode('/', $Membre->path_profile);
+                    unlink(PROFILE_PATH . "$membreId/". end($parts));
+
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        if($this->MembreModel->update([
+                            'path_profile' => $fichierPath,
+                            'member_id' => $membreId
+                            ])
+                        ) Session::setFlash('success', "Vous avez modifié votre photo de profil avec succès");                 
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('membre/profile_edit', ['data' => $data]);
+                    return;
+                }
+            }
+
+            if($is_identical)
+            {
+                $dataUpdateMemre = [
+                    'member_id' => $membreId,
+                    'autre_nom' => $autre_nom,
+                    'genre' => $genre,
+                    'domaine_etude' => $domaine_etude,
+                    'nationalite' => $nationalite,
+                    'ville' => $pays['ville'],
+                    'adresse' => $adresse,
+                    'phone_number' => $phone,
+                ]; 
+                if($this->MembreModel->update($dataUpdateMemre))
+                {
+                    Session::setFlash('success', "Vous avez modifié vos informations avec succès");
+                    Utils::redirect('../profile/'. $membreId);
+                }
+            }
+            else {
+                Utils::redirect('../profile/'. $membreId);
+            }
+        }
 
         $this->view('membre/profile_edit', $data);
     }

@@ -28,6 +28,7 @@
     define('STORAGE_UPLOAD_PDF', STORAGE_UPLOAD . 'pdf/');
     define('STORAGE_UPLOAD_RAPPORT', STORAGE_UPLOAD . 'rapports/');
     define('BASE_PATH_ICON', ASSETS . 'images/logo.png');
+    define('PROFILE_PATH', STORAGE_UPLOAD . 'avatar/');
 
     // charger les fichiers de configuration
     require_once CONFIG_PATH . 'config.php';
