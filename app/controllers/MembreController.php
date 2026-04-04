@@ -535,7 +535,7 @@ class MembreController extends Controller
             Utils::redirect('../attente/'. $membreId);
             return;
         }
-        if($Membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[2]) {
+        if($Membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[3]) {
             Utils::redirect('../profile/'. $membreId);
             return;
         }
@@ -882,6 +882,9 @@ class MembreController extends Controller
                 return;
             }
         }
+
+        // $emails = $this->MembreModel->telechargerContactsGoogle();
+        // var_dump($emails);
 
         $isOn = false;
         $evaluationSpirituel = $this->MembreModel->getMemberProgress($membreId);

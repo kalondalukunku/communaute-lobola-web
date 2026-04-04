@@ -122,6 +122,61 @@ class Membre extends Model {
     {
         return $this->db->query("SELECT email FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
     }
+
+    public function telechargerContactsGoogle() {
+        // 1. Récupération des données (votre requête)
+        $membres = $this->db->query("SELECT nom_postnom, email FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+
+        // 2. Définir les headers HTTP pour forcer le téléchargement du fichier CSV
+        $filename = "contacts_lobola_" . date('Y-m-d_H-i') . ".csv";
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // 3. Ouvrir le flux de sortie PHP
+        $output = fopen('php://output', 'w');
+
+        // 4. Ajouter le BOM UTF-8 (TRÈS IMPORTANT pour que Google et Excel lisent bien les accents comme é, à, etc.)
+        fputs($output, "\xEF\xBB\xBF");
+
+        // 5. En-têtes officiels requis par Google Contacts (Format minimal mais robuste)
+        $headers = [
+            'Name',             // Nom d'affichage
+            'Given Name',       // Prénom (utilisé pour le tri)
+            'E-mail 1 - Type',  // Type d'email (Travail, Domicile, etc.)
+            'E-mail 1 - Value', // L'adresse email
+            'Group Membership'  // Le libellé/groupe dans Google Contacts
+        ];
+        fputcsv($output, $headers, ','); // Google Contacts utilise la virgule comme séparateur par défaut
+
+        // 6. Parcourir les résultats et remplir les lignes du CSV
+        foreach ($membres as $membre) {
+            $nom = trim($membre->nom_postnom);
+            $email = trim($membre->email);
+
+            // On ignore les membres qui n'ont pas d'adresse e-mail (inutile pour Google Contacts)
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            // Création de la ligne
+            $ligne = [
+                $nom,                  // Name
+                $nom,                  // Given Name (Google séparera le nom/prénom lui-même si besoin)
+                'Other',               // E-mail 1 - Type (Label de l'email)
+                $email,                // E-mail 1 - Value
+                'Communauté Lobola'    // Group Membership : Créera un dossier/libellé "Communauté Lobola"
+            ];
+
+            // Écrire la ligne dans le fichier CSV
+            fputcsv($output, $ligne, ',');
+        }
+
+        // 7. Fermer le flux et stopper l'exécution (pour éviter d'ajouter du HTML au fichier)
+        fclose($output);
+        exit;
+    }
     
     public function getEmailsAlert() 
     {
@@ -138,6 +193,14 @@ class Membre extends Model {
         $query = "SELECT M.* FROM $this->table M";
         $q = $this->db->prepare($query);
         $q->execute(); 
+        return $q->fetchAll();
+    }
+
+    public function allWhere($where, $parameter, $order_where = "nom_postnom", $order_by = "ASC")
+    {
+        $query = "SELECT M.* FROM $this->table M WHERE $where = :$where ORDER BY $order_where $order_by";
+        $q = $this->db->prepare($query);
+        $q->execute([$where => $parameter]); 
         return $q->fetchAll();
     }
 
@@ -185,7 +248,7 @@ class Membre extends Model {
         return $q->fetch();
     }
 
-    public function findAllMembres(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null): array
+    public function findAllMembres(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "updated_at", ?string $order_by = "ASC"): array
     {
         $limit = $per_page ?? $this->default_per_page ?? 10;
         $page = max(1, $page);
@@ -221,7 +284,7 @@ class Membre extends Model {
         // 4. Requête pour les membres uniquement
         $sql = "SELECT M.* FROM $this->table M 
                 $whereSql 
-                ORDER BY M.updated_at ASC 
+                ORDER BY M.$order_where $order_by 
                 LIMIT {$limit} OFFSET {$offset}";
         
         $q = $this->db->prepare($sql);

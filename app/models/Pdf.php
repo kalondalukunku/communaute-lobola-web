@@ -171,6 +171,333 @@ class PDF extends tFPDF
         $this->Output('D', 'Suivi_des_membres_-_23e_Session.pdf');
     }
 
+    public function generateMembersActifsReport($membres)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, "liste des membres actifs", 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [85, 50, 73, 45, 25];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Statut'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 4) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            $statut = $m->status;
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 10, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            $this->Cell($w[4], 10, $statut, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', 'communaute_lobola_-_Liste_des_membres_actifs.pdf');
+    }
+
+    public function generateMembersAttenteIntegrationReport($membres)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, "liste des membres en attente d'intégration", 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [83, 40, 70, 40, 45, 25];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Date d\'intégration'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 5) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            // $statut = "Attente d'intégration";
+            $dateIntegration = date('d/m/Y', strtotime($m->created_at));
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 9, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            // $this->Cell($w[4], 9, $statut, 0, 0, 'C');
+            $this->Cell($w[5], 10, $dateIntegration, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', 'communaute_lobola_-_Liste_des_membres_en_attente_d_integration.pdf');
+    }
+
+    public function generateMembersIntegrationValideReport($membres)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, "liste des membres intégration validée", 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [85, 50, 73, 40, 30];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Statut'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 4) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            $statut = $m->status;
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 10, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            $this->Cell($w[4], 10, $statut, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', 'communaute_lobola_-_Liste_des_membres_integration_valide.pdf');
+    }
+
+    public function generateMembersIntegrationRejeteReport($membres)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, "liste des membres intégration rejetée", 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [85, 50, 73, 40, 30];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Statut'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 4) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            $statut = "Réjeté";
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 10, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            $this->Cell($w[4], 10, $statut, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', 'communaute_lobola_-_Liste_des_membres_integration_rejete.pdf');
+    }
+
+    public function generateMembersSuspendusReport($membres)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, "liste des membres suspendus", 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [85, 50, 73, 40, 30];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Statut'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 4) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            $statut = "Suspendu";
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 10, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            $this->Cell($w[4], 10, $statut, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', 'communaute_lobola_-_Liste_des_membres_integration_suspendus.pdf');
+    }
+
     /**
      * Fonction utilitaire pour des rectangles arrondis (UI Look)
      */

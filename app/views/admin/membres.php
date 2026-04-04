@@ -144,10 +144,63 @@
                                     // if(isset($new_params['q'])) unset($new_params['q']);
 
                                     $url_params = http_build_query($new_params);
+                                    $badge_html = $is_active 
+                                                    ? '<span class="absolute -top-3 -right-3 w-6 h-6 bg-primary text-[#001411] rounded-full flex items-center justify-center text-[10px] font-bold"> ' . $totalrecords . ' </span>' 
+                                                    : '';
 
-                                    echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium color-border rounded-2xl {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">{$label}</a>";
+                                    echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium color-border rounded-2xl {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">
+                                            {$label}
+                                            {$badge_html}
+                                        </a>";
                                 }
                                 ?>
+
+                                <?php if($stt === ARRAY_STATUS_MEMBER[2] && $totalrecords > 0): ?>
+                                    <form action="" method="post" class="absolute right-20 ">
+                                        <button type="submit" 
+                                            name="cllil_admin_expt_membres_actifs"
+                                            class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                            <span id="btnText">Rapport membres actif</span>
+                                            <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                        </button>
+                                    </form>
+                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[1] && $totalrecords > 0): ?>
+                                        <form action="" method="post" class="absolute right-20 ">
+                                            <button type="submit" 
+                                                name="cllil_admin_expt_membres_attente"
+                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                                <span id="btnText">Rapport membres attente intégration</span>
+                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[5] && $totalrecords > 0): ?>
+                                        <form action="" method="post" class="absolute right-20 ">
+                                            <button type="submit" 
+                                                name="cllil_admin_expt_membres_inactifs"
+                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                                <span id="btnText">Rapport membres intégration validés</span>
+                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[4] && $totalrecords > 0): ?>
+                                        <form action="" method="post" class="absolute right-20 ">
+                                            <button type="submit" 
+                                                name="cllil_admin_expt_membres_rejetes"
+                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                                <span id="btnText">Rapport membres intégration rejetés</span>
+                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[3] && $totalrecords > 0): ?>
+                                        <form action="" method="post" class="absolute right-20 ">
+                                            <button type="submit" 
+                                                name="cllil_admin_expt_membres_suspendus"
+                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                                <span id="btnText">Rapport membres suspendus</span>
+                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                         </div>
                     </div>
 
@@ -207,10 +260,12 @@
                                                             <div class="flex justify-end gap-2">
                                                                 <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
 
-                                                                <form action="" method="post">
-                                                                    <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
-                                                                    <!-- <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button> -->
-                                                                </form>
+                                                                <?php if($stt === ARRAY_STATUS_MEMBER[5]): ?>
+                                                                    <form action="" method="post">
+                                                                        <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
+                                                                            <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>
+                                                                    </form>
+                                                                <?php endif; ?>
                                                             </div>
                                                             </td>
                                                     </tr>

@@ -240,11 +240,21 @@ class AdminController extends Controller
         $psnPg = (int) basename($_GET['page'] ?? 1);
 
         $stt = "";
+        $order_where = "updated_at";
+        $order_by = "DESC";
         
         if($sttGet === 'active' || !isset($_GET['stt']))
+        {
             $stt = ARRAY_STATUS_MEMBER[2];
+            $order_where = "nom_postnom";
+            $order_by = "ASC";  
+        }
         elseif($sttGet === 'att_validation')
-            $stt = ARRAY_STATUS_MEMBER[1];
+        {
+            $stt = ARRAY_STATUS_MEMBER[1];   
+            $order_where = "created_at";
+            $order_by = "ASC";
+        }
         elseif($sttGet === 'suspended')
             $stt = ARRAY_STATUS_MEMBER[3];
         elseif($sttGet === 'att_rejete')
@@ -252,7 +262,7 @@ class AdminController extends Controller
         elseif($sttGet === 'inactive')
             $stt = ARRAY_STATUS_MEMBER[5];
 
-        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['status' => $stt]);
+        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['status' => $stt], 10, $order_where, $order_by);
         $allMembres = $results['data'];
         $totalrecords = $results['total_records'];
         $currentPage = $results['current_page'];
@@ -273,7 +283,8 @@ class AdminController extends Controller
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente,
             'totalPaymentMonth' => $totalPaymentMonth,
-            'NbrAllMembresInities' => $NbrAllMembresInities
+            'NbrAllMembresInities' => $NbrAllMembresInities,
+            'stt' => $stt
         ];
 
         foreach($allMembres as $membre) {
@@ -304,6 +315,36 @@ class AdminController extends Controller
                     }    
                 }
             }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_attente']))
+        {
+            $members = $this->MembreModel->allWhere("status", ARRAY_STATUS_MEMBER[1], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersAttenteIntegrationReport($members);
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_actifs']))
+        {
+            $members = $this->MembreModel->allWhere("status", ARRAY_STATUS_MEMBER[2], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersActifsReport($members);
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_suspendus']))
+        {
+            $members = $this->MembreModel->allWhere("status", ARRAY_STATUS_MEMBER[3], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersIntegrationRejeteReport($members);
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_rejetes']))
+        {
+            $members = $this->MembreModel->allWhere("status", ARRAY_STATUS_MEMBER[4], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersIntegrationRejeteReport($members);
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_inactifs']))
+        {
+            $members = $this->MembreModel->allWhere("status", ARRAY_STATUS_MEMBER[5], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersIntegrationValideReport($members);
         }
 
         $this->view('admin/membres', $data);
