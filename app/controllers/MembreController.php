@@ -113,12 +113,11 @@ class MembreController extends Controller
             $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
             $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
             $ou_connu = Utils::sanitize(trim($_POST['ou_connu'] ?? ''));
-            $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
-            $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
+            // $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
 
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ou_connu || !$nationalite || !$ville || !$phone || !$adresse)
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ou_connu || !$phone || !$adresse)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/integration',  $data);
@@ -193,7 +192,7 @@ class MembreController extends Controller
                 'motivation'           => $motivation,
                 'ou_connu'             => $ou_connu,
                 'nationalite'          => $nationalite,
-                'ville'                => $ville,
+                'ville'                => $pays['ville'],
                 'phone_number'         => $phone,
                 'adresse'              => $adresse,
                 'status'               => ARRAY_STATUS_MEMBER[1],

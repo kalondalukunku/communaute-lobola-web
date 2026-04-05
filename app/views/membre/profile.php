@@ -171,6 +171,15 @@
                                 </div> -->
                             <?php endif; ?>
                         <?php endif; ?>
+                        <div class="mt-12 flex justify-end">
+                            <a href="../profile_edit/<?= $Membre->member_id ?>" 
+                            class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
+                                    Modifier mon Profil
+                                    <i class="fas fa-edit text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

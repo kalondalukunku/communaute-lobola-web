@@ -156,7 +156,7 @@
                                 ?>
 
                                 <?php if($stt === ARRAY_STATUS_MEMBER[2] && $totalrecords > 0): ?>
-                                    <form action="" method="post" class="absolute right-20 ">
+                                    <form action="" method="post" class="absolute right-20 hidden lg:block">
                                         <button type="submit" 
                                             name="cllil_admin_expt_membres_actifs"
                                             class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -165,7 +165,7 @@
                                         </button>
                                     </form>
                                     <?php elseif($stt === ARRAY_STATUS_MEMBER[1] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 ">
+                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
                                             <button type="submit" 
                                                 name="cllil_admin_expt_membres_attente"
                                                 class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -174,7 +174,7 @@
                                             </button>
                                         </form>
                                     <?php elseif($stt === ARRAY_STATUS_MEMBER[5] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 ">
+                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
                                             <button type="submit" 
                                                 name="cllil_admin_expt_membres_inactifs"
                                                 class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -183,7 +183,7 @@
                                             </button>
                                         </form>
                                     <?php elseif($stt === ARRAY_STATUS_MEMBER[4] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 ">
+                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
                                             <button type="submit" 
                                                 name="cllil_admin_expt_membres_rejetes"
                                                 class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -192,7 +192,7 @@
                                             </button>
                                         </form>
                                     <?php elseif($stt === ARRAY_STATUS_MEMBER[3] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 ">
+                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
                                             <button type="submit" 
                                                 name="cllil_admin_expt_membres_suspendus"
                                                 class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
