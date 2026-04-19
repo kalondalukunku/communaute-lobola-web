@@ -4,19 +4,22 @@
             
             <!-- Logo avec effet de profondeur -->
             <a href="/" class="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
-                <div class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-primary shadow-lg shadow-primary/30 -rotate-12 group-hover:rotate-0 transition-all duration-500">
-                    <img class="w-9 h-9 rounded-2xl object-cover" src="<?= ASSETS ?>images/logo.jpg" alt="Logo">
+                <div class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-primary shadow-lg shadow-primary/30 -rotate-12 group-hover:rotate-0 transition-all duration-500">
+                    <img class="w-8 h-8 rounded-2xl object-cover" src="<?= ASSETS ?>images/logo.jpg" alt="Logo">
                 </div>
             </a>
 
             <!-- Navigation Desktop -->
             <nav class="flex items-center gap-8">
                 <div class="flex items-center gap-6">
-                    <a href="/" class="relative py-2 text-sm font-medium transition-colors hover:text-primary group <?= Helper::setActive('') ?>">
+                    <a href="/" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('') ?>">
                         Enseignements
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
-                    <!-- Ajoutez d'autres liens ici si nécessaire -->
+                    <a href="/musique" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('musique') ?>">
+                        Musiques
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                    </a>
                 </div>
 
                 <div class="h-6 w-px bg-white/10"></div>
@@ -42,7 +45,7 @@
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" @click.outside="open = false" class="relative group focus:outline-none">
                             <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 blur transition duration-500"></div>
-                            <div class="relative w-11 h-11 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">
+                            <div class="relative w-9 h-9 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">
                                 <img src="/<?= Session::get('membre')['path_profile'] ?? Session::get('enseignant')['path_profile'] ?>" 
                                     alt="Avatar" class="w-full h-full object-cover">
                             </div>
