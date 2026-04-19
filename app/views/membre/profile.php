@@ -7,10 +7,10 @@
 
     <main class="max-w-6xl mx-auto py-12 px-6">
         <!-- Conteneur Principal avec Grid adaptatif -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 items-start">
             
             <!-- Colonne Latérale : Identité (4 colonnes sur 12) -->
-            <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+            <div class="lg:col-span-12 xl:col-span-12 space-y-6 ">
                 <div class="relative from-white/[0.08] to-transparent backdrop-blur-2xl rounded-[2.5rem] p-8 color-border overflow-hidden group shadow-2xl">
                     <!-- Décoration d'ambiance -->
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all duration-1000"></div>
@@ -76,8 +76,32 @@
                 </div>
             </div>
 
+            <!-- completer les infos du profil -->
+            <?php if ($Membre->pays === null || $Membre->ville === null || $Membre->ville === ''): ?>
+                <div class="lg:col-span-12 xl:col-span-12 space-y-6 ">
+                    <div class="backdrop-blur-xl rounded-[2.5rem] p-10 border border-[#e7000b66] shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-10">
+                                <h3 class="text-xs font-black text-white uppercase tracking-[0.3em] opacity-80 border-l-4 border-[#e7000b] pl-4">Completez votre profil</h3>
+                                <div class="h-[1px] flex-grow mx-6 bg-gradient-to-r from-white/10 to-transparent"></div>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-0">Veuillez compléter vos informations personnelles pour avoir un profil complet.</p>
+                            <div class="mt-12 flex justify-end">
+                                <a href="../profile_edit/<?= $Membre->member_id ?>" 
+                                class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-red-600 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                    <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
+                                        Completez votre Profil
+                                        <i class="fas fa-edit text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Colonne Informations (8 colonnes sur 12) -->
-            <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+            <div class="lg:col-span-12 xl:col-span-12 space-y-6 ">
                 <div class="backdrop-blur-xl rounded-[2.5rem] p-10 color-border shadow-xl relative overflow-hidden">
                     <div class="relative z-10">
                         <div class="flex items-center justify-between mb-10">

@@ -11,6 +11,11 @@
 
     <main class="flex-grow container mx-auto px-4 py-12">
         <div class="fade-in">
+        
+            <!-- banniere album disponible sur spotify -->
+            <section class="mb-10">
+                <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/2OdeONjcYsbqEVdfnD6Y6p?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </section>
 
             <?php if ($showRestriction): ?>
                 <!-- Bloc Avertissement Privations -->

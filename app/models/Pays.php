@@ -12,6 +12,14 @@ class Pays extends Model {
         return $q->fetch(PDO::FETCH_OBJ);
     }
     
+    public function findWhere($where, $find)
+    {
+        $query = "SELECT * FROM $this->table WHERE $where = :$where  LIMIT 1";
+        $q = $this->db->prepare($query);
+        $q->execute([$where => $find]);
+        return $q->fetch(PDO::FETCH_OBJ);
+    }
+    
     public function getPays() 
     {
         return $this->db->query("SELECT pays, nationalite FROM $this->table")->fetchAll(PDO::FETCH_OBJ);

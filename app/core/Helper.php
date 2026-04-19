@@ -108,7 +108,7 @@ class Helper {
     }
 
     public static function getCitiesFromApi($countryName) {
-        $url = "https://countriesnow.space/api/v0.1/countries/cities";
+        $url = "https://countriesnow.space/api/v0.1/$countryName/cities";
         
         $postData = json_encode(['country' => $countryName]);
 
@@ -149,6 +149,52 @@ class Helper {
 
         return self::getCitiesFromApi($country);
     }
+
+
+    public static function getVillesByPays($pays) {
+    $url = "https://countriesnow.space/api/v0.1/countries/cities/q?country=" . urlencode($pays);
+
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // suit redirection si besoin
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        return [
+            "success" => false,
+            "message" => "Erreur cURL : " . curl_error($ch)
+        ];
+    }
+
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if (!is_array($data)) {
+        return [
+            "success" => false,
+            "message" => "Réponse API invalide",
+            "raw_response" => $response
+        ];
+    }
+
+    if (isset($data['error']) && $data['error'] === true) {
+        return [
+            "success" => false,
+            "message" => $data['msg'] ?? "Erreur API"
+        ];
+    }
+
+    return [
+        "success" => true,
+        "pays" => $pays,
+        "total" => count($data['data'] ?? []),
+        "villes" => $data['data'] ?? []
+    ];
+}
+
 
     public static function formatDate($date)
     {

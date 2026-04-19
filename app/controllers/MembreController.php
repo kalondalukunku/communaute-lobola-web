@@ -180,19 +180,21 @@ class MembreController extends Controller
                 return;
             }
 
+            $pays = $this->PaysModel->findWhere('nationalite', $nationalite)->pays;
+
             $dataAddMembre = [  
                 'ip_address'           => $ip,
                 'nom_postnom'          => $nom_postnom,
                 'genre'                => $sexe,
                 'date_naissance'       => $date_naissance,
                 'domaine_etude'        => $domaine_etude,
-                'nationalite'          => $nationalite,
+                'pays'                 => $pays,
                 'email'                => $email,
                 'niveau_initiation'    => $niveau_initiation,
                 'motivation'           => $motivation,
                 'ou_connu'             => $ou_connu,
                 'nationalite'          => $nationalite,
-                'ville'                => $pays['ville'],
+                // 'ville'                => $pays['ville'],
                 'phone_number'         => $phone,
                 'adresse'              => $adresse,
                 'status'               => ARRAY_STATUS_MEMBER[1],
@@ -915,15 +917,23 @@ class MembreController extends Controller
             }
         }
 
+        $api = "XVoKJAQeFRoiP09SI9Ka8jCkXI3f6Nqdq6UNPwai";
+
         $allPays = $this->PaysModel->getPays();
-        $pays = Helper::getCountryByIp();
-        $villes = Helper::getCitiesOfUserCountryDirectly();
+        $villes = $this->VillesModel->all();
 
         $dbNationalite = [];
+        $dbPays = [];
+        $dbVille = [];
 
         foreach ($allPays as $allPay) 
         {
             $dbNationalite[] = $allPay->nationalite;
+            $dbPays[] = $allPay->pays;
+        }
+        foreach ($villes as $allPay) 
+        {
+            $dbVille[] = $allPay->ville;
         }
 
         $data = [
@@ -931,7 +941,7 @@ class MembreController extends Controller
             'description' => 'Modifier mon Profil',
             'Membre' => $Membre,
             'allPays' => $allPays,
-            'Pays' => $pays,
+            'villes' => $villes,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_membre_edit']))
@@ -940,6 +950,8 @@ class MembreController extends Controller
             $genre = Utils::sanitize(trim($_POST['genre'] ?? ''));
             $domaine_etude = Utils::sanitize(trim($_POST['domaine_etude'] ?? ''));
             $nationalite = Utils::sanitize(trim($_POST['nationalite'] ?? ''));
+            $pays = Utils::sanitize(trim($_POST['pays'] ?? ''));
+            $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
 
@@ -962,13 +974,26 @@ class MembreController extends Controller
                 $this->view('membre/profile_edit', $data);
                 return;
             }
+            if(!in_array($pays, $dbPays))
+            {
+                Session::setFlash('error', 'Le pays choisi n\'est pas valide.');
+                $this->view('membre/profile_edit', $data);
+                return;
+            }
+            if(!in_array($ville, $dbVille))
+            {
+                Session::setFlash('error', 'La ville choisie n\'est pas valide.');
+                $this->view('membre/profile_edit', $data);
+                return;
+            }
 
             $submitted_data = [
                 'autre_nom' => $autre_nom,
                 'genre' => $genre,
                 'domaine_etude' => $domaine_etude,
                 'nationalite' => $nationalite,
-                'ville' => $pays['ville'],
+                'pays' => $pays,
+                'ville' => $ville,
                 'adresse' => $adresse,
                 'phone_number' => $phone,
             ];
@@ -1040,7 +1065,8 @@ class MembreController extends Controller
                     'genre' => $genre,
                     'domaine_etude' => $domaine_etude,
                     'nationalite' => $nationalite,
-                    'ville' => $pays['ville'],
+                    'pays' => $pays,
+                    'ville' => $ville,
                     'adresse' => $adresse,
                     'phone_number' => $phone,
                 ]; 

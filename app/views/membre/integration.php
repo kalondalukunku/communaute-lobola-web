@@ -115,10 +115,10 @@
                         <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
                     </div>
 
-                    <div class="group">
+                    <!-- <div class="group">
                         <label class="block text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Ville de résidence</label>
                         <input type="text" name="ville" value="<?= Helper::getData($_POST, 'ville', $Pays['ville']) ?>" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" placeholder="Kinshasa" disabled required>
-                    </div>
+                    </div> -->
                     
                     <div class="group">
                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Lieu de résidence (Adresse)</label>
