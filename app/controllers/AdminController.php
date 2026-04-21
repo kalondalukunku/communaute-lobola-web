@@ -426,6 +426,102 @@ class AdminController extends Controller
         $this->view('admin/engages', $data);
     }
 
+    public function inities() 
+    {
+        
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+        
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $search = ($query !== '') ? basename($query) : null;
+        $typeInitiationGet = basename($_GET['tpint'] ?? '');
+        $psnPg = (int) basename($_GET['page'] ?? 1);
+
+        $typeInitiation = "";
+        $order_where = "nom_postnom";
+        $order_by = "ASC";
+        
+        if($typeInitiationGet === 'neuvaine' || !isset($_GET['tpint']))
+        {
+            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[3];
+        }
+        elseif($typeInitiationGet === '15jours')
+        {
+            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[1];   
+        }
+        elseif($typeInitiationGet === '30jours')
+            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[2];
+        elseif($typeInitiationGet === 'novice')
+            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[0];
+
+        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['niveau_initiation' => $typeInitiation], 10, $order_where, $order_by);
+        $allMembres = $results['data'];
+        $totalrecords = $results['total_records'];
+        $currentPage = $results['current_page'];
+        $parPage = $results['per_page'];
+        $totalPages = $results['total_pages'];
+
+        $NbrAllMembresNeuvaine = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[3]], $cacheKey);
+        $NbrAllMembres30 = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[2]], $cacheKey);
+        $NbrAllMembres15 = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[1]], $cacheKey);
+        $NbrAllMembresNovice = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[0]], $cacheKey);
+
+        $data = [
+            'allMembres' => $allMembres,
+            'totalrecords' => $totalrecords,
+            'currentPage' => $currentPage,
+            'parPage' => $parPage,
+            'totalPages' => $totalPages,
+            'NbrAllMembresNeuvaine' => $NbrAllMembresNeuvaine,
+            'NbrAllMembres30' => $NbrAllMembres30,
+            'NbrAllMembresNovice' => $NbrAllMembresNovice,
+            'NbrAllMembres15' => $NbrAllMembres15,
+            'typeInitiation' => $typeInitiation
+        ];
+
+        foreach($allMembres as $membre) {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_vwfl'.$membre->member_id]))
+            {
+                $pathFileEnc = htmlspecialchars_decode(Utils::sanitize($membre->document_path));
+                $pathFilePdf = FILE_VIEW_FOLDER_PATH ."file.". $membre->document_ext;
+
+                $res = $this->MembreModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
+
+                if($res === true)
+                {
+                    Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
+                    unlink($pathFilePdf);
+                }
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_novices']))
+        {
+            $members = $this->MembreModel->allWhere("niveau_initiation", ARRAY_TYPE_NIVEAU_INITIATION[0], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersInitiesReport($members, "liste des membres pas encore initiés");
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_15']))
+        {
+            $members = $this->MembreModel->allWhere("niveau_initiation", ARRAY_TYPE_NIVEAU_INITIATION[1], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersInitiesReport($members, "liste des membres initiés : 15 jours");
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_30']))
+        {
+            $members = $this->MembreModel->allWhere("niveau_initiation", ARRAY_TYPE_NIVEAU_INITIATION[2], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersInitiesReport($members, "liste des membres initiés : 30 jours");
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_neuvaine']))
+        {
+            $members = $this->MembreModel->allWhere("niveau_initiation", ARRAY_TYPE_NIVEAU_INITIATION[3], "nom_postnom", "ASC");
+            $this->PdfModel->generateMembersInitiesReport($members, "liste des membres initiés : neuvaine");
+        }
+
+        $this->view('admin/inities', $data);
+    }
+
     public function membre($membreId) 
     {
         Auth::requireLogin('admin');

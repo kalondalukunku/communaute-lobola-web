@@ -66,6 +66,7 @@
                     <div x-show="openMenu === 'membres'" x-collapse x-cloak>
                         <div class="pb-3 pl-12 pr-4 space-y-2">
                             <a href="/admin/membres" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Liste complète</a>
+                            <a href="/admin/inities" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/inities', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Type d'initié</a>
                             <a href="/admin/membres_suivi" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres_suivi', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Suivi d'activité</a>
                             <a href="/admin/engages" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/engages', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Membres Engagés</a>
                         </div>

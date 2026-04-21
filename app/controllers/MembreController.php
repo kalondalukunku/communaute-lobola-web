@@ -6,6 +6,7 @@ require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pays.php';
 require_once APP_PATH . 'models/Villes.php';
+require_once APP_PATH . 'models/Pdf.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class MembreController extends Controller 
@@ -17,6 +18,7 @@ class MembreController extends Controller
     private $TokensModel;
     private $ActionsRaisonsModel;
     private $PaysModel;
+    private $PdfModel;
     private $VillesModel;
 
     public function __construct()
@@ -27,6 +29,7 @@ class MembreController extends Controller
         $this->EnseignementModel = new Enseignement();
         $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->PaysModel = new Pays();
+        $this->PdfModel = new Pdf();
         $this->VillesModel = new Villes();
         $this->SendMailModel = new SendMail();
  
@@ -884,9 +887,6 @@ class MembreController extends Controller
             }
         }
 
-        // $emails = $this->MembreModel->telechargerContactsGoogle();
-        // var_dump($emails);
-
         $isOn = false;
         $evaluationSpirituel = $this->MembreModel->getMemberProgress($membreId);
 
@@ -897,6 +897,11 @@ class MembreController extends Controller
             'evaluationSpirituel' => $evaluationSpirituel,
             'isOn' => $isOn,
         ];
+        
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_expt_fiche']))
+        {
+            $this->PdfModel->generateMemberProfile($Membre);
+        }
 
         $this->view('membre/profile', $data);
     }

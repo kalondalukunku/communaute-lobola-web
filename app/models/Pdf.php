@@ -303,6 +303,73 @@ class PDF extends tFPDF
         $this->Output('D', 'communaute_lobola_-_Liste_des_membres_en_attente_d_integration.pdf');
     }
 
+    public function generateMembersInitiesReport($membres, $title)
+    {
+        $this->AddPage();
+        $this->AliasNbPages();
+
+        // --- TITRE DE SECTION ---
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(0, 15, $title, 0, 1, 'C');
+        
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
+        $this->Ln(10);
+
+        // En-têtes du tableau
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetFont('DejaVu', 'B', 10);
+
+        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
+        $w = [83, 40, 70, 40, 45, 25];
+        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Date d\'intégration'];
+
+        for($i=0; $i<count($header); $i++) {
+            if($i == 5) {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
+            } else {
+                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
+            }
+        }
+        $this->Ln();
+
+        // Données des membres
+        $this->SetTextColor(50, 50, 50);
+        $this->SetFont('DejaVu', '', 9);
+        
+        // Couleurs pour les lignes alternées
+        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
+
+        foreach($membres as $m) {
+            // Extraction des données (s'adapte objet ou tableau)
+            $id = $m->member_id;
+            $nom = $m->nom_postnom;
+            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+            $email = $m->email;
+            $tel = $m->phone_number;
+            // $mod = $m->modalite_engagement;
+            // $statut = "Attente d'intégration";
+            $dateIntegration = date('d/m/Y', strtotime($m->created_at));
+
+            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
+            $this->Cell($w[1], 9, $niveau, 0, 0, 'L');
+            $this->Cell($w[2], 10, $email, 0, 0, 'L');
+            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
+            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
+            // $this->Cell($w[4], 9, $statut, 0, 0, 'C');
+            $this->Cell($w[5], 10, $dateIntegration, 0, 0, 'C');
+            $this->Ln();
+            // $fill = !$fill;
+        }
+        // Ligne de fermeture du tableau
+        // $this->Cell(array_sum($w), 0, '', 'T');
+        $this->Output('D', "communaute_lobola_-_" . str_replace(' ', '_', $title) . ".pdf");
+    }
+
     public function generateMembersIntegrationValideReport($membres)
     {
         $this->AddPage();
@@ -496,6 +563,221 @@ class PDF extends tFPDF
         // Ligne de fermeture du tableau
         // $this->Cell(array_sum($w), 0, '', 'T');
         $this->Output('D', 'communaute_lobola_-_Liste_des_membres_integration_suspendus.pdf');
+    }
+
+    // public function generateMemberProfile($m)
+    // {
+    //     $this->AddPage();
+    //     $this->AliasNbPages();
+
+    //     // --- TITRE DE LA FICHE ---
+    //     $this->SetFont('DejaVu', 'B', 24);
+    //     $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+    //     $this->Cell(0, 15, "FICHE INDIVIDUELLE", 0, 1, 'C');
+        
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->SetTextColor(80, 80, 80);
+    //     $this->Cell(0, 5, "Informations enregistrées dans le système", 0, 1, 'C');
+    //     $this->Ln(15);
+
+    //     // --- SECTION : IDENTITÉ ---
+    //     $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+    //     $this->SetTextColor(255, 255, 255);
+    //     $this->SetFont('DejaVu', 'B', 12);
+    //     $this->Cell(0, 10, "  IDENTITÉ DU MEMBRE", 0, 1, 'L', true);
+    //     $this->Ln(5);
+
+    //     // Extraction des données
+    //     $nom = $m->nom_postnom;
+    //     $id_label = $m->member_id;
+    //     $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+    //     $email = $m->email;
+    //     $tel = $m->phone_number;
+    //     $dateIntegration = date('d/m/Y', strtotime($m->created_at));
+
+    //     // Affichage des détails (Style liste)
+    //     $this->SetTextColor(50, 50, 50);
+    //     $this->SetFont('DejaVu', 'B', 10);
+        
+    //     $col1 = 60; // Largeur libellé
+    //     $col2 = 0;  // Largeur valeur (reste de la ligne)
+
+    //     // Ligne Nom
+    //     $this->Cell($col1, 10, "Nom Complet :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $nom, 0, 1, 'L');
+
+    //     // Ligne ID
+    //     $this->SetFont('DejaVu', 'B', 10);
+    //     $this->Cell($col1, 10, "ID Membre :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $id_label, 0, 1, 'L');
+
+    //     // Ligne Initiation
+    //     $this->SetFont('DejaVu', 'B', 10);
+    //     $this->Cell($col1, 10, "Niveau d'initiation :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $niveau, 0, 1, 'L');
+
+    //     $this->Ln(5);
+
+    //     // --- SECTION : COORDONNÉES ---
+    //     $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+    //     $this->SetTextColor(255, 255, 255);
+    //     $this->SetFont('DejaVu', 'B', 12);
+    //     $this->Cell(0, 10, "  COORDONNÉES ET CONTACT", 0, 1, 'L', true);
+    //     $this->Ln(5);
+
+    //     $this->SetTextColor(50, 50, 50);
+        
+    //     // Email
+    //     $this->SetFont('DejaVu', 'B', 10);
+    //     $this->Cell($col1, 10, "Email :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $email, 0, 1, 'L');
+
+    //     // Téléphone
+    //     $this->SetFont('DejaVu', 'B', 10);
+    //     $this->Cell($col1, 10, "Téléphone :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $tel, 0, 1, 'L');
+
+    //     // Date d'intégration
+    //     $this->SetFont('DejaVu', 'B', 10);
+    //     $this->Cell($col1, 10, "Date d'intégration :", 0, 0, 'L');
+    //     $this->SetFont('DejaVu', '', 10);
+    //     $this->Cell($col2, 10, $dateIntegration, 0, 1, 'L');
+
+    //     $this->Ln(15);
+        
+    //     // --- PIED DE PAGE / SIGNATURE (Optionnel) ---
+    //     $this->SetFont('DejaVu', 'I', 8);
+    //     $this->SetTextColor(120, 120, 120);
+    //     $this->Cell(0, 10, "Fiche générée automatiquement le " . date('d/m/Y à H:i'), 0, 1, 'C');
+
+    //     $fileName = "fiche_membre_" . str_replace(' ', '_', $nom) . ".pdf";
+    //     $this->Output('I', $fileName);
+    // }
+
+    public function generateMemberProfile($m)
+    {
+        $this->AddPage(); // Forçage du format Portrait
+        $this->AliasNbPages();
+
+        // Extraction des données
+        $nom = $m->nom_postnom;
+        $id_label = $m->member_id;
+        $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
+        $email = $m->email;
+        $tel = $m->phone_number;
+        $dateIntegration = date('d/m/Y', strtotime($m->created_at));
+        $dateNaissance = date('d/m/Y', strtotime($m->date_naissance));
+
+        // --- EN-TÊTE AVEC PHOTO ---
+        // On mémorise la position initiale
+        $y_start = $this->GetY();
+        
+        // Titre à gauche
+        $this->SetFont('DejaVu', 'B', 24);
+        $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->Cell(130, 15, "FICHE MEMBRE", 0, 0, 'L');
+        
+        // Emplacement Photo à droite (Cadre factice ou Image si disponible)
+        // Coordonnées : X=150, Y=10, Largeur=40, Hauteur=45
+        $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetLineWidth(0.5);
+        
+        // Si une photo existe dans les données du membre (chemin local ou URL)
+        if (!empty($m->path_profile) && file_exists($m->path_profile)) {
+            $this->Image($m->path_profile, 252, $this->GetY() - 5, 27, 27);
+            $this->Rect(252, $this->GetY() - 5, 27, 27); // Cadre autour de la photo
+        } else {
+            // Placeholder si pas de photo
+            $this->Rect(252, $this->GetY() - 5, 27, 27);
+            $this->SetFont('DejaVu', '', 8);
+            $this->SetTextColor(150, 150, 150);
+            $this->SetXY(252, $this->GetY() + 15);
+            $this->MultiCell(27, 5, "PHOTO DE\nPROFIL", 0, 'C');
+        }
+
+        // Retour au flux textuel sous le titre
+        $this->SetXY(10, $y_start + 15);
+        $this->SetFont('DejaVu', '', 10);
+        $this->SetTextColor(80, 80, 80);
+        $this->Cell(130, 5, "Niveau d'initiation : " . $niveau, 0, 1, 'L');
+        $this->Ln(10);
+
+        // --- SECTION : INFORMATIONS PERSONNELLES ---
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetFont('DejaVu', 'B', 12);
+        $this->Cell(0, 10, "  INFORMATIONS PERSONNELLES", 0, 1, 'L', true);
+        $this->Ln(3);
+
+        $this->SetTextColor(50, 50, 50);
+        $col_label = 50;
+
+        // Affichage en liste optimisée
+        $fields = [
+            'Nom Complet' => $nom,
+            'Genre' => $m->genre,
+            'Etude' => $m->domaine_etude,
+            'Date de naissance' => $dateNaissance,
+            'Date d\'adhésion' => $dateIntegration
+        ];
+
+        foreach ($fields as $label => $value) {
+            $this->SetFont('DejaVu', 'B', 9);
+            $this->Cell($col_label, 6, "$label :", 0, 0, 'L');
+            $this->SetFont('DejaVu', '', 9);
+            $this->Cell(0, 6, $value, 0, 1, 'L');
+        }
+        $this->Ln(5);
+
+        // --- SECTION : CONTACTS ---
+        $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetFont('DejaVu', 'B', 12);
+        $this->Cell(0, 10, "  LOCALISATION & CONTACTS", 0, 1, 'L', true);
+        $this->Ln(3);
+
+        $this->SetTextColor(50, 50, 50);
+        
+        $contacts = [
+            'Nationnalité' => $m->nationalite,
+            'Pays' => $m->pays,
+            'ville' => $m->ville,
+            'Adresse' => $m->adresse,
+            'Téléphone' => $tel,
+            'E-mail' => $email
+        ];
+
+        foreach ($contacts as $label => $value) {
+            $this->SetFont('DejaVu', 'B', 9);
+            $this->Cell($col_label, 6, "$label :", 0, 0, 'L');
+            $this->SetFont('DejaVu', '', 9);
+            $this->Cell(0, 6, $value, 0, 1, 'L');
+        }
+
+        // --- ESPACE NOTES / OBSERVATIONS (Pour remplir la page proprement) ---
+        // $this->Ln(10);
+        // $this->SetFont('DejaVu', 'B', 10);
+        // $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
+        // $this->Cell(0, 10, "Observations / Notes :", 'B', 1, 'L');
+        // $this->Ln(2);
+        // $this->SetFont('DejaVu', '', 9);
+        // $this->SetTextColor(100, 100, 100);
+        // $this->MultiCell(0, 8, "................................................................................................................................................................................................................................................................................................................................................................................................................", 0, 'L');
+
+        // --- BAS DE PAGE ---
+        $this->SetY(-30);
+        $this->SetFont('DejaVu', 'I', 7);
+        $this->SetTextColor(150, 150, 150);
+        $this->Cell(0, 5, "Fiche émise par le système de gestion - Confidentiel", 0, 1, 'C');
+        $this->Cell(0, 5, "Date d'impression : " . date('d/m/Y H:i'), 0, 1, 'C');
+
+        $fileName = "communaute_lobola_-_fiche_" . str_replace(' ', '_', $nom) . ".pdf";
+        $this->Output('D', $fileName);
     }
 
     /**

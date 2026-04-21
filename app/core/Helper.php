@@ -511,6 +511,9 @@ class Helper {
         if (isset($_GET['stt'])) {
             $baseUrl .= "&stt=" . urlencode($_GET['stt']);
         }
+        if (isset($_GET['tpint'])) {
+            $baseUrl .= "&tpint=" . urlencode($_GET['tpint']);
+        }
 
         if ($isDisabled) {
             return '<button class="w-8 h-8 rounded-xl border border-gray-100 flex items-center justify-center text-gray-200 cursor-not-allowed transition" disabled>' . $content . '</button>';
