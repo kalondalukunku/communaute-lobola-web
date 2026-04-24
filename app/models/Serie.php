@@ -30,7 +30,7 @@ class Serie extends Model {
         return $q->execute($datas);
     } 
     
-    public function all()
+    public function all($categoryId)
     {
         $sql = "SELECT 
                     s.*, 
@@ -39,18 +39,20 @@ class Serie extends Model {
                 LEFT JOIN teachings t 
                     ON t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci 
                     AND t.is_active = 1
-                WHERE s.is_active = 1
+                WHERE s.is_active = 1 AND t.category_id = :category_id
                 GROUP BY s.serie_id
                 ORDER BY s.created_at DESC";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute();
+        $stmt->execute(['category_id' => $categoryId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
-    public function getSeries() 
+    public function getSeries($categoryId) 
     {
-        return $this->db->query("SELECT nom FROM $this->table")->fetchAll(PDO::FETCH_OBJ);
+        $stmt = $this->db->prepare("SELECT nom FROM $this->table WHERE category_id = :category_id");
+        $stmt->execute(['category_id' => $categoryId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
     public function findByName($serieName)

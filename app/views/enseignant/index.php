@@ -89,3 +89,5 @@
         }
     }
 </script>
+
+<script src="<?= ASSETS ?>js/app.js"></script>

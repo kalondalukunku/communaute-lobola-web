@@ -65,6 +65,12 @@ class Membre extends Model {
 
     public function delete($memberId)
     {
+        $q = $this->db->prepare("UPDATE $this->table SET status = 'deleted' WHERE member_id = :member_id");
+        return $q->execute(['member_id' => $memberId]);
+    }
+
+    public function deleteAdmin($memberId)
+    {
         // Début de la transaction
         $this->db->beginTransaction();
 

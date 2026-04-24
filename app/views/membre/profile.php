@@ -172,31 +172,27 @@
                             </div>
                         </div>
 
+                        <div class="mt-12 flex justify-end">
                         <?php if ($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[3]):?>
-                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
-                                <!-- <div class="mt-12 flex justify-end">
+                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && !$paiement): ?>
                                     <a href="../attente/<?= $Membre->member_id ?>" 
-                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-purple-400 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
                                         <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
-                                            Voir mon Attente
+                                            Etat de mon engagement
                                             <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                                         </span>
                                     </a>
-                                </div> -->
-                            <?php else: ?>
-                                <!-- <div class="mt-12 flex justify-end">
+                            <?php elseif(!$Membre->statut_engagement): ?>
                                     <a href="../engagement/<?= $Membre->member_id ?>" 
-                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                    class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-purple-400 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
                                         <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
-                                            Confirmer mon Engagement
+                                            M'engager aux enseignements avancés
                                             <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                                         </span>
                                     </a>
-                                </div> -->
                             <?php endif; ?>
                         <?php endif; ?>
-                        <div class="mt-12 flex justify-end">
-                            <form action="" method="POST">
+                            <form action="" method="POST" class="ml-6">
                                 <button name="cllil_membre_expt_fiche" type="submit" class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-primary rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
                                     <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
                                         Imprimer ma fiche

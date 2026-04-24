@@ -49,7 +49,7 @@
         }
     </script>
 </head>
-<body class="bg-paper text-textMain font-sans min-h-screen flex flex-col">
+<body class="<?= Helper::getUrlPart()[0] === 'bolokele' ? 'bg-[#130121]' : 'bg-paper' ?> text-textMain font-sans min-h-screen flex flex-col">
     <div id="spiritual-loader" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-paper transition-opacity duration-700">
         <!-- Animation de Géométrie Sacrée (SVG) -->
         <div class="relative w-18 h-18 mb-8">

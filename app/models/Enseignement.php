@@ -51,7 +51,7 @@ class Enseignement extends Model {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
     
-    public function all()
+    public function all($categoryId)
     {
         $stmt = $this->db->prepare("SELECT 
                                     E.*, 
@@ -59,8 +59,9 @@ class Enseignement extends Model {
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
                                     INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    WHERE E.category_id = :category_id
                                     ORDER BY E.created_at DESC");
-        $stmt->execute();
+        $stmt->execute(['category_id' => $categoryId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 

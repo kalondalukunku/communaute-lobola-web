@@ -278,6 +278,9 @@ class Helper {
     {
         if($second !== false) 
             return Self::getUrlPart()[0].'/'.Self::getUrlPart()[1] === $url ? "text-primary font-medium" : "text-white hover:text-gray-200";
+        if($url === 'bolokele') 
+            return Self::getUrlPart()[0] === $url ? "text-purple-400 font-medium" : "text-white hover:text-gray-200";
+        
         return Self::getUrlPart()[0] === $url ? "text-primary" : "text-white hover:text-gray-200";
     }
 

@@ -177,7 +177,7 @@ class EnseignementController extends Controller
 
         // Pour l'utiliser dans un lien <a> :
         $urlEncodedMessage = urlencode($message);
-        $whatsappUrl = "https://wa.me/33644167499?text=" . $urlEncodedMessage;
+        $whatsappUrl = "https://wa.me/243819889889?text=" . $urlEncodedMessage;
 
         $data = [
             'Series' => $Series,

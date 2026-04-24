@@ -1,4 +1,4 @@
-    <footer class="bg-paper text-primary py-12 mt-20">
+    <footer class="<?= Helper::getUrlPart()[0] === 'bolokele' ? 'bg-[#130121]' : 'bg-paper' ?> text-primary py-12 mt-20">
         <div class="container mx-auto px-6 text-center text-xs">
             <p>&copy; <?= date('Y') ?> Le Sanctuaire. Le respect de la vie privée est au cœur de notre engagement.</p>
         </div>

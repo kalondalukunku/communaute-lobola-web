@@ -1,6 +1,7 @@
 <?php
 require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Engagement.php';
+require_once APP_PATH . 'models/Payment.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
@@ -13,6 +14,7 @@ class MembreController extends Controller
 {    
     private $MembreModel;  
     private $EngagementModel;
+    private $PaymentModel;
     private $EnseignementModel;
     private $SendMailModel;
     private $TokensModel;
@@ -25,6 +27,7 @@ class MembreController extends Controller
     {        
         $this->MembreModel = new Membre();
         $this->EngagementModel = new Engagement();
+        $this->PaymentModel = new Payment();
         $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
         $this->ActionsRaisonsModel = new ActionsRaisons();
@@ -535,7 +538,7 @@ class MembreController extends Controller
             Utils::redirect('../attitgt/'. $membreId);
             return;
         }
-        if($Membre->engagement_id && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]) {
+        if($Membre->engagement_id && $Membre->statut_engagement !== ARRAY_STATUS_ENGAGEMENT[2]) {
             Utils::redirect('../attente/'. $membreId);
             return;
         }
@@ -685,7 +688,7 @@ class MembreController extends Controller
                 if($this->EngagementModel->insert($dataAddEngagement))
                 {
                     Session::setFlash('success', "Engagement enregistré avec succès. Vous serez contacté pour la suite du processus.");
-                    Utils::redirect('../eg_pay/'. $membreId);
+                    Utils::redirect('../attente/'. $membreId);
                 }
                 else {
                     Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
@@ -697,6 +700,46 @@ class MembreController extends Controller
         }
 
         $this->view('membre/engagement', $data);
+    }
+    
+    public function paiement($membreId) 
+    {
+        Auth::requireLogin('membre');
+
+        $Membre = $this->MembreModel->findByMemberId($membreId);
+        $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
+
+        if(!$Membre) {
+            Utils::redirect('../integration');
+            return;
+        }
+        if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
+            Utils::redirect('../attitgt/'. $membreId);
+            return;
+        }
+        if(!$Membre->engagement_id && $Membre->status !== ARRAY_STATUS_MEMBER[0]) {
+            Utils::redirect('../profile/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
+        {
+            Utils::redirect('../rjtd/'. $membreId);
+            return;
+        }
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
+        {
+            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
+            Utils::redirect('../profile/'. $membreId);
+            return;
+        }
+        
+        $data = [
+            'title' => 'Effectuer le paiement de l\'engagement',
+            'description' => 'Veuillez effectuer le paiement de votre engagement pour finaliser votre intégration à la communauté Lobola.',
+            'membre' => $Membre,
+        ];
+
+        $this->view('membre/paiement', $data);
     }
     
     public function eg_pay($membreId) 
@@ -713,7 +756,7 @@ class MembreController extends Controller
             return;
         }
         if(!$Membre->engagement_id && $Membre->status !== ARRAY_STATUS_MEMBER[0]) {
-            Utils::redirect('../engagement/'. $membreId);
+            Utils::redirect('../profile/'. $membreId);
             return;
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
@@ -741,6 +784,8 @@ class MembreController extends Controller
         Auth::requireLogin('membre');
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
+        $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
+        
         if(!$Membre) {
             Utils::redirect('../integration');
             return;
@@ -750,24 +795,26 @@ class MembreController extends Controller
             return;
         }
         if(!$Membre->engagement_id && $Membre->status !== ARRAY_STATUS_MEMBER[0]) {
-            Utils::redirect('../engagement/'. $membreId);
+            Utils::redirect('../profile/'. $membreId);
             return;
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
         {
             Utils::redirect('../rjtd/'. $membreId);
             return;
-        }
-        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1])
+        }            
+        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
+            // Session::setFlash('info', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
             // Utils::redirect('../profile/'. $membreId);
             // return;
         }
         
         $data = [
             'title' => 'En attente d\'engagement',
-            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
-            'membre' => $Membre,
+            'description' => 'Les administrateurs de la communauté sont en train de vérifier votre engagement. Vous serez informé de la suite du processus.',
+            'Membre' => $Membre,
+            'paiement' => $paiement,
         ];
 
         $this->view('membre/attente', $data);
@@ -795,7 +842,7 @@ class MembreController extends Controller
         
         $data = [
             'title' => 'Engagement Rejeté',
-            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
+            'description' => 'Votre engagement a été rejeté. Vous pouvez contacter les administrateurs pour plus d\'informations ou tenter de soumettre un nouvel engagement après 30 jours.',
             'Membre' => $Membre,
         ];
 
@@ -876,14 +923,18 @@ class MembreController extends Controller
         Auth::requireLogin('membre');
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
+        $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
+        
         if(!$Membre) {
             Utils::redirect('../integration');
             return;
         }
         if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
             if($Membre->status !== ARRAY_STATUS_MEMBER[0]) {
-                Utils::redirect('../integration');
-                return;
+                if($Membre->status !== ARRAY_STATUS_MEMBER[6]) {
+                    Utils::redirect('../integration');
+                    return;
+                }
             }
         }
 
@@ -894,6 +945,7 @@ class MembreController extends Controller
             'title' => 'Profil de '. $Membre->nom_postnom,
             'description' => 'Mon Profil',
             'Membre' => $Membre,
+            'paiement' => $paiement,
             'evaluationSpirituel' => $evaluationSpirituel,
             'isOn' => $isOn,
         ];

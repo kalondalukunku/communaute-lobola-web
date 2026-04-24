@@ -5,6 +5,7 @@ require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
+require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pdf.php';
@@ -18,6 +19,7 @@ class AdminController extends Controller
     private $EngagementModel;
     private $AdminModel;
     private $PaymentModel;
+    private $CategoryModel;
     private $TokensModel;
     private $ActionsRaisonsModel;
     private $PdfModel;
@@ -31,6 +33,7 @@ class AdminController extends Controller
         $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
+        $this->CategoryModel = new Category();
         $this->TokensModel = new Tokens();
         $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->PdfModel = new PDF();
@@ -118,6 +121,10 @@ class AdminController extends Controller
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
 
+        $dbCategories = $this->CategoryModel->all();
+        $BolokeleId = $dbCategories[0]->category_id;
+        $MaatId = $dbCategories[1]->category_id;
+
         $query = isset($_GET['q']) ? trim($_GET['q']) : '';
         $search = ($query !== '') ? basename($query) : null;
         $sttGet = basename($_GET['stt'] ?? '');
@@ -143,7 +150,9 @@ class AdminController extends Controller
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => 'attente_engagement', 'status' => 'attente_integration'], $cacheKey);
         $totalPayment = $this->PaymentModel->getTotalPayments();
         $tauxEngagement = $this->MembreModel->calculerTauxEngagementApprouve();
-        $nbrEnseignement = count($this->EnseignementModel->all());
+        $nbrEnseignementMaat = count($this->EnseignementModel->all($MaatId));
+        $nbrEnseignementBolokele = count($this->EnseignementModel->all($BolokeleId));
+        $nbrEnseignement = $nbrEnseignementMaat + $nbrEnseignementBolokele;
 
         $data = [
             'allMembres' => $allMembres,
@@ -649,12 +658,12 @@ class AdminController extends Controller
             ];
             $updateDataMembre = [
                 'member_id' => $membreId,
-                'status' => ARRAY_STATUS_MEMBER[5]
+                'status' => ARRAY_STATUS_MEMBER[6]
             ];
             if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
             {
                 Session::setFlash('success', "Engagement rejeté avec succès.");
-                Utils::redirect('../membres');
+                Utils::redirect('../engages');
             }
         }
 
@@ -662,7 +671,7 @@ class AdminController extends Controller
         {
             if(isset($_POST['cllil_membre_approuve'])) {
                 
-                $statusM = !$Payment ? ARRAY_STATUS_MEMBER[1] : ARRAY_STATUS_MEMBER[2];
+                $statusM = ARRAY_STATUS_MEMBER[2];
                 $updateData = [
                     'member_id' => $membreId,
                     'statut' => ARRAY_STATUS_ENGAGEMENT[0]
@@ -674,7 +683,7 @@ class AdminController extends Controller
                 if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
                 {
                     Session::setFlash('success', 'Engagement approuvé avec succès.');
-                    Utils::redirect('../membres');
+                    Utils::redirect('../engages');
                 }
                 
             } 
@@ -684,10 +693,9 @@ class AdminController extends Controller
         {
             if(isset($_POST['cllil_membre_validate'])) 
             {
-                $statusM = $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] ? ARRAY_STATUS_MEMBER[2] : $Membre->status;
                 $updateDataMembre = [
                     'member_id' => $membreId,
-                    'status' => $statusM
+                    'status' => ARRAY_STATUS_MEMBER[2]
                 ];
                 $payID = Utils::generateUuidV4();
                 $paymentProchain = date('Y-m-d', strtotime("+". Utils::getMonthsNumber($Membre->modalite_engagement) ." months"));
@@ -704,8 +712,8 @@ class AdminController extends Controller
                 ];
                 if($this->MembreModel->update($updateDataMembre, 'member_id') && $this->PaymentModel->insert($dataAddPayement))
                 {
-                    Session::setFlash('success', 'Membre activé avec succès.');
-                    Utils::redirect('../membres');
+                    Session::setFlash('success', 'Membre approuvé avec succès pour les enseignements avancés.');
+                    Utils::redirect('../engages');
                 }
                 
             } 

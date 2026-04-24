@@ -1,5 +1,6 @@
 <?php
-    require_once APP_PATH . 'models/Engagement.php';
+    require_once APP_PATH . 'models/Payment.php';
+    require_once APP_PATH . 'models/Category.php';
     require_once APP_PATH . 'models/Membre.php';
     require_once APP_PATH . 'models/Serie.php';
     require_once APP_PATH . 'models/Enseignement.php';
@@ -8,10 +9,11 @@
 class HomeController extends Controller {
     
     private $MembreModel;
-    private $EngagementModel;
+    private $CategoryModel;
     private $SerieModel;
     private $EnseignementModel;
     private $VuesModel;
+    private $PaymentModel;
 
     public function __construct()
     {
@@ -19,19 +21,25 @@ class HomeController extends Controller {
         // Auth::isRole(ARRAY_ROLE_USER[0]);
         
         $this->MembreModel = new Membre();
-        $this->EngagementModel = new Engagement();
+        $this->CategoryModel = new Category();
         $this->SerieModel = new Serie();
         $this->EnseignementModel = new Enseignement();
         $this->VuesModel = new Vues();
+        $this->PaymentModel = new Payment();
     }
 
     public function index()
     {
         Auth::requireLogin(['membre','enseignant']);
 
-        $Enseignements = $this->EnseignementModel->all();
-        $Series = $this->SerieModel->all();
+        $dbCategories = $this->CategoryModel->all();
+        $BolokeleId = $dbCategories[0]->category_id;
+        $MaatId = $dbCategories[1]->category_id;
+
+        $Enseignements = $this->EnseignementModel->all($MaatId);
+        $Series = $this->SerieModel->all($MaatId);
         $isOn = true;
+        $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
 
         /**
          * LOGIQUE DE DISPARITION AUTOMATIQUE
@@ -41,7 +49,7 @@ class HomeController extends Controller {
         $now = new DateTime(); // Date actuelle
         
         // Liste des mois de début (Février, Avril, Juin, Août, Octobre, Décembre)
-        $startMonths = [2, 4, 6, 8, 10, 12];
+        $startMonths = [2, 5, 6, 8, 10, 12];
         
         foreach ($startMonths as $m) {
             $currentYear = (int)$now->format('Y');
@@ -68,7 +76,8 @@ class HomeController extends Controller {
             'Series' => $Series,
             'showRestriction' => $showRestriction,
             'VuesModel' => $this->VuesModel,
-            'isOn' => $isOn
+            'isOn' => $isOn,
+            'paiedMembre' => $paiedMembre
         ];
         $this->view('home/index', $data);
     }

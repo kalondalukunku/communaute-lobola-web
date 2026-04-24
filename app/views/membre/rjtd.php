@@ -21,7 +21,7 @@
             
             <div class="space-y-6 mb-10">
                 <p class="text-gray-600 leading-relaxed text-sm">
-                    Nous vous remercions de l'intérêt porté à notre communauté. Après examen attentif de votre demande et des documents fournis, nos modérateurs ont déterminé que nous ne sommes pas en mesure de valider votre intégration pour le moment.
+                    Nous vous remercions de l'intérêt porté à notre communauté. Après examen attentif de votre demande et des documents fournis, nos modérateurs ont déterminé que nous ne sommes pas en mesure de valider votre engagement pour le moment.
                 </p>
                 
                 <p class="text-gray-500 text-sm italic border-l-2 border-primary/20 pl-4 py-2 bg-gray-50/50">
@@ -42,7 +42,7 @@
             </div>
 
             <div class="flex flex-col gap-4">
-                <a href="/" class="text-gray-400 py-2 px-8 rounded-xl text-xs font-medium hover:text-primary transition underline decoration-dotted">
+                <a href="/" class="text-gray-600 uppercase py-2 px-8 rounded-xl text-sm font-medium hover:text-primary transition underline decoration-dotted">
                     Retour à l'accueil
                 </a>
             </div>

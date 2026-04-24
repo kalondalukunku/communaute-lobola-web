@@ -1,9 +1,9 @@
-<header class="bg-paper/80 backdrop-blur-md text-white shadow-xl sticky top-0 z-[100] border-b border-white/5">
+<header class="<?= Helper::getUrlPart()[0] === 'bolokele' ? 'bg-[#130121]' : 'bg-paper/80 backdrop-blur-md' ?> text-white shadow-xl sticky top-0 z-[100] border-b border-white/5">
     <div class="container mx-auto px-6 py-4">
         <div class="flex justify-between items-center">
             
             <!-- Logo avec effet de profondeur -->
-            <a href="/" class="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
+            <a href="/" class="flex items-center gap-3 mr-3 group transition-transform hover:scale-105 active:scale-95">
                 <div class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-primary shadow-lg shadow-primary/30 -rotate-12 group-hover:rotate-0 transition-all duration-500">
                     <img class="w-8 h-8 rounded-2xl object-cover" src="<?= ASSETS ?>images/logo.jpg" alt="Logo">
                 </div>
@@ -13,9 +13,15 @@
             <nav class="flex items-center gap-8">
                 <div class="flex items-center gap-6">
                     <a href="/" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('') ?>">
-                        Enseignements
+                        Mâat
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
+                    <?php if(isset(Session::get('membre')['engagement_id']) || isset(Session::get('enseignant')['enseignant_id'])): ?>
+                        <a href="/bolokele" class="relative py-2 text-xs font-medium transition-colors hover:text-purple-400 group <?= Helper::setActive('bolokele') ?>">
+                            BOLOKELE
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                        </a>
+                    <?php endif; ?>
                     <a href="/musique" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('musique') ?>">
                         Musiques
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>

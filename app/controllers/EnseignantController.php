@@ -4,6 +4,7 @@ require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Serie.php';
+require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
@@ -11,6 +12,7 @@ class EnseignantController extends Controller
 {    
     private $MembreModel;  
     private $SerieModel;
+    private $CategoryModel;
     private $EnseignementModel;
     private $EnseignantModel;
     private $sendEmailModel;
@@ -20,6 +22,7 @@ class EnseignantController extends Controller
     {        
         $this->MembreModel = new Membre();
         $this->SerieModel = new Serie();
+        $this->CategoryModel = new Category();
         $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
         $this->sendEmailModel = new SendMail();
@@ -85,6 +88,8 @@ class EnseignantController extends Controller
     public function add($enseignantId)
     {
         Auth::requireLogin('enseignant');
+        $dbCategories = $this->CategoryModel->all();
+        $MaatId = $dbCategories[1]->category_id;
 
         $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
         
@@ -93,7 +98,7 @@ class EnseignantController extends Controller
             return;
         }
 
-        $dbSeries = $this->SerieModel->getSeries();
+        $dbSeries = $this->SerieModel->getSeries($MaatId);
         foreach ($dbSeries as $dbSerie) 
         {
             $dbSeriess[] = $dbSerie->nom;
@@ -238,6 +243,168 @@ class EnseignantController extends Controller
         }
 
         $this->view('enseignant/add', $data);
+    }
+
+    public function add_bolokele($enseignantId)
+    {
+        Auth::requireLogin('enseignant');
+        $dbCategories = $this->CategoryModel->all();
+        $BolokeleId = $dbCategories[0]->category_id;
+
+        $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
+        
+        if(!$Enseignant) {
+            Utils::redirect('/');
+            return;
+        }
+
+        $dbCategories = $this->CategoryModel->all();
+        $BolokeleId = $dbCategories[0]->category_id;
+
+        $dbSeries = $this->SerieModel->getSeries($BolokeleId);
+        foreach ($dbSeries as $dbSerie) 
+        {
+            $dbSeriess[] = $dbSerie->nom;
+        }
+
+        $data = [
+            'title' => SITE_NAME .' | Ajouter un Enseignant',
+            'description' => 'Ajouter un Enseignant',
+            'Enseignant' => $Enseignant,
+            'dbSeries' => $dbSeriess,
+            'dbCategories' => $dbCategories,
+        ];
+
+        
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_enseignant_add_serie'])) 
+        {
+            $nom = Utils::sanitize(trim($_POST['nom'] ?? ''));
+            if(!$nom)
+            {
+                Session::setFlash('error', 'Veuillez remplir correctement le formulaire.');
+                $this->view('bolokele/add_bolokele',  $data);
+                return;   
+            }
+            $serieId = Utils::generateUuidV4();
+
+            $dataAddSerie = [
+                'serie_id'      => $serieId,
+                'nom'           => $nom,
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ];
+
+            if($this->SerieModel->insert($dataAddSerie)) 
+            {
+                Session::setFlash('success', 'Serie ajouté avec succès.');
+                Utils::redirect('../add/'.$enseignantId);
+            }
+            else {
+                Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
+                $this->view('bolokele/add_bolokele',  $data);
+                return;
+            }
+
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_add_bolokele_enseignement'])) {
+            // Traitement du formulaire d'ajout d'enseignement
+            $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
+            $serie = Utils::sanitize(trim($_POST['serie'] ?? ''));
+            $description = Utils::sanitize(trim($_POST['description'] ?? ''));
+            $duration_minutes = Utils::sanitize(trim($_POST['duration_minutes'] ?? ''));
+            $duration_minutes = Utils::formatDuration($duration_minutes);
+
+            if(!$titre) {
+                Session::setFlash('error', 'Veuillez remplir correctement le formulaire.');
+                $this->view('enseignant/add',  $data);
+                return;
+            }
+
+            $serieId = $this->SerieModel->findByName($serie)->serie_id;
+
+            $dataAddEnseignement = [
+                'title'             => $titre,
+                'category_id'       => $BolokeleId,
+                'serie_id'          => $serieId,
+                'description'       => $description,
+                'duration_minutes'  => $duration_minutes,
+                'enseignant_id'     => $enseignantId,
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ];
+
+            if (!empty($_FILES['audio_data']['name']))
+            {
+                $file = $_FILES['audio_data'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['audio/mpeg', 'audio/wav', 'video/mp4', 'video/3gpp', 'audio/mp4', 'audio/ogg', 'audio/x-ogg', 'audio/webm', 'audio/x-wav', 'audio/aac', 'audio/x-aac', 'audio/flac', 'audio/mp3','audio/x-m4a'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('enseignant/add', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                // var_dump($mime); die;
+                // if (!in_array($mime, $allowedTypes))
+                // {
+                //     Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                //     $this->view('enseignant/add', $data);
+                //     return;
+                // }
+
+                $enseignementId = Utils::generateUuidV4();
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($enseignementId, "bolokele");
+                $nomFichier = str_replace([' ',"'","?"], '_', $titre) .'.'. $ext;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('enseignant/add',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $dataAddEnseignement['enseignement_id']   = $enseignementId;
+                        $dataAddEnseignement['audio_url']       = $fichierPath;
+                        $resultUpload = true;                   
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('enseignant/add', ['data' => $data]);
+                    return;
+                }
+            }
+
+            if($resultUpload === true) 
+            {
+                if($this->EnseignementModel->insert($dataAddEnseignement)) {
+                    Session::setFlash('success', 'Enseignement BOLOKELE ajouté avec succès.');
+                    Utils::redirect('../enseignements/'.$enseignantId);
+                } else {
+                    Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
+                    $this->view('enseignant/add',  $data);
+                    return;
+                }
+            } else {
+                Session::setFlash('error', 'Une erreur est survenue lors de l\'upload du fichier audio. Veuillez réessayer plus tard.');
+                $this->view('enseignant/add',  $data);
+                return;
+            }
+        }
+
+        $this->view('enseignant/add_bolokele', $data);
     }
 
     public function alertEmail($enseignementId)

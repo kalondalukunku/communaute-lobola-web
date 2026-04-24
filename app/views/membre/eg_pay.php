@@ -7,7 +7,6 @@
     <div class="container mx-auto py-8 px-4">
         <div class="max-w-md mx-auto">
             
-            <!-- Header -->
             <div class="text-center mb-6 fade-in">
                 <div class="inline-block bg-primary/10 p-4 rounded-3xl mb-0">
                     <i class="fas fa-lock text-primary text-2xl"></i>
@@ -16,10 +15,8 @@
                 <p class="text-gray-500 text-sm mt-2">Complétez votre transaction en toute sécurité</p>
             </div>
 
-            <!-- Checkout Card -->
             <div class="payment-card rounded-[2.5rem] overflow-hidden fade-in">
                 
-                <!-- Amount Header -->
                 <div class="bg-primary p-7 text-white text-center relative overflow-hidden">
                     <div class="relative z-10 text-[#000f0e]">
                         <p class="text-[10px] uppercase tracking-[0.3em] opacity-60 mb-1">Total à payer</p>
@@ -30,12 +27,9 @@
                             </span>
                         </div>
                     </div>
-                    <!-- Decorative circles -->
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full"></div>
                     <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-black/5 rounded-full"></div>
                 </div>
-
-                <!-- Tabs -->
                 <div class="flex border-b border-[#cfbb30]">
                     <button onclick="switchTab('mobile')" id="btn-mobile" class="method-tab text-primary flex-1 py-5 text-[11px] uppercase font-bold tracking-widest transition-all">
                         <i class="fas fa-mobile-screen-button mr-2 opacity-70"></i> Mobile
@@ -46,13 +40,12 @@
                 </div>
 
                 <div class="p-8">
-                    <!-- SECTION MOBILE MONEY -->
                     <div id="pane-mobile" class="space-y-6 fade-in">
                         <div class="space-y-5">
                             <div>
                                 <label class="text-[10px] text-gray-400 uppercase font-extrabold tracking-widest ml-1 mb-2 block">Numéro de téléphone du payeur</label>
                                 
-                                <!-- INPUT GROUP: INDICATIF + NUMÉRO -->
+        
                                 <div class="input-group flex items-stretch border border-gray-200 rounded-2xl overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/10 focus-within:border-primary">
                                     <div class="bg-paper border-r border-gray-200 px-3 flex items-center">
                                         <select class="bg-paper text-sm font-bold text-primary outline-none pr-6 cursor-pointer">
@@ -68,7 +61,7 @@
                                 </div>
                             </div>
 
-                            <!-- <div>
+                            <div>
                                 <label class="text-[10px] text-gray-400 uppercase font-extrabold tracking-widest ml-1 mb-2 block">Sélectionner l'opérateur</label>
                                 <div class="grid grid-cols-3 gap-3">
                                     <button class="border-2 border-primary bg-primary/5 rounded-xl py-3 flex flex-col items-center gap-1 transition-all">
@@ -81,11 +74,10 @@
                                         <span class="text-[10px] font-bold text-gray-400">ORANGE</span>
                                     </button>
                                 </div>
-                            </div> -->
+                            </div>
                         </div>
                     </div>
 
-                    <!-- SECTION CARTE BANCAIRE -->
                     <div id="pane-card" class="hidden space-y-5 fade-in">
                         <div>
                             <label class="text-[10px] text-gray-400 uppercase font-extrabold tracking-widest ml-1 mb-2 block">Détenteur de la carte</label>
@@ -113,7 +105,6 @@
                         </div>
                     </div>
 
-                    <!-- Bouton Payer (Identique pour les deux) -->
                     <button id="main-pay-btn" onclick="processPayment()" class="w-full mt-10 bg-primary text-[#000f0e] py-5 px-8 rounded-[1.5rem] font-bold text-md tracking-[0.2em] hover:bg-blue-900 transition-all shadow-xl shadow-primary/25 flex items-center justify-center gap-3 active:scale-[0.98]">
                         <span id="btn-text">Payer</span>
                         <i id="btn-icon" class="fas fa-arrow-right text-[10px] opacity-60"></i>
@@ -127,7 +118,6 @@
                 </div>
             </div>
 
-            <!-- Footer links -->
             <div class="mt-10 text-center">
                 <p class="text-[10px] text-gray-400 uppercase tracking-widest flex items-center justify-center gap-2">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Serveur de paiement opérationnel
