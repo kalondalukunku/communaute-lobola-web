@@ -36,10 +36,14 @@ class BolokeleController extends Controller
     public function index() 
     {
         $dbCategories = $this->CategoryModel->all();
-        $BolokeleId = $dbCategories[0]->category_id;
+        $BolokeleId = $dbCategories[1]->category_id;
         $Series = $this->SerieModel->all($BolokeleId);
 
-        $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        $paiedMembre = null;
+
+        if(isset(Session::get('membre')['member_id'])) {
+            $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        }
 
         $data = [
             'title' => SITE_NAME .' | BOLOKELE',
@@ -68,7 +72,11 @@ class BolokeleController extends Controller
             Utils::redirect('/');
         }
 
-        $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        $paiedMembre = null;
+
+        if(isset(Session::get('membre')['member_id'])) {
+            $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        }
 
         $message = SITE_URL ."/bolokele/show/{$serieId}\n\n" .
                 "EmEm Htp,\n\n" .

@@ -371,20 +371,22 @@ class AdminController extends Controller
 
         $stt = ARRAY_STATUS_MEMBER[2];
         
-        if($sttGet === 'active' || !isset($_GET['stt']))
-            $stt = ARRAY_STATUS_MEMBER[2];
-        elseif($sttGet === 'att_engagement')
-            $stt = ARRAY_STATUS_MEMBER[0];
+        if($sttGet === 'approuve' || !isset($_GET['stt']))
+            $stt = ARRAY_STATUS_ENGAGEMENT[0];
+        elseif($sttGet === 'non_approuve')
+            $stt = ARRAY_STATUS_ENGAGEMENT[1];
+        elseif($sttGet === 'rejete')
+            $stt = ARRAY_STATUS_ENGAGEMENT[2];
 
-        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['status' => $stt]);
+        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['statut' => $stt]);
         $AllEngages = $results['data'];
         $totalrecords = $results['total_records'];
         $currentPage = $results['current_page'];
         $parPage = $results['per_page'];
         $totalPages = $results['total_pages'];
 
-        $NbrAllEngages = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
-        $NbrAllEngagesAttente = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[0]], $cacheKey);
+        $NbrAllEngages = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[0]], $cacheKey);
+        $NbrAllEngagesAttente = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[1]], $cacheKey);
         $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
         $membresEngages = $this->MembreModel->countEngagedMembers();
         $membresEngagesRejetes = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[2]], $cacheKey);
@@ -671,10 +673,10 @@ class AdminController extends Controller
         {
             if(isset($_POST['cllil_membre_approuve'])) {
                 
-                $statusM = ARRAY_STATUS_MEMBER[2];
+                $statusM = ARRAY_STATUS_MEMBER[0];
                 $updateData = [
                     'member_id' => $membreId,
-                    'statut' => ARRAY_STATUS_ENGAGEMENT[0]
+                    'doc_approuved' => 1
                 ];
                 $updateDataMembre = [
                     'member_id' => $membreId,
@@ -691,26 +693,27 @@ class AdminController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_validate'])) 
         {
-            if(isset($_POST['cllil_membre_validate'])) 
+            if(isset($_POST['cllil_membre_validate']) && unlink($Membre->preuve_paiement)) 
             {
                 $updateDataMembre = [
                     'member_id' => $membreId,
                     'status' => ARRAY_STATUS_MEMBER[2]
                 ];
-                $payID = Utils::generateUuidV4();
-                $paymentProchain = date('Y-m-d', strtotime("+". Utils::getMonthsNumber($Membre->modalite_engagement) ." months"));
 
-                $dataAddPayement = [
-                    'pay_id' => $payID,
+                $updateDataEngagement = [
                     'member_id' => $membreId,
-                    'engagement_id' => $Membre->engagement_id,
-                    'amount' => Utils::getMonthsNumber($Membre->modalite_engagement) * $Membre->montant,
-                    'devise' => $Membre->devise,
+                    'preuve_paiement' => null,
+                    'statut' => ARRAY_STATUS_ENGAGEMENT[0]
+                ];
+
+                $updateDataPayement = [
+                    'pay_id' => $Payment->pay_id,
                     'payment_status' => ARRAY_PAYMENT_STATUS[1],
-                    'payment_prochain' => $paymentProchain,
                     'verified_by_admin_id' => Session::get('admin')['admin_id'],
                 ];
-                if($this->MembreModel->update($updateDataMembre, 'member_id') && $this->PaymentModel->insert($dataAddPayement))
+                if($this->MembreModel->update($updateDataMembre, 'member_id') 
+                    && $this->PaymentModel->update($updateDataPayement, 'pay_id')
+                    && $this->EngagementModel->update($updateDataEngagement, 'member_id'))
                 {
                     Session::setFlash('success', 'Membre approuvé avec succès pour les enseignements avancés.');
                     Utils::redirect('../engages');
@@ -756,18 +759,6 @@ class AdminController extends Controller
                     if($this->MembreModel->update($updateDataMembre, 'member_id'))
                     {
                         Session::setFlash('success', 'Membre suspendu avec succès.');
-                        Utils::redirect('../membres');
-                    }
-                }   
-                if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_desactive'])) 
-                {
-                    $updateDataMembre = [
-                        'member_id' => $membreId,
-                        'status' => ARRAY_STATUS_MEMBER[5]
-                    ];
-                    if($this->MembreModel->update($updateDataMembre, 'member_id'))
-                    {
-                        Session::setFlash('success', 'Membre désactivé avec succès.');
                         Utils::redirect('../membres');
                     }
                 }

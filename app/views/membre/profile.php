@@ -174,7 +174,9 @@
 
                         <div class="mt-12 flex justify-end">
                         <?php if ($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[3]):?>
-                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && !$paiement): ?>
+                            <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] 
+                                    || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && !$paiement
+                                    || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[0]): ?>
                                     <a href="../attente/<?= $Membre->member_id ?>" 
                                     class="group relative inline-flex items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-purple-400 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
                                         <span class="relative z-10 flex items-center gap-2 uppercase text-xs">

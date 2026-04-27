@@ -12,6 +12,24 @@ class Payment extends Model {
         return $q->execute($datas);
     }
 
+    public function update(array $datas, string $where = 'pay_id')
+    {
+        $query = "UPDATE $this->table SET ";
+
+        foreach ($datas as $key => $data) 
+        {
+            if($key !== $where)
+            {
+                $query .= "$key = :$key, ";
+            }
+        }
+        $query = substr($query, 0, -2);
+        $query .= " WHERE $where = :$where";
+
+        $q = $this->db->prepare($query);
+        return $q->execute($datas);
+    }
+
     public function getPayment($memberId, $engagementId)
     {
         $query = "SELECT * FROM $this->table WHERE member_id = :member_id AND engagement_id = :engagement_id LIMIT 1";
@@ -43,6 +61,7 @@ class Payment extends Model {
         $query = "SELECT devise, SUM(amount) as subtotal 
                 FROM payments 
                 WHERE payment_prochain > NOW()
+                    AND payment_status = 'Payé'
                 GROUP BY devise";
         
         $q = $this->db->prepare($query);
@@ -88,6 +107,7 @@ class Payment extends Model {
                 FROM payments 
                 WHERE MONTH(payment_date) = MONTH(CURRENT_DATE)
                     AND YEAR(payment_date) = YEAR(CURRENT_DATE)
+                    AND payment_status = 'Payé'
                 GROUP BY devise";
         
         $q = $this->db->prepare($query);

@@ -165,6 +165,16 @@ class Enseignement extends Model {
         return "{$codeEntreprise}_{$typeDoc}_{$date}_{$heure}_{$unique}.{$ext}";
     }
 
+    public function dechiffreePdf($filePdf, $filePdfChiffree, $key)
+    {
+        $raw = file_get_contents($filePdfChiffree);
+        $iv = substr($raw, 0,16);
+        $encryptedData = substr($raw, 16);
+    
+        $decrypted = openssl_decrypt($encryptedData, 'AES-256-CBC', $key,OPENSSL_RAW_DATA, $iv);
+        if(file_put_contents($filePdf,$decrypted)) return true;                
+    }
+
     public function download_file($chemin, $type_file)
     {
         if(ob_get_level()) ob_end_clean();

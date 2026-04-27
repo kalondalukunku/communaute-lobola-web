@@ -1,9 +1,13 @@
-# Interdire tout accès direct depuis le navigateur
 Order allow,deny
 Deny from all
 
-# Rediriger tout accès vers l'acceuil
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
 RewriteEngine On
 RewriteBase /
 
+RewriteCond %{REQUEST_URI} !\.(jpg|jpeg|png|gif|webp|svg)$ [NC]
 RewriteRule ^.*$ / [R=302,L]

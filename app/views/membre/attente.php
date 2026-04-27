@@ -40,9 +40,9 @@
                 </div>
             </div>
         </div>
-    <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && !$paiement): ?>
+    <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $Membre->doc_approuved == 1 && !$paiement): ?>
         <div class="container mx-auto py-[60px] px-4 md:px-0">
-            <div class="max-w-md mx-auto">
+            <div class="max-w-3xl mx-auto">
                 <div class="status-container fade-in bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 border border-gray-100 text-center p-10 md:p-8">
                     
                     <!-- Icône de validation en attente -->
@@ -83,6 +83,48 @@
                 </div>
             </div>
         </div>
+    
+    <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $Membre->doc_approuved == 1 && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[0]): ?>
+        <div class="container mx-auto py-[60px] px-4 md:px-0">
+            <div class="max-w-3xl mx-auto">
+                <div class="status-container fade-in bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 border border-gray-100 text-center p-10 md:p-8">
+                    
+                    <!-- Icône de validation en attente -->
+                    <div class="mb-6 flex justify-center">
+                        <div class="relative">
+                            <!-- Cercle rotatif discret -->
+                            <div class="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-hourglass-half text-primary text-md"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1 class="font-serif text-2xl text-primary font-bold mb-3">Validation en cours</h1>
+                    <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+                        Votre paiement a été reçu et est actuellement en cours de validation par nos administrateurs. Nous vérifions les informations fournies pour activer votre accès aux enseignements avancés.
+                    </p>
+                    <!-- Note d'information -->
+                    <div class="bg-primary/5 p-4 rounded-2xl mb-8 border border-primary/10">
+                        <p class="text-[11px] text-primary leading-relaxed flex items-start text-left">
+                            <i class="fas fa-info-circle mt-0.5 mr-3 opacity-70"></i>
+                            <span>
+                                La validation prend généralement jusqu'à <strong>48 heures</strong>. Vous recevrez une notification par email dès que votre espace membre sera déverrouillé.
+                            </span>
+                        </p>
+                    </div>
+                    <!-- bouton d'action -->
+                    <div class="flex flex-col gap-3">
+                        <button onclick="window.location.reload()" class="w-full bg-primary text-white py-4 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                            <i class="fas fa-sync-alt mr-2"></i> Actualiser mon statut
+                        </button>
+                        <a href="../profile/<?= $Membre->member_id ?>" class="text-[11px] text-gray-600 font-bold hover:text-primary transition-colors uppercase tracking-widest mt-3">
+                            Retour à mon profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1]): ?>
         <div class="container mx-auto py-[60px] px-4 md:px-0">
             <div class="max-w-md mx-auto">
@@ -101,7 +143,7 @@
 
                     <h1 class="font-serif text-2xl text-primary font-bold mb-3">Validation en cours</h1>
                     <p class="text-gray-500 mb-8 text-sm leading-relaxed">
-                        Votre engagement est actuellement en cours de validation par nos modérateurs. Nous vérifions les informations fournies et la conformité de votre paiement pour activer votre accès aux enseignements avancés.
+                        Votre engagement est actuellement en cours de validation par nos administrateurs. Nous vérifions les informations fournies pour activer votre accès aux enseignements avancés.
                     </p>
                     <!-- Note d'information -->
                     <div class="bg-primary/5 p-4 rounded-2xl mb-8 border border-primary/10">

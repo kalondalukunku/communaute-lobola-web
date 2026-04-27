@@ -242,6 +242,8 @@ class Membre extends Model {
                         E.document_path, 
                         E.document_ext, 
                         E.document_header_type, 
+                        E.doc_approuved, 
+                        E.preuve_paiement, 
                         E.reference_code, 
                         E.montant, 
                         E.devise, 
@@ -326,14 +328,14 @@ class Membre extends Model {
         // 1. Gestion des conditions fixes ($conditions)
         if (!empty($conditions)) {
             foreach ($conditions as $key => $value) {
-                $whereClauses[] = "M.$key = :$key";
+                $whereClauses[] = "E.$key = :$key";
                 $params[$key] = $value;
             }
         }
 
         // 2. Gestion de la recherche ($search)
         if (!empty($search)) {
-            $whereClauses[] = "(M.nom_postnom LIKE :search OR M.email LIKE :search OR E.modalite_engagement LIKE :search)";
+            $whereClauses[] = "(M.nom_postnom LIKE :search OR M.email LIKE :search OR E.modalite_engagement LIKE :search OR E.statut_engagement LIKE :search OR M.phone_number LIKE :search OR M.ville LIKE :search OR M.niveau_initiation LIKE :search OR M.genre LIKE :search OR M.domaine_etude LIKE :search)";
             $params['search'] = "%$search%";
         }
 

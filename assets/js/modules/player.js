@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const progress = (audio.currentTime / audio.duration) * 100;
             if (progress >= 90) {
                 if (data.es) {
-                    fetch(`/lobola/enseignement/add_view/${data.es}?sr=${data.sr}`)
+                    fetch(`/enseignement/add_view/${data.es}?sr=${data.sr}`)
                         .then(response => {
                             // console.log(response);
                             if (!response.ok) console.warn("Erreur lors de l'ajout de la vue");

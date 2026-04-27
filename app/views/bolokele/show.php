@@ -5,7 +5,7 @@
     include APP_PATH . 'templates/alertView.php'; 
 ?>
 
-    <?php if(isset($paiedMembre->payment_status) && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1]): ?>
+    <?php if(Session::get('enseignant') || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] && isset($paiedMembre->payment_status) && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1])): ?>
         <?php if ($isOn): ?>
             <div id="audio-app" class="w-[80%] mx-auto bg-[##130121] color-border text-white rounded-[2rem] shadow-2xl shadow-red/20 mt-8 overflow-hidden relative">
             

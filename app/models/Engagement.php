@@ -12,7 +12,7 @@ class Engagement extends Model {
         return $q->execute($datas);
     }
 
-    public function update(array $datas, string $where = 'id')
+    public function update(array $datas, string $where = 'engagement_id')
     {
         $query = "UPDATE $this->table SET ";
 

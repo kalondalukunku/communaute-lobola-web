@@ -141,14 +141,20 @@
                                         <i class="far fa-calendar-alt text-xs"></i>
                                         <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
                                     </div>
-                                    <?php if(Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] && isset($paiedMembre->payment_status) && $paiedMembre->payment_status === ARRAY_PAYMENT_STATUS[1]): ?>
-                                        <a href="../../enseignement/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                        </a>
+                                    <?php if($item->category_id === $MaatId): ?>
+                                            <a href="../../enseignement/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                                Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                            </a>
                                     <?php else: ?>
-                                        <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                            S'engager pour accéder <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                        </a>
+                                        <?php if(Session::get('enseignant') || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] && isset($paiedMembre->payment_status) && $paiedMembre->payment_status === ARRAY_PAYMENT_STATUS[1])): ?>
+                                            <a href="../../bolokele/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                                Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                                S'engager pour accéder <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                            </a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>

@@ -666,7 +666,7 @@ class MembreController extends Controller
                             $dataAddEngagement['document_path']         = $pathFileEnc;
                             $dataAddEngagement['document_ext']          = $ext;
                             $dataAddEngagement['document_header_type']  = $doc_header_type;
-                            unset($uploadPath);
+                            unlink($uploadPath);
                             $resultUpload1 = true;
                         }
                         else {
@@ -705,6 +705,7 @@ class MembreController extends Controller
     public function paiement($membreId) 
     {
         Auth::requireLogin('membre');
+        $cacheKey = 'membre_connexion';
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
@@ -729,6 +730,10 @@ class MembreController extends Controller
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
             Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
+            Session::destroy();
+            Cache::delete('membre_connexion');
+            Cache::set($cacheKey, $Membre);
+            Session::set('membre', $Membre);
             Utils::redirect('../profile/'. $membreId);
             return;
         }
@@ -737,7 +742,93 @@ class MembreController extends Controller
             'title' => 'Effectuer le paiement de l\'engagement',
             'description' => 'Veuillez effectuer le paiement de votre engagement pour finaliser votre intégration à la communauté Lobola.',
             'membre' => $Membre,
+            'paiement' => $paiement,
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_upload_payment_proof']))
+        {
+            $payID = Utils::generateUuidV4();
+            $paymentProchain = date('Y-m-d', strtotime("+". Utils::getMonthsNumber($Membre->modalite_engagement) ." months"));
+
+            $dataAddPayement = [
+                'pay_id' => $payID,
+                'member_id' => $membreId,
+                'engagement_id' => $Membre->engagement_id,
+                'amount' => Utils::getMonthsNumber($Membre->modalite_engagement) * $Membre->montant,
+                'devise' => $Membre->devise,
+                'payment_status' => ARRAY_PAYMENT_STATUS[0],
+                'payment_prochain' => $paymentProchain,
+            ];
+
+            if (!empty($_FILES['photo_file']['name']))
+            {
+                $file = $_FILES['photo_file'];
+                $filename = $file['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('membre/paiement', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('membre/paiement', $data);
+                    return;
+                }
+
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "engagement");
+                $nomFichier = "preuve_paiement_" . $membreId .'.'. $ext;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $uploadPath = BASE_PATH . $fichierPath;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('membre/paiement',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0) 
+                    {
+                        $dataAddPaie = [
+                            'member_id' => $membreId,
+                            'preuve_paiement' => $fichierPath,
+                        ];
+                        if($this->EngagementModel->update($dataAddPaie, 'member_id') 
+                            && $this->PaymentModel->insert($dataAddPayement))
+                        {
+                            Session::setFlash('success', "Preuve de paiement téléchargée avec succès. Votre paiement sera vérifié par les administrateurs et vous serez informé de la suite du processus.");
+                            Utils::redirect('../attente/'. $membreId);
+                        }
+                        else {
+                            Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre preuve de paiement. Veuillez réessayez plutard.");
+                            $this->view('membre/paiement',  $data);
+                            return;
+                        }                 
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('membre/paiement', ['data' => $data]);
+                    return;
+                }
+            }
+             else {
+                Session::setFlash('error', "Veuillez sélectionner un fichier à télécharger.");
+                $this->view('membre/paiement', $data);
+                return;
+            }
+        }
 
         $this->view('membre/paiement', $data);
     }
@@ -782,6 +873,7 @@ class MembreController extends Controller
     public function attente($membreId) 
     {
         Auth::requireLogin('membre');
+        $cacheKey = 'membre_connexion';
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
         $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
@@ -802,12 +894,16 @@ class MembreController extends Controller
         {
             Utils::redirect('../rjtd/'. $membreId);
             return;
-        }            
+        }         
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
-            // Session::setFlash('info', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
-            // Utils::redirect('../profile/'. $membreId);
-            // return;
+            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
+            Session::destroy();
+            Cache::delete('membre_connexion');
+            Cache::set($cacheKey, $Membre);
+            Session::set('membre', $Membre);
+            Utils::redirect('../profile/'. $membreId);
+            return;
         }
         
         $data = [

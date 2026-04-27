@@ -93,6 +93,9 @@
                                 <h3 class="font-serif font-bold text-lg text-white mb-3 group-hover:text-primary transition-colors">
                                     <?= $item->title ?>
                                 </h3>
+                                <!-- lecture audio -->
+                                <audio controls src="../<?= $item->audio_url ?>" class="w-full rounded-lg mb-4" >
+                                </audio>
 
                                 <div class="flex items-center justify-between pt-4 border-t border-gray-50">
                                     <div class="flex -space-x-2">

@@ -5,7 +5,7 @@
 ?>
 
     <div class="container mx-auto py-8 px-4">
-        <div class="max-w-md mx-auto">
+        <div class="max-w-3xl mx-auto">
             
             <div class="text-center mb-6 fade-in">
                 <div class="inline-block bg-primary/10 p-4 rounded-3xl mb-0">

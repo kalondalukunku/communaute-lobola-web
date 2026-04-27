@@ -6,7 +6,7 @@
 ?>
 
 <section class="min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full animate-fade-in">
+    <div class="max-w-3xl w-full animate-fade-in">
         <!-- Logo ou Icône -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 shadow-lg shadow-primary/20">

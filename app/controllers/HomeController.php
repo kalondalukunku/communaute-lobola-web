@@ -39,7 +39,11 @@ class HomeController extends Controller {
         $Enseignements = $this->EnseignementModel->all($MaatId);
         $Series = $this->SerieModel->all($MaatId);
         $isOn = true;
-        $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        $paiedMembre = null;
+
+        if(isset(Session::get('membre')['member_id'])) {
+            $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        }
 
         /**
          * LOGIQUE DE DISPARITION AUTOMATIQUE
@@ -77,7 +81,8 @@ class HomeController extends Controller {
             'showRestriction' => $showRestriction,
             'VuesModel' => $this->VuesModel,
             'isOn' => $isOn,
-            'paiedMembre' => $paiedMembre
+            'paiedMembre' => $paiedMembre,
+            'MaatId' => $MaatId,
         ];
         $this->view('home/index', $data);
     }

@@ -119,8 +119,9 @@
                             $clean_path = rtrim($path_only, '/');
                             
                             $psnStatus = [
-                                'active' => 'Actif',
-                                'att_engagement' => 'Attente Engagement',
+                                'approuve' => 'Approuvé',
+                                'non_approuve' => 'En attente',
+                                'rejete' => 'Rejeté',
                             ];
 
                             $current_status = $_GET['stt'] ?? 'active';
@@ -213,12 +214,6 @@
                                                             <form action="" method="post">
                                                                 <button type="submit" name="cllil_vwfl<?= $membre->member_id ?>" class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition">Voir</button>
                                                             </form>
-                                                            
-                                                            <form action="" method="post">
-                                                                <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
-                                                                <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>
-                                                            </form>
-                                                                <!-- <button class=""><i class="fas fa-ellipsis-h text-xs"></i></button> -->
                                                         </div>
                                                         </td>
                                                 </tr>
