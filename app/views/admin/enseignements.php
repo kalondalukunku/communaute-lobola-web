@@ -130,5 +130,5 @@
 
 </section>
 
-<script src="<?= ASSETS ?>js/modules/onoff.js"></script>
+<script src="<?= ASSETS ?>js/modules/onoff.js?v=<?= APP_VERSION ?>"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

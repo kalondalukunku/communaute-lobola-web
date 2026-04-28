@@ -2,6 +2,7 @@
 require_once APP_PATH . 'models/Admin.php';
 require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Serie.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
@@ -15,6 +16,7 @@ class AdminController extends Controller
 {
     private $MembreModel; 
     private $EnseignementModel;
+    private $SerieModel;
     private $EnseignantModel;
     private $EngagementModel;
     private $AdminModel;
@@ -29,6 +31,7 @@ class AdminController extends Controller
     {   
         $this->AdminModel = new Admin();
         $this->MembreModel = new Membre();
+        $this->SerieModel = new Serie();
         $this->EnseignementModel = new Enseignement();
         $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();

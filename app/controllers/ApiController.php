@@ -36,8 +36,6 @@ class ApiController extends Controller {
             $enseignement = $this->EnseignementModel->find($enseignementId);
             $serie = $this->SerieModel->find($enseignement->serie_id);
             $new_state = $enseignement->is_active == 1 ? 0 : 1;
-
-            var_dump($serie); die;
             
             $updateSuccess = $this->EnseignementModel->update(['is_active' => $new_state, 'enseignement_id' => $enseignementId], 'enseignement_id');
             if($serie->is_active ==! 1) $this->SerieModel->update(['is_active' => 1, 'serie_id' => $enseignement->serie_id]);

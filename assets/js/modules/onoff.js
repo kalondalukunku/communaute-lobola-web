@@ -3,8 +3,15 @@ function submitToggle(checkbox) {
     
     const url = `/api/enseignement_state_view/${id}`;
 
-    fetch(url)
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
     .then(response => {
+        console.log("Réponse Fetch :", response);
         if (!response.ok) {
             // Si 404, on affiche l'URL pour déboguer
             throw new Error(`Erreur ${response.status} sur l'URL : ${url}`);

@@ -67,11 +67,11 @@ class Serie extends Model {
         $stmt = $this->db->prepare("SELECT 
                                         *,
                                         COUNT(t.enseignement_id) AS enseignements_count
-                                    FROM $this->table 
+                                    FROM $this->table s
                                     LEFT JOIN teachings t 
                                         ON t.serie_id COLLATE utf8mb4_unicode_ci = s.serie_id COLLATE utf8mb4_unicode_ci 
                                         AND t.is_active = 1
-                                    WHERE serie_id = :serie_id
+                                    WHERE s.serie_id = :serie_id
                                     GROUP BY s.serie_id
                                     LIMIT 1");
         $stmt->execute(['serie_id' => $serieID]);
