@@ -2,6 +2,7 @@
 require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Serie.php';
+require_once APP_PATH . 'models/Session.php';
 require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Vues.php';
 require_once APP_PATH . 'models/Payment.php';
@@ -12,32 +13,43 @@ class BolokeleController extends Controller
 {    
     private $VuesModel;
     private $SerieModel;
+    private $SessionModel;
     private $CategoryModel;
     private $EnseignementModel;
     private $loggerModel;
     private $SendMailModel;
-    private $MembreModel;
     private $PaymentModel;
+
+    private $dbCategories;
+    private $allSessions;
+
     public function __construct()
     {
         Auth::requireLogin(['membre','enseignant']);
+        if(Session::get('membre')['bolokele'] != 1) {
+            Session::setFlash('error', "Vous n'avez pas accès aux enseignements BOLOKELE. Veuillez vous engager pour y accéder.");
+            Utils::redirect('/');
+        }
         
         $this->VuesModel = new Vues();
-        $this->MembreModel = new Membre();
         $this->PaymentModel = new Payment();
         $this->SerieModel = new Serie();
+        $this->SessionModel = new Sessions();
         $this->CategoryModel = new Category();
         $this->EnseignementModel = new Enseignement();
         $this->loggerModel = new Logger();
         $this->SendMailModel = new SendMail();
+
+        $this->dbCategories = $this->CategoryModel->all();
+        $this->allSessions = $this->SessionModel->all();
  
     }
 
     public function index() 
     {
-        $dbCategories = $this->CategoryModel->all();
-        $BolokeleId = $dbCategories[1]->category_id;
-        $Series = $this->SerieModel->all($BolokeleId);
+        $lastSession = end($this->allSessions);
+        $BolokeleId = $this->dbCategories[0]->category_id;
+        $Series = $this->SerieModel->all($BolokeleId, $lastSession->session_id, true);
 
         $paiedMembre = null;
 
@@ -49,7 +61,8 @@ class BolokeleController extends Controller
             'title' => SITE_NAME .' | BOLOKELE',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz', 
             'Series' => $Series,
-            'dbCategories' => $dbCategories,
+            'dbCategories' => $this->dbCategories,
+            'allSessions' => $this->allSessions,
             'paiedMembre' => $paiedMembre,
             'VuesModel' => $this->VuesModel,
         ];
@@ -62,14 +75,16 @@ class BolokeleController extends Controller
         $isOn = true;
         $cacheKey = 'membre_connexion';
         $userId = Session::get('membre')['member_id'] ?? Session::get('enseignant')['enseignant_id'];
+        $BolokeleId = $this->dbCategories[0]->category_id;
+        $sessionId = $_GET['ssd'] ?? null;
 
         // $this->VuesModel->enregistrerVueUnique($enseignementId, $serieId, $userId);
-        $Series = $this->EnseignementModel->findWithSerie($serieId);
-        $nbrSerieViews = $this->VuesModel->countAll(['serie_id' => $serieId]);
+        $Series = $this->SerieModel->findOneWithTeachings($serieId, $BolokeleId, $sessionId, true);
+        $nbrSerieViews = $this->VuesModel->countAll(['serie_id' => $serieId, 'session_id' => $sessionId]);
 
         if(!$Series) {
             Session::setFlash('error', "Enseignement introuvable.");
-            Utils::redirect('/');
+            // Utils::redirect('/');
         }
 
         $paiedMembre = null;
@@ -80,7 +95,7 @@ class BolokeleController extends Controller
 
         $message = SITE_URL ."/bolokele/show/{$serieId}\n\n" .
                 "EmEm Htp,\n\n" .
-                "J'écoute actuellement l'enseignement avancé BOLOKELE : *{$Series[0]->nom_serie}*. \n\n" .
+                "J'écoute actuellement l'enseignement avancé BOLOKELE : *{ $Series->nom}*. \n\n" .
                 "J'ai une question à ce sujet qui est celle-ci : ... ";
 
         // Pour l'utiliser dans un lien <a> :
@@ -93,7 +108,7 @@ class BolokeleController extends Controller
             'whatsappUrl' => $whatsappUrl,
             'VuesModel' => $this->VuesModel,
             'isOn' => $isOn,
-            'paiedMembre' => $paiedMembre
+            'sessionId' => $sessionId
         ];
 
         $this->view('bolokele/show', $data);
@@ -102,8 +117,9 @@ class BolokeleController extends Controller
     public function add_view($enseignementId)
     {
         $serieId = $_GET['sr'];
+        $sessionId = $_GET['ssd'];
         $userId = Session::get('membre')['member_id'] ?? Session::get('enseignant')['enseignant_id'];
 
-        $this->VuesModel->enregistrerVueUnique($enseignementId, $serieId, $userId); 
+        $this->VuesModel->enregistrerVueUnique($enseignementId, $sessionId, $serieId, $userId); 
     }
 }

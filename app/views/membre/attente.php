@@ -4,7 +4,7 @@
     include APP_PATH . 'templates/alertView.php'; 
 ?>
 
-    <?php if($paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1]): ?>
+    <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1]): ?>
         <div class="container mx-auto py-[60px] px-4 md:px-0">
             <div class="max-w-md mx-auto">
                 <div class="status-container fade-in bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 border border-gray-100 text-center p-10 md:p-8">
@@ -179,6 +179,37 @@
                     <p class="text-[10px] text-gray-400 uppercase tracking-[0.1em]">
                         Besoin d'aide ? <a href="mailto:<?= ADMIN_EMAIL ?>" class="text-primary font-bold underline decoration-primary/30">Contactez le support</a>
                     </p>
+                </div>
+            </div>
+        </div>
+    <?php elseif($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]): ?>
+        <div class="container mx-auto py-[60px] px-4 md:px-0">
+            <div class="max-w-md mx-auto">
+                <div class="status-container fade-in bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 border border-gray-100 text-center p-10 md:p-8">
+                    
+                    <!-- Icône de validation en attente -->
+                    <div class="mb-6 flex justify-center">
+                        <div class="relative">
+                            <!-- Cercle rotatif discret -->
+                            <div class="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-hourglass-half text-primary text-md"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1 class="font-serif text-2xl text-primary font-bold mb-3">Validation refusée</h1>
+                    <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+                        Malheureusement, votre engagement n'a pas été validé. Cela est dû à des informations incorrectes sur votre fiche d'engagement. Veuillez vérifier les critères d'engagement et soumettre à nouveau votre demande.
+                    </p>
+                    <!-- Bouton d'action -->
+                    <div class="flex flex-col gap-3">
+                        <a href="../engagement/<?= $Membre->member_id ?>" class="w-full bg-red-600 text-white py-4 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-200/20 active:scale-95">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Revoir les critères d'engagement
+                        </a>
+                        <a href="../profile/<?= $Membre->member_id ?>" class="text-[11px] text-gray-600 font-bold hover:text-primary transition-colors uppercase tracking-widest mt-3">
+                            Retour à mon profil
+                        </a>
                 </div>
             </div>
         </div>

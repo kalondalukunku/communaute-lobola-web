@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Adresse mail ou numéro de téléphone</label>
+                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5 transition-all">Votre nom, E-mail, ou Numéro de téléphone</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                             <i class="fas fa-user"></i>
@@ -34,7 +34,7 @@
                         <input type="text" id="email" required
                             name="connect"
                             class="custom-input w-full pl-10 pr-4 py-3 rounded-xl border-none text-white placeholder-slate-500 focus:outline-none"
-                            placeholder="exemple@mail.com ou +243 ********"
+                            placeholder="votre nom, exemple@mail.com ou +243 ********"
                             value="<?= Helper::getData($_POST, 'connect') ?>"
                             style="color: var(--primary);">
                     </div>

@@ -1,6 +1,9 @@
 <?php
 require_once APP_PATH . 'models/Admin.php';
 require_once APP_PATH . 'models/Membre.php';
+require_once APP_PATH . 'models/Session.php';
+require_once APP_PATH . 'models/SessionEnseignement.php';
+require_once APP_PATH . 'models/SerieSession.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Serie.php';
 require_once APP_PATH . 'models/Enseignant.php';
@@ -10,12 +13,16 @@ require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pdf.php';
+require_once APP_PATH . 'models/HistoriqueInitiation.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AdminController extends Controller 
 {
     private $MembreModel; 
     private $EnseignementModel;
+    private $SessionModel;
+    private $SessionEnseignementModel;
+    private $SerieSessionModel;
     private $SerieModel;
     private $EnseignantModel;
     private $EngagementModel;
@@ -25,13 +32,19 @@ class AdminController extends Controller
     private $TokensModel;
     private $ActionsRaisonsModel;
     private $PdfModel;
+    private $HistoriqueInitiationModel;
     private $sendEmailModel;
+
+    private $dbCategories;
     
     public function __construct()
     {   
         $this->AdminModel = new Admin();
         $this->MembreModel = new Membre();
         $this->SerieModel = new Serie();
+        $this->SerieSessionModel = new SerieSession();
+        $this->SessionModel = new Sessions();
+        $this->SessionEnseignementModel = new EnseignementSession();
         $this->EnseignementModel = new Enseignement();
         $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();
@@ -41,7 +54,9 @@ class AdminController extends Controller
         $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->PdfModel = new PDF();
         $this->sendEmailModel = new SendMail();
- 
+        $this->HistoriqueInitiationModel = new HistoriqueInitiation();
+
+        $this->dbCategories = $this->CategoryModel->all();
     }
 
     public function index()
@@ -657,13 +672,17 @@ class AdminController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_eng_rejeted'])) 
         {
+            $fileEngagement = STORAGE_UPLOAD . "engagement/" . $membreId . "/" . basename($Membre->document_path);
+            if(file_exists($fileEngagement)) {
+                unlink($fileEngagement);
+            }
             $updateData = [
                 'member_id' => $membreId,
                 'statut' => ARRAY_STATUS_ENGAGEMENT[2]
             ];
             $updateDataMembre = [
                 'member_id' => $membreId,
-                'status' => ARRAY_STATUS_MEMBER[6]
+                'status' => ARRAY_STATUS_MEMBER[2]
             ];
             if($this->EngagementModel->update($updateData, 'member_id') && $this->MembreModel->update($updateDataMembre, 'member_id'))
             {
@@ -700,6 +719,7 @@ class AdminController extends Controller
             {
                 $updateDataMembre = [
                     'member_id' => $membreId,
+                    'bolokele' => 1,
                     'status' => ARRAY_STATUS_MEMBER[2]
                 ];
 
@@ -741,7 +761,7 @@ class AdminController extends Controller
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'])) 
         {
             
-            if($this->MembreModel->delete($membreId))
+            if($this->MembreModel->deleteAdmin($membreId))
             {
                 Session::setFlash('success', 'Membre supprimé avec succès.');
                 Utils::redirect('../membres');
@@ -793,14 +813,18 @@ class AdminController extends Controller
         $cacheKey = 'admin_administraction';
 
         $search = isset($_GET['q']) ? trim($_GET['q']) : null;
+        $sessionIdGet = isset($_GET['ssd']) ? basename($_GET['ssd']) : null;
+        $allSessions = $this->SessionModel->all();
+        $sessionSelect = $this->SessionModel->find($sessionIdGet);
 
-        $membreSuivi = $this->MembreModel->getMembersActivityReport($search);
-        // var_dump($membreSuivi); die;
+        $membreSuivi = $this->MembreModel->getMembersActivityReport($search, $sessionIdGet);
         
         $data = [
             'title' => 'Liste des membres qui suivent les enseignements',
             'description' => 'Liste des membres qui suivent les enseignements',
             'membreSuivi' => $membreSuivi,
+            'allSessions' => $allSessions,
+            'sessionSelect' => $sessionSelect,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_suivi']))
@@ -821,16 +845,66 @@ class AdminController extends Controller
             Utils::redirect('../membres_suivi');
             return;
         }
+        $sessionIdGet = isset($_GET['ssd']) ? basename($_GET['ssd']) : null;
+        $sessionSelect = $this->SessionModel->find($sessionIdGet);
 
-        $suiviDetails = $this->MembreModel->getMemberDetailedReport($memberId);
-
+        $suiviDetails = $this->MembreModel->getMemberDetailedReport($memberId, $sessionIdGet);
+        $histoInitiation = $this->HistoriqueInitiationModel->find($memberId, $sessionIdGet);
 
         $data = [
             'title' => 'Détails du suivi du membre',
             'description' => 'Détails du suivi du membre',
             'membre' => $membre,
             'suiviDetails' => $suiviDetails,
+            'histoInitiation' => $histoInitiation,
+            'sessionSelect' => $sessionSelect,
         ];
+
+        if(!$histoInitiation && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_membre_evoluer'])) 
+        {
+            $newNiveau = "";
+            if($membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[0]) {
+                $newNiveau = ARRAY_TYPE_NIVEAU_INITIATION[1];
+            } elseif($membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[1]) {
+                $newNiveau = ARRAY_TYPE_NIVEAU_INITIATION[2];
+            } elseif($membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[2]) {
+                $newNiveau = ARRAY_TYPE_NIVEAU_INITIATION[3];
+            } else {
+                Session::setFlash('error', 'Le membre a déjà atteint le niveau d\'initiation le plus élevé.');
+                $this->view('admin/membre_suivi', $data);
+                return;
+            }
+
+            if($newNiveau === '')
+            {
+                Session::setFlash('error', 'Une erreur est survenue lors de l\'évolution du membre. Veuillez réessayer.');
+                $this->view('admin/membre_suivi', $data);
+                return;
+            }
+
+            $updateData = [
+                'member_id' => $memberId,
+                'niveau_initiation' => $newNiveau
+            ];
+
+            $historyData = [
+                'member_id'       => $memberId,
+                'session_id'      => $sessionIdGet, // ID de la session provenant du $_GET['ssd']
+                'ancien_niveau'       => $membre->niveau_initiation,
+                'nouveau_niveau'       => $newNiveau,
+                'pourcentage_lecture' => $suiviDetails['stats']['progress_bar'],
+            ];
+
+            if($this->HistoriqueInitiationModel->insert($historyData) && $this->MembreModel->update($updateData, 'member_id') )
+            {
+                Session::setFlash('success', 'Membre évolué avec succès au niveau d\'initiation : ' . $newNiveau);
+                Utils::redirect('../membre_suivi/' . $memberId . '?ssd=' . $sessionIdGet);
+            } else {
+                Session::setFlash('error', 'Une erreur est survenue lors de l\'évolution du membre. Veuillez réessayer.');
+                $this->view('admin/membre_suivi', $data);
+                return;
+            }
+        }
         
         $this->view('admin/membre_suivi', $data);
     }
@@ -891,7 +965,7 @@ class AdminController extends Controller
                 'token'         => $token,
                 'status'        => $tokenStatus,
                 'expired_at'    => $expiryDate,
-                'member_id'      => $enseignantId,
+                'user_id'       => $enseignantId,
             ];
 
             $dataAddEnseignant = [
@@ -1112,16 +1186,119 @@ class AdminController extends Controller
     {
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
+        $BolokeleId = $this->dbCategories[0]->category_id;
+        $MaatId = $this->dbCategories[1]->category_id;
 
         $search = isset($_GET['q']) ? trim($_GET['q']) : null;
+        $sessionIdGet = isset($_GET['ssd']) ? basename($_GET['ssd']) : null;
+        $categoryGet = isset($_GET['ct']) ? basename($_GET['ct']) : null;
+        $allSessions = $this->SessionModel->all();
+        $sessionSelect = $this->SessionModel->find($sessionIdGet);
 
-        $allEnseignements = $this->EnseignementModel->allWithView($search);
+        $allEnseignements = null;
+
+        if($sessionIdGet) {
+            $allEnseignements = $this->SerieModel->all($categoryGet, $sessionIdGet);
+        }
+        // var_dump($allEnseignements);die;
         
         $data = [
             'allEnseignements' => $allEnseignements,
+            'allSessions' => $allSessions,
+            'sessionSelect' => $sessionSelect,
+            'dbCategories' => $this->dbCategories,
+            'sessionIdGet' => $sessionIdGet,
+            'categoryGet' => $categoryGet,
         ];
 
         $this->view('admin/enseignements', $data);
+    }
+
+    public function sessions() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $dbCategories = $this->CategoryModel->all();
+        $BolokeleId = $dbCategories[0]->category_id;
+        $MaatId = $dbCategories[1]->category_id;
+
+        $allSeries = $this->SerieModel->getAll();
+        $allSessions = $this->SessionModel->all();
+        
+        $data = [
+            'allSessions' => $allSessions,
+        ];
+        
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_add_session'])) 
+        {
+            $nom = Utils::sanitize(trim($_POST['nom'] ?? ''));
+            $date_debut = Utils::sanitize(trim($_POST['date_debut'] ?? ''));
+            $date_fin = Utils::sanitize(trim($_POST['date_fin'] ?? ''));
+            
+            
+            if(!$nom || !$date_debut || !$date_fin)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/sessions',  $data);
+                return;
+            }
+            if($date_debut < date('Y-m-d')) 
+            {
+                Session::setFlash('error', "La date de début n'est pas valide.");
+                $this->view('admin/sessions',  $data);
+                return;
+            }
+            $dateTime = strtotime($date_debut);
+            $dureeSession = date('Y-m-d', strtotime("+ 20 days", $dateTime));
+            if($date_fin <= $date_debut) 
+            {
+                Session::setFlash('error', "La date de fin n'est pas valide.");
+                $this->view('admin/sessions',  $data);
+                return;
+            }
+            if($date_fin < $dureeSession) 
+            {
+                Session::setFlash('error', "La " .$nom ."e session doit prendre fin au moins le ". date('d/m/Y', strtotime($dureeSession)));
+                $this->view('admin/sessions',  $data);
+                return;
+            }
+
+            $sessionId = Utils::generateUuidV4();
+
+            $dataAddSession = [
+                'session_id' => $sessionId,
+                'nom' => $nom,
+                'date_debut' => $date_debut,
+                'date_fin' => $date_fin,
+            ];
+
+            foreach ($allSeries as $serie) {
+                $dataAddSessionEnseignement = [
+                    'session_id' => $sessionId,
+                    'serie_id' => $serie->serie_id,
+                ];
+
+                if(!$this->SerieSessionModel->insert($dataAddSessionEnseignement))
+                {
+                    Session::setFlash('error', "Une erreur est survenue. Veuillez réessayer.");
+                    $this->view('admin/sessions',  $data);
+                    return;
+                }
+            }
+
+            if($this->SessionModel->insert($dataAddSession))
+            {
+                Session::setFlash('success', 'Session ajoutée avec succès.');
+                Utils::redirect('sessions');
+            } else {
+                Session::setFlash('error', "Une erreur est survenue lors de l'ajout de la session.");
+                $this->view('admin/sessions',  $data);
+                return;
+            }
+        }
+
+        $this->view('admin/sessions', $data);
     }
 
     public function admins() 

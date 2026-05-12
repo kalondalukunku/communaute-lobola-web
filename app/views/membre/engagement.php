@@ -69,7 +69,7 @@
                     <select name="modalite_engagement" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
                         <option value="" disabled selected>Type d'engagement...</option>
                         <?php foreach(ARRAY_TYPE_ENGAGEMENT as $modalite): ?>
-                            <option value="<?= $modalite ?>" <?= Helper::getSelectedValue('modalite_engagement', $modalite) ?> ><?= $modalite ?></option>
+                            <option value="<?= $modalite ?>" <?= Helper::getSelectedValue('modalite_engagement', $modalite, $Membre->modalite_engagement ?? '') ?> ><?= $modalite ?></option>
                         <?php endforeach; ?>
                     </select>
                     <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>
@@ -77,7 +77,7 @@
 
                 <div class="group">
                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2 transition-colors group-focus-within:text-primary">Montant de la contribution</label>
-                    <input type="number" name="montant" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" value="<?= Helper::getData($_POST, 'montant') ?>" placeholder="Min: 10" required>
+                    <input type="number" name="montant" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent" value="<?= Helper::getData($_POST, 'montant', $Membre->montant ?? '') ?>" placeholder="Min: 10" required>
                 </div>
 
                 <div class="group relative">
@@ -85,7 +85,7 @@
                     <select name="devise" class="w-full border-b border-gray-200 focus:border-primary transition-all outline-none py-2 text-base bg-transparent cursor-pointer font-sans appearance-none">
                         <option value="" disabled selected>Sélectionnez la devise...</option>
                         <?php foreach(ARRAY_TYPE_DEVISE as $devise): ?>
-                            <option value="<?= $devise ?>" <?= Helper::getSelectedValue('devise', $devise) ?> ><?= $devise ?></option>
+                            <option value="<?= $devise ?>" <?= Helper::getSelectedValue('devise', $devise, $Membre->devise ?? '') ?> ><?= $devise ?></option>
                         <?php endforeach; ?>
                     </select>
                     <i class="fas fa-chevron-down absolute right-0 bottom-3 text-[10px] text-gray-400 pointer-events-none transition-transform group-focus-within:rotate-180"></i>

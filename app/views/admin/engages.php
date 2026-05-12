@@ -189,9 +189,9 @@
                                                         <div class="flex flex-col">
                                                                 <span class="text-sm font-bold text-white"><?= $membre->modalite_engagement ?></span>
                                                                 <span class="text-[10px] text-gray-400">Renouvellement : <?= Helper::formatDate($membre->date_expiration) ?></span>
-                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[0]): ?>
+                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[0] && $membre->doc_approuved == 0): ?>
                                                                 <span class="text-[10px] text-amber-500 font-bold">Engagement à approuver</span>
-                                                                <?php elseif( $membre->status === ARRAY_STATUS_MEMBER[1]): ?>
+                                                                <?php elseif( $membre->status === ARRAY_STATUS_MEMBER[0] && $membre->doc_approuved == 1): ?>
                                                                 <span class="text-[10px] text-amber-500 font-bold">Paiement à confirmer</span>
                                                                 <?php endif; ?>
                                                         </div>
@@ -199,9 +199,9 @@
                                                         <td class="px-3 py-3">
                                                         <span class="color-border text-xs p-2 rounded-xl text-primary">
                                                             <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 
-                                                            <?= $membre->status === ARRAY_STATUS_MEMBER[0] ? 'A vérifier' : '' ?>  
                                                             <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] ? 'Approuvé' : '' ?>
-                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] ? 'Non approuvé' : '' ?>
+                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 0 ? 'Engagement à confirmer' : '' ?>
+                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 1 ? 'Paiement à confirmer' : '' ?>
                                                             <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2] ? 'Rejété' : '' ?>
                                                         </span>
                                                         </td>

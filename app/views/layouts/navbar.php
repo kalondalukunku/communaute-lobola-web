@@ -10,13 +10,13 @@
             </a>
 
             <!-- Navigation Desktop -->
-            <nav class="flex items-center gap-8">
+            <nav class="flex items-center gap-4">
                 <div class="flex items-center gap-6">
                     <a href="/" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('') ?>">
                         Mâat
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
-                    <?php if(isset(Session::get('membre')['engagement_id']) || isset(Session::get('enseignant')['enseignant_id'])): ?>
+                    <?php if(isset(Session::get('membre')['engagement_id']) && Session::get('membre')['bolokele'] == 1 || isset(Session::get('enseignant')['enseignant_id'])): ?>
                         <a href="/bolokele" class="relative py-2 text-xs font-medium transition-colors hover:text-purple-400 group <?= Helper::setActive('bolokele') ?>">
                             BOLOKELE
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
@@ -31,6 +31,10 @@
                 <div class="h-6 w-px bg-white/10"></div>
 
                 <div class="flex items-center gap-4">
+                    <!-- <a href="/communiques" class="relative py-2 text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('communiques') ?>">
+                        <i class="fas fa-bullhorn mr-1.5 text-sm opacity-70"></i>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('communiques') ? 'w-full' : '' ?>"></span>
+                    </a> -->
                     <div class="text-right hidden lg:block">
                         <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">EmEm Htp</p>
                         <p class="text-sm font-semibold text-accent leading-none mt-1">
@@ -48,7 +52,7 @@
                         </div>
                     </a> -->
 
-                    <div class="relative" x-data="{ open: false }">
+                    <div class="relative flex" x-data="{ open: false }">
                         <button @click="open = !open" @click.outside="open = false" class="relative group focus:outline-none">
                             <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 blur transition duration-500"></div>
                             <div class="relative w-9 h-9 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">

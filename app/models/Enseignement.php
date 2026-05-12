@@ -30,17 +30,24 @@ class Enseignement extends Model {
         return $q->execute($datas);
     } 
     
-    public function findWithSerie($serieId)
+    public function findWithSerie($serieId, $sessionId, $categoryId)
     {
         $stmt = $this->db->prepare("SELECT
                                     E.*,
+                                    ST.is_active,
+                                    ST.session_id,
                                     S.*,
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
-                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
-                                    WHERE E.serie_id = :serie_id AND E.is_active = 1
+                                    INNER JOIN session_teachings ST ON E.enseignement_id = ST.enseignement_id
+                                    INNER JOIN series S ON E.serie_id = S.serie_id  
+                                    WHERE E.serie_id = :serie_id AND ST.session_id = :session_id AND ST.is_active = 1 AND E.category_id = :category_id
                                     ORDER BY E.created_at ASC");
-        $stmt->execute(['serie_id' => $serieId]);
+        $stmt->execute([
+            'serie_id' => $serieId,
+            'session_id' => $sessionId,
+            'category_id' => $categoryId
+        ]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     
@@ -58,68 +65,74 @@ class Enseignement extends Model {
                                     S.*, 
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
-                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    INNER JOIN series S ON E.serie_id = S.serie_id  
                                     WHERE E.category_id = :category_id
                                     ORDER BY E.created_at DESC");
         $stmt->execute(['category_id' => $categoryId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function allWithView($search = null)
+    public function allWithView($sessionId, $search = null)
     {
-        $params = [];
-        $whereClause = "";
+        $params = [
+            ':sessionId' => $sessionId
+        ];
+        
+        // On initialise la clause WHERE avec le filtrage par session (obligatoire)
+        $whereClause = " WHERE ST.session_id = :sessionId ";
 
-        // On prépare la condition WHERE si une recherche est fournie
+        // On ajoute la condition de recherche si elle est fournie
         if (!empty($search)) {
-            // On utilise COLLATE sur le paramètre pour qu'il s'adapte à la colonne, 
-            // ou on force tout en unicode_ci pour la cohérence.
-            $whereClause = " WHERE (E.title LIKE :search COLLATE utf8mb4_unicode_ci 
-                            OR S.nom LIKE :search COLLATE utf8mb4_unicode_ci) ";
+            $whereClause .= " AND (E.title LIKE :search OR S.nom LIKE :search) ";
             $params[':search'] = '%' . $search . '%';
         }
 
         $sql = "SELECT 
                     E.*, 
+                    ST.is_active,
+                    ST.session_id,
                     S.nom AS nom_serie,
                     (
                         SELECT COUNT(*) 
                         FROM enseignement_vues EV 
                         WHERE EV.enseignement_id = E.enseignement_id
                     ) AS total_vues
-                FROM {$this->table} E
+                FROM {$this->table} AS E
+                INNER JOIN session_teachings ST ON E.enseignement_id = ST.enseignement_id
                 INNER JOIN series S ON E.serie_id = S.serie_id
                 {$whereClause}
                 ORDER BY E.created_at DESC";
 
         $stmt = $this->db->prepare($sql);
-        
-        // On exécute
         $stmt->execute($params);
         
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-    
-    // public function allWithView($search = null)
+
+    // public function allWithView($sessionId, $search = null)
     // {
     //     $params = [];
     //     $whereClause = "";
 
+    //     // On prépare la condition WHERE si une recherche est fournie
     //     if (!empty($search)) {
-    //         // On force la collation ici aussi pour éviter le conflit entre unicode_ci et general_ci
-    //         $whereClause = " WHERE (
-    //             E.title COLLATE utf8mb4_unicode_ci LIKE :search 
-    //             OR S.nom COLLATE utf8mb4_unicode_ci LIKE :search
-    //         ) ";
+    //         // On utilise COLLATE sur le paramètre pour qu'il s'adapte à la colonne, 
+    //         // ou on force tout en unicode_ci pour la cohérence.
+    //         $whereClause = " WHERE (E.title LIKE :search   
+    //                         OR S.nom LIKE :search  ) ";
     //         $params[':search'] = '%' . $search . '%';
     //     }
 
     //     $sql = "SELECT 
     //                 E.*, 
     //                 S.nom AS nom_serie,
-    //                 (SELECT COUNT(*) FROM enseignement_vues EV WHERE EV.enseignement_id = E.enseignement_id) AS total_vues
+    //                 (
+    //                     SELECT COUNT(*) 
+    //                     FROM enseignement_vues EV 
+    //                     WHERE EV.enseignement_id = E.enseignement_id
+    //                 ) AS total_vues
     //             FROM {$this->table} E
-    //             INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+    //             INNER JOIN series S ON E.serie_id = S.serie_id
     //             {$whereClause}
     //             ORDER BY E.created_at DESC";
 
@@ -136,7 +149,7 @@ class Enseignement extends Model {
                                     S.*,
                                     S.nom AS nom_serie 
                                     FROM {$this->table} E
-                                    INNER JOIN series S ON E.serie_id = S.serie_id COLLATE utf8mb4_unicode_ci
+                                    INNER JOIN series S ON E.serie_id = S.serie_id  
                                     WHERE E.enseignant_id = :enseignant_id
                                     ORDER BY E.created_at DESC");
         $stmt->execute(['enseignant_id' => $enseignantId]);

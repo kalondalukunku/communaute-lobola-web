@@ -71,7 +71,7 @@
                                 </div>
 
                                 <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
-                                    Cette série contient actuellement <?= $item->enseignements_count ?> enseignements au total.
+                                    Cette série contient actuellement <?= count($item->teachings) ?> enseignements au total.
                                 </p>
                                 <div class="color-border-b"></div>
 
@@ -81,7 +81,7 @@
                                         <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
                                     </div>
                                     
-                                    <a href="../../bolokele/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                    <a href="../../bolokele/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
                                         Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
                                     </a>
                                 </div>

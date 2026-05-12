@@ -1,5 +1,5 @@
 <?php 
-    $title = $Series[0]->nom_serie ?? SITE_NAME;
+    $title = $Series->nom ?? SITE_NAME;
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar.php';
     include APP_PATH . 'templates/alertView.php'; 
@@ -19,7 +19,7 @@
                     <!-- Gauche: Visual et Info -->
                     <div class="lg:col-span-7 flex flex-col justify-center">
                         <div class="flex items-center gap-3 mb-6">
-                            <span class="px-3 py-1 bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full border border-primary/30"><?= $Series[0]->nom_serie ?></span>
+                            <span class="px-3 py-1 bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full border border-primary/30"><?= $Series->nom ?></span>
                             <div class="flex items-center gap-2 text-gray-500 text-xs font-medium">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                 <span id="view-count"><?= number_format($nbrSerieViews) ?> vue<?= $nbrSerieViews > 1 ? 's' : '' ?></span>
@@ -85,19 +85,20 @@
                     <div class="lg:col-span-5">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-xl font-bold font-serif">Enseignements de la Série</h3>
-                            <span class="text-xs text-gray-500"><?= count($Series) ?> enseignement<?= count($Series) > 1 ? 's' : '' ?></span>
+                            <span class="text-xs text-gray-500"><?= count($Series->teachings) ?> enseignement<?= count($Series->teachings) > 1 ? 's' : '' ?></span>
                         </div>
                         
                         <div class="playlist space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                            <?php foreach($Series as $index => $ep): ?>
+                            <?php foreach($Series->teachings as $index => $ep): ?>
                                 <div class="track-item group p-4 bg-white/[0.03] color-border rounded-2xl cursor-pointer hover:bg-white/[0.08] hover:border-white/10 transition-all duration-300 flex items-center gap-4 relative overflow-hidden"
                                     data-index="<?= $index ?>"
                                     data-es="<?= $ep->enseignement_id ?>"
                                     data-sr="<?= $ep->serie_id ?>"
+                                    data-ssd="<?= $sessionId ?>"
                                     data-title="<?= htmlspecialchars($ep->title) ?>"
                                     data-url="../../<?= htmlspecialchars($ep->audio_url) ?>"
                                     data-desc="<?= htmlspecialchars($ep->description) ?>"
-                                    data-views="<?= number_format($ep->views ?? rand(500, 5000)) ?>">
+                                    data-views="<?= number_format($ep->total_views ?? rand(500, 5000)) ?>">
                                     
                                     <!-- Indicateur de lecture (Spectre animé) -->
                                     <div class="mt-3 playing-bars hidden group-[.active]:flex items-end gap-[2px] h-4 absolute right-4 top-4">
@@ -114,10 +115,10 @@
                                         <h4 class="text-sm font-semibold truncate group-hover:text-primary transition-colors"><?= htmlspecialchars($ep->title) ?></h4>
                                         <div class="flex items-center gap-3 mt-1">
                                             <span class="text-[10px] text-gray-500 flex items-center gap-1">
-                                                <i class="fa-regular fa-clock"></i> <?= $ep->duration_minutes ?? '00:00' ?>
+                                                <i class="fa-regular fa-clock"></i> <?= $ep->duration ?? '00:00' ?>
                                             </span>
                                             <span class="text-[10px] text-gray-500 flex items-center gap-1">
-                                                <i class="fa-regular fa-eye"></i> <?= number_format($VuesModel->countAll(['enseignement_id' => $ep->enseignement_id])) ?>
+                                                <i class="fa-regular fa-eye"></i> <?= number_format($VuesModel->countAll(['enseignement_id' => $ep->enseignement_id, 'session_id' => $sessionId])) ?>
                                             </span>
                                         </div>
                                     </div>
@@ -133,7 +134,7 @@
             </div>
 
             <div class="mt-8 pt-8 p-6 md:p-10 border-t border-white/5 flex flex-wrap items-center justify-between gap-4">
-                <?php if($Series[0]->nom_serie === "Mâat • Introduction & Préparation"): ?>
+                <?php if($Series->nom === "Mâat • Introduction & Préparation"): ?>
                     <div class="flex items-center gap-4">
                         <!-- Bouton Téléchargement -->
                         <a href="<?= ASSETS ?>ressources/Photos_Ancetres.rar" 
@@ -166,7 +167,7 @@
             </div>
         </div>
 
-        <?php if($Series[0]->nom_serie === "Mâat • Introduction & Préparation"): ?>
+        <?php if($Series->nom === "Mâat • Introduction & Préparation"): ?>
             <div class="w-[80%] mx-auto mt-12 mb-20">
 
                 <!-- SECTION PHOTOS / GALERIE (Droite - 5 colonnes) -->
@@ -283,7 +284,7 @@
             </div>
         <?php endif; ?>
 
-        <?php if($Series[0]->nom_serie === "Mâat • Module 1 : Religions & Spiritualités"): ?>
+        <?php if($Series->nom === "Mâat • Module 1 : Religions & Spiritualités"): ?>
             <div class="w-[80%] mx-auto mt-12 mb-20">
 
                 <!-- SECTION VIDÉOS YOUTUBE (Gaucher - 7 colonnes) -->
@@ -370,5 +371,5 @@
         </div>
     <?php endif; ?>
 
-<script src="<?= ASSETS ?>js/modules/player.js?v=2"></script>
+<script src="<?= ASSETS ?>js/modules/player.js?v=<?= APP_VERSION ?>"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

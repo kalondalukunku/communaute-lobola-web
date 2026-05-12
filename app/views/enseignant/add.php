@@ -93,7 +93,7 @@
                 <!-- L'input est au-dessus par défaut pour le clic initial -->
                 <input type="file" name="audio_data" id="audioFile" 
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30" 
-                    accept="audio/*">
+                    accept="audio/*" required>
                 
                 <!-- input duree -->
                 <input type="text" name="duration_minutes" id="duree" value="" hidden >

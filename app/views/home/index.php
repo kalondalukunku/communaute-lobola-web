@@ -87,6 +87,7 @@
                 <!-- Grille des Enseignements -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
+                <?php if ($Series): ?>
                     <?php foreach ($Series as $item): ?>
                         <?php 
                             // Vérification si l'enseignement a moins de 24h
@@ -126,13 +127,12 @@
                                         <?= Helper::textTruncate($item->nom, 30) ?>
                                     </h3>
                                     <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
-                                        <?php $vues = $VuesModel->countAll(['serie_id' => $item->serie_id]); ?>
-                                        <?= $vues; ?> vue<?= $vues > 1 ? 's' : '' ?>
+                                        <?= $VuesModel->countAll(['serie_id' => $item->serie_id, 'session_id' => $item->session_id]); ?> vue<?= $VuesModel->countAll(['serie_id' => $item->serie_id, 'session_id' => $item->session_id]) > 1 ? 's' : '' ?>
                                     </div>
                                 </div>
 
                                 <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
-                                    Cette série contient actuellement <?= $item->enseignements_count ?> enseignements au total.
+                                    Cette série contient actuellement <?= count($item->teachings) ?> enseignements au total.
                                 </p>
                                 <div class="color-border-b"></div>
 
@@ -141,13 +141,79 @@
                                         <i class="far fa-calendar-alt text-xs"></i>
                                         <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
                                     </div>
-                                    <?php if($item->category_id === $MaatId): ?>
-                                            <a href="../../enseignement/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                                Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                            </a>
+                                    <?php if(Session::get('membre')['bolokele'] == 1): ?>
+                                        <a href="../../enseignement/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                        </a>
                                     <?php else: ?>
-                                        <?php if(Session::get('enseignant') || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] && isset($paiedMembre->payment_status) && $paiedMembre->payment_status === ARRAY_PAYMENT_STATUS[1])): ?>
-                                            <a href="../../bolokele/show/<?= $item->serie_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                        <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                            S'engager pour accéder <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                        <div class="audio-card rounded-2xl color-border group relative overflow-hidden">
+                            <?php 
+                                // Vérification si l'enseignement a moins de 24h
+                                $isNew = false;
+                                if (!empty($SeriesAlwaysOn->updated_at)) {
+                                    $createdAt = new DateTime($SeriesAlwaysOn->updated_at);
+                                    $now = new DateTime();
+                                    $diff = $now->diff($createdAt);
+                                    // Vérifie si la différence totale en heures est < 24
+                                    $hours = ($diff->days * 24) + $diff->h;
+                                    if ($hours < 24 && $diff->invert == 1) {
+                                        $isNew = true;
+                                    }
+                                }
+                            ?>
+                            <!-- Bandeau "Nouveau" (Affiché conditionnellement) -->
+                            <?php if ($isNew): ?>
+                                <div class="absolute top-0 right-0 z-10">
+                                    <div class="bg-primary text-black text-[10px] font-black uppercase px-3 py-1 rounded-bl-xl shadow-lg animate-pulse">
+                                        Nouveau
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Partie Inférieure : Contenu -->
+                            <div class="p-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
+                                    <span class="text-gray-500 text-[10px]">•</span>
+                                    <span class="text-gray-500 text-[7px] uppercase tracking-widest font-bold"><?= $SeriesAlwaysOn->nom !== null ? htmlspecialchars($SeriesAlwaysOn->nom) : '' ?></span>
+                                </div>
+
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-xl font-bold text-white mb-2 mt-4 line-clamp-1 group-hover:text-primary transition-colors">
+                                        <?= Helper::textTruncate($SeriesAlwaysOn->nom, 30) ?>
+                                    </h3>
+                                    <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
+                                        <?= $VuesModel->countAll(['serie_id' => $SeriesAlwaysOn->serie_id, 'session_id' => $SeriesAlwaysOn->session_id]); ?> vue<?= $VuesModel->countAll(['serie_id' => $SeriesAlwaysOn->serie_id, 'session_id' => $SeriesAlwaysOn->session_id]) > 1 ? 's' : '' ?>
+                                    </div>
+                                </div>
+
+                                <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
+                                    Cette série contient actuellement <?= count($SeriesAlwaysOn->teachings) ?> enseignements au total.
+                                </p>
+                                <div class="color-border-b"></div>
+
+                                <div class="flex items-center justify-between pt-4">
+                                    <div class="flex items-center gap-2 text-gray-500">
+                                        <i class="far fa-calendar-alt text-xs"></i>
+                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($SeriesAlwaysOn->created_at) ?></span>
+                                    </div>
+                                    <?php if(Session::get('membre')['bolokele'] == 1): ?>
+                                        <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        
+                                        <?php if(Session::get('enseignant')): ?>
+                                            <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
                                                 Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
                                             </a>
                                         <?php else: ?>
@@ -159,7 +225,7 @@
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                <?php endif; ?>
 
                 </div>
             <?php else: ?>  

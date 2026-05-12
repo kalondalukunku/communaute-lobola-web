@@ -3,6 +3,7 @@
     require_once APP_PATH . 'models/Membre.php';
     require_once APP_PATH . 'models/Serie.php';
     require_once APP_PATH . 'models/Enseignement.php';
+    require_once APP_PATH . 'models/SerieSession.php';
     require_once APP_PATH . 'models/Api.php';
     require_once APP_PATH . 'models/Vues.php';
     require_once APP_PATH . 'models/Appels.php';
@@ -12,6 +13,7 @@ class ApiController extends Controller {
     private $MembreModel;
     private $EngagementModel;
     private $SerieModel;
+    private $SessionSerieModel;
     private $EnseignementModel;
     private $ApiModel;
     private $VuesModel;
@@ -22,24 +24,26 @@ class ApiController extends Controller {
         $this->MembreModel = new Membre();
         $this->EngagementModel = new Engagement();
         $this->SerieModel = new Serie();
+        $this->SessionSerieModel = new SerieSession();
         $this->EnseignementModel = new Enseignement();
         $this->ApiModel = new Api();
         $this->VuesModel = new Vues();
         $this->AppelsModel = new Appels();
     }
 
-    public function enseignement_state_view($enseignementId) 
+    public function enseignement_state_view($serieId) 
     {
+        $sessionId = $_GET['ssd'] ?? null;
         
         header('Content-Type: application/json');
         try {
-            $enseignement = $this->EnseignementModel->find($enseignementId);
-            $serie = $this->SerieModel->find($enseignement->serie_id);
-            $new_state = $enseignement->is_active == 1 ? 0 : 1;
+            $sessionSerie = $this->SessionSerieModel->find($sessionId, $serieId);
+            $serie = $this->SerieModel->find($serieId);
+            $new_state = $sessionSerie->is_active == 1 ? 0 : 1;
             
-            $updateSuccess = $this->EnseignementModel->update(['is_active' => $new_state, 'enseignement_id' => $enseignementId], 'enseignement_id');
-            if($serie->is_active ==! 1) $this->SerieModel->update(['is_active' => 1, 'serie_id' => $enseignement->serie_id]);
-            if($new_state === 0 && $serie->enseignements_count == 0) $this->SerieModel->update(['is_active' => 0, 'serie_id' => $enseignement->serie_id]);
+            $updateSuccess = $this->SessionSerieModel->update(['is_active' => $new_state, 'ss_id' => $sessionSerie->ss_id]);
+            // if($serie->is_active ==! 1) $this->SerieModel->update(['is_active' => 1, 'serie_id' => $serieId]);
+            // if($new_state === 0 && $serie->enseignements_count == 0) $this->SerieModel->update(['is_active' => 0, 'serie_id' => $serieId]);
 
             if ($updateSuccess) {
                 echo json_encode([

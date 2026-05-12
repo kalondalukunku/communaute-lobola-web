@@ -4,6 +4,9 @@ require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Enseignement.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Serie.php';
+require_once APP_PATH . 'models/SerieSession.php';
+require_once APP_PATH . 'models/SessionEnseignement.php';
+require_once APP_PATH . 'models/Session.php';
 require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'helpers/SendMail.php';
@@ -12,22 +15,33 @@ class EnseignantController extends Controller
 {    
     private $MembreModel;  
     private $SerieModel;
+    private $SerieSessionModel;
+    private $SessionEnseignementModel;
+    private $SessionModel;
     private $CategoryModel;
     private $EnseignementModel;
     private $EnseignantModel;
     private $sendEmailModel;
     private $TokensModel;
+    
+    private $dbCategories;
+    private $allSessions;
 
     public function __construct()
     {        
         $this->MembreModel = new Membre();
         $this->SerieModel = new Serie();
+        $this->SerieSessionModel = new SerieSession();
+        $this->SessionEnseignementModel = new EnseignementSession();
+        $this->SessionModel = new Sessions();
         $this->CategoryModel = new Category();
         $this->TokensModel = new Tokens();
         $this->EnseignementModel = new Enseignement();
         $this->sendEmailModel = new SendMail();
         $this->EnseignantModel = new Enseignant();
 
+        $this->dbCategories = $this->CategoryModel->all();
+        $this->allSessions = $this->SessionModel->all();
     }
 
     public function index() 
@@ -88,8 +102,7 @@ class EnseignantController extends Controller
     public function add($enseignantId)
     {
         Auth::requireLogin('enseignant');
-        $dbCategories = $this->CategoryModel->all();
-        $MaatId = $dbCategories[1]->category_id;
+        $MaatId = $this->dbCategories[1]->category_id;
 
         $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
         
@@ -125,11 +138,21 @@ class EnseignantController extends Controller
             $dataAddSerie = [
                 'serie_id'      => $serieId,
                 'nom'           => $nom,
+                'category_id'   => $MaatId,
                 'updated_at'    => date('Y-m-d H:i:s'),
             ];
 
             if($this->SerieModel->insert($dataAddSerie)) 
             {
+                foreach($this->allSessions as $session) 
+                {
+                    $dataAddSession = [
+                        'session_id'    => $session->session_id,
+                        'serie_id'      => $serieId,
+                    ];
+                    $this->SerieSessionModel->insert($dataAddSession);
+                }
+                
                 Session::setFlash('success', 'Serie ajouté avec succès.');
                 Utils::redirect('../add/'.$enseignantId);
             }
@@ -158,11 +181,12 @@ class EnseignantController extends Controller
             $serieId = $this->SerieModel->findByName($serie)->serie_id;
 
             $dataAddEnseignement = [
-                'title'             => $titre,
+                'enseignant_id'     => $enseignantId,
+                'category_id'       => $MaatId,
                 'serie_id'          => $serieId,
+                'title'             => $titre,
                 'description'       => $description,
                 'duration_minutes'  => $duration_minutes,
-                'enseignant_id'     => $enseignantId,
                 'updated_at'        => date('Y-m-d H:i:s'),
             ];
 
@@ -227,7 +251,17 @@ class EnseignantController extends Controller
 
             if($resultUpload === true) 
             {
-                if($this->EnseignementModel->insert($dataAddEnseignement) && $this->SerieModel->update($dataUpdateSerie)) {
+                if($this->EnseignementModel->insert($dataAddEnseignement) && $this->SerieModel->update($dataUpdateSerie)) 
+                {
+                    foreach($this->allSessions as $session) 
+                    {
+                        $dataAddSession = [
+                            'session_id'    => $session->session_id,
+                            'enseignement_id' => $enseignementId,
+                        ];
+                        $this->SessionEnseignementModel->insert($dataAddSession);
+                    }
+
                     Session::setFlash('success', 'Enseignement ajouté avec succès.');
                     Utils::redirect('../enseignements/'.$enseignantId);
                 } else {
@@ -248,8 +282,6 @@ class EnseignantController extends Controller
     public function add_bolokele($enseignantId)
     {
         Auth::requireLogin('enseignant');
-        $dbCategories = $this->CategoryModel->all();
-        $BolokeleId = $dbCategories[0]->category_id;
 
         $Enseignant = $this->EnseignantModel->findByEnseignantId($enseignantId);
         
@@ -258,8 +290,7 @@ class EnseignantController extends Controller
             return;
         }
 
-        $dbCategories = $this->CategoryModel->all();
-        $BolokeleId = $dbCategories[0]->category_id;
+        $BolokeleId = $this->dbCategories[0]->category_id;
 
         $dbSeries = $this->SerieModel->getSeries($BolokeleId);
         foreach ($dbSeries as $dbSerie) 
@@ -272,7 +303,7 @@ class EnseignantController extends Controller
             'description' => 'Ajouter un Enseignant',
             'Enseignant' => $Enseignant,
             'dbSeries' => $dbSeriess,
-            'dbCategories' => $dbCategories,
+            'dbCategories' => $this->dbCategories,
         ];
 
         
@@ -291,13 +322,23 @@ class EnseignantController extends Controller
             $dataAddSerie = [
                 'serie_id'      => $serieId,
                 'nom'           => $nom,
+                'category_id'   => $BolokeleId,
                 'updated_at'    => date('Y-m-d H:i:s'),
             ];
 
             if($this->SerieModel->insert($dataAddSerie)) 
             {
+                foreach($this->allSessions as $session) 
+                {
+                    $dataAddSession = [
+                        'session_id'    => $session->session_id,
+                        'serie_id'      => $serieId,
+                    ];
+                    $this->SerieSessionModel->insert($dataAddSession);
+                }
+
                 Session::setFlash('success', 'Serie ajouté avec succès.');
-                Utils::redirect('../add/'.$enseignantId);
+                Utils::redirect('../add_bolokele/'.$enseignantId);
             }
             else {
                 Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
@@ -317,19 +358,19 @@ class EnseignantController extends Controller
 
             if(!$titre) {
                 Session::setFlash('error', 'Veuillez remplir correctement le formulaire.');
-                $this->view('enseignant/add',  $data);
+                $this->view('enseignant/add_bolokele',  $data);
                 return;
             }
 
             $serieId = $this->SerieModel->findByName($serie)->serie_id;
 
             $dataAddEnseignement = [
-                'title'             => $titre,
+                'enseignant_id'     => $enseignantId,
                 'category_id'       => $BolokeleId,
                 'serie_id'          => $serieId,
+                'title'             => $titre,
                 'description'       => $description,
                 'duration_minutes'  => $duration_minutes,
-                'enseignant_id'     => $enseignantId,
                 'updated_at'        => date('Y-m-d H:i:s'),
             ];
 
@@ -343,7 +384,7 @@ class EnseignantController extends Controller
                 if ($file['error'] !== UPLOAD_ERR_OK)
                 {
                     Session::setFlash('error', "Erreur lors de l'envoi du document");
-                    $this->view('enseignant/add', $data);
+                    $this->view('enseignant/add_bolokele', $data);
                     return;
                 }
                 // verif mime reel
@@ -352,7 +393,7 @@ class EnseignantController extends Controller
                 // if (!in_array($mime, $allowedTypes))
                 // {
                 //     Session::setFlash('error', "Format du fichier non autorisé ou mauvais format du fichier autorisé.");
-                //     $this->view('enseignant/add', $data);
+                //     $this->view('enseignant/add_bolokele', $data);
                 //     return;
                 // }
 
@@ -366,7 +407,7 @@ class EnseignantController extends Controller
                     if(!mkdir($pathDossier, 0777, true)) 
                     {
                         Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
-                        $this->view('enseignant/add',  $data);
+                        $this->view('enseignant/add_bolokele',  $data);
                         return;
                     }
                 }
@@ -382,24 +423,34 @@ class EnseignantController extends Controller
 
                 } else {
                     Session::setFlash('error', "Impossible d'enregistrer le document.");
-                    $this->view('enseignant/add', ['data' => $data]);
+                    $this->view('enseignant/add_bolokele', ['data' => $data]);
                     return;
                 }
             }
 
             if($resultUpload === true) 
             {
-                if($this->EnseignementModel->insert($dataAddEnseignement)) {
+                if($this->EnseignementModel->insert($dataAddEnseignement)) 
+                {
+                    foreach($this->allSessions as $session) 
+                    {
+                        $dataAddSession = [
+                            'session_id'    => $session->session_id,
+                            'enseignement_id' => $enseignementId,
+                        ];
+                        $this->SessionEnseignementModel->insert($dataAddSession);
+                    }
+
                     Session::setFlash('success', 'Enseignement BOLOKELE ajouté avec succès.');
                     Utils::redirect('../enseignements/'.$enseignantId);
                 } else {
                     Session::setFlash('error', 'Une erreur est survenue. Veuillez réessayer plus tard.');
-                    $this->view('enseignant/add',  $data);
+                    $this->view('enseignant/add_bolokele',  $data);
                     return;
                 }
             } else {
                 Session::setFlash('error', 'Une erreur est survenue lors de l\'upload du fichier audio. Veuillez réessayer plus tard.');
-                $this->view('enseignant/add',  $data);
+                $this->view('enseignant/add_bolokele',  $data);
                 return;
             }
         }
@@ -407,31 +458,31 @@ class EnseignantController extends Controller
         $this->view('enseignant/add_bolokele', $data);
     }
 
-    public function alertEmail($enseignementId)
-    {
-        $Enseignement = $this->EnseignementModel->findWithSerie($enseignementId);
-        if(!$Enseignement) {
-            Utils::redirect('/');
-        }
-        // var_dump($Enseignement); die;
-        $allEmailsMembers = $this->MembreModel->getEmails();
-        $lien_enseignement = SITE_URL . '/enseignement/show/' . $enseignementId;
+    // public function alertEmail($enseignementId)
+    // {
+    //     $Enseignement = $this->EnseignementModel->findWithSerie($enseignementId);
+    //     if(!$Enseignement) {
+    //         Utils::redirect('/');
+    //     }
+    //     // var_dump($Enseignement); die;
+    //     $allEmailsMembers = $this->MembreModel->getEmails();
+    //     $lien_enseignement = SITE_URL . '/enseignement/show/' . $enseignementId;
 
-        foreach($allEmailsMembers as $key => $email)
-        {
-            ob_start();
-            include APP_PATH . 'templates/email/alert_new_enseignement.php';
-            $messageBody = ob_get_clean();
+    //     foreach($allEmailsMembers as $key => $email)
+    //     {
+    //         ob_start();
+    //         include APP_PATH . 'templates/email/alert_new_enseignement.php';
+    //         $messageBody = ob_get_clean();
 
-            $this->sendEmailModel->sendEmail(
-                $email->email, 
-                'Nouvel Enseignement Disponible - '. SITE_NAME, 
-                $messageBody
-            );
-        }
+    //         $this->sendEmailModel->sendEmail(
+    //             $email->email, 
+    //             'Nouvel Enseignement Disponible - '. SITE_NAME, 
+    //             $messageBody
+    //         );
+    //     }
         
-        Utils::redirect('../profile/'.$Enseignement->enseignant_id);
-    }
+    //     Utils::redirect('../profile/'.$Enseignement->enseignant_id);
+    // }
 
     // public function forgot_pswd() 
     // {

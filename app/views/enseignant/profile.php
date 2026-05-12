@@ -45,7 +45,14 @@
                 <div class="mt-12 flex flex-wrap justify-center lg:justify-start gap-4">
                     <a href="../add/<?= $Enseignant->enseignant_id ?>"
                     class="bg-transparent border border-[#D4AF37] text-[#D4AF37] px-8 py-3 rounded-full hover:bg-[#D4AF37] hover:text-black transition-all duration-500 text-sm tracking-widest font-medium">
-                        TRANSMETTRE UNE SAGESSE
+                        TRANSMETTRE LA SAGESSE DE LA MÂAT
+                        <i class="fa-solid fa-brain"></i>
+                    </a>
+                </div>
+                <div class="mt-12 flex flex-wrap justify-center lg:justify-start gap-4">
+                    <a href="../add_bolokele/<?= $Enseignant->enseignant_id ?>"
+                    class="bg-[#130121] border border-[#D4AF37] text-[#D4AF37] px-8 py-3 rounded-full hover:bg-[#D4AF37] hover:text-black transition-all duration-500 text-sm tracking-widest font-medium">
+                        TRANSMETTRE LA SAGESSE DE BOLOKELE
                         <i class="fa-solid fa-brain"></i>
                     </a>
                 </div>

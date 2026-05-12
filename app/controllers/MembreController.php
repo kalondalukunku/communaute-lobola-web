@@ -530,10 +530,6 @@ class MembreController extends Controller
             Utils::redirect('../integration');
             return;
         }
-        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]) {
-            Utils::redirect('../rjtd/'. $membreId);
-            return;
-        }
         if($Membre->status === ARRAY_STATUS_MEMBER[1]) {
             Utils::redirect('../attitgt/'. $membreId);
             return;
@@ -549,7 +545,8 @@ class MembreController extends Controller
 
         $data = [
             'title' => 'Engagement',
-            'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
+            'description' => 'Formulaire d\'engagement à la communauté Lobola',
+            'Membre' => $Membre,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_engagement']))
@@ -579,14 +576,9 @@ class MembreController extends Controller
                 return;
             }
 
-            if($devise === ARRAY_TYPE_DEVISE[1] && $montant < 10 || $devise === ARRAY_TYPE_DEVISE[2] && $montant < 10) 
+            if($montant < 10) 
             {
-                Session::setFlash('error', "Le montant de l'engagement doit être au minimum de 10$devise.");
-                $this->view('membre/engagement',  $data);
-                return;
-            } 
-            elseif ($devise === ARRAY_TYPE_DEVISE[0] && $montant < 22500) {
-                Session::setFlash('error', "Le montant de l'engagement doit être au minimum de 22500 CDF.");
+                Session::setFlash('error', "Le montant de l'engagement doit être au minimum de 10 $devise.");
                 $this->view('membre/engagement',  $data);
                 return;
             }
@@ -685,16 +677,36 @@ class MembreController extends Controller
 
             if($resultUpload1 && $this->MembreModel->update($dataUpdateMembre, 'member_id'))
             {
-                if($this->EngagementModel->insert($dataAddEngagement))
-                {
-                    Session::setFlash('success', "Engagement enregistré avec succès. Vous serez contacté pour la suite du processus.");
-                    Utils::redirect('../attente/'. $membreId);
+                if($Membre->engagement_id === null) {
+                    if($this->EngagementModel->insert($dataAddEngagement))
+                    {
+                        Session::setFlash('success', "Engagement enregistré avec succès. Vous serez contacté pour la suite du processus.");
+                        Utils::redirect('../attente/'. $membreId);
+                    }
                 }
                 else {
-                    Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
-                    $this->view('membre/engagement',  $data);
-                    return;
+                    $dataAddEngagementUpdate = [
+                        'engagement_id'        => $Membre->engagement_id,
+                        'montant'              => $montant,
+                        'modalite_engagement'  => $modalite_engagement,
+                        'document_path'         => $pathFileEnc,
+                        'document_ext'          => $ext,
+                        'document_header_type'  => $doc_header_type,
+                        'date_expiration'      => $date_expiration,
+                        'devise'               => $devise,
+                        'statut'               => ARRAY_STATUS_ENGAGEMENT[1],
+                    ];
+                    if($this->EngagementModel->update($dataAddEngagementUpdate, 'engagement_id'))
+                    {
+                        Session::setFlash('success', "Engagement mis à jour avec succès. Vous serez contacté pour la suite du processus.");
+                        Utils::redirect('../attente/'. $membreId);
+                    }
                 }
+            }
+            else {
+                Session::setFlash('error', "Une erreur est survenue lors de l'enregistrement de votre engagement. Veuillez réessayez plutard.");
+                $this->view('membre/engagement',  $data);
+                return;
             }
         
         }
@@ -890,11 +902,11 @@ class MembreController extends Controller
             Utils::redirect('../profile/'. $membreId);
             return;
         }
-        if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
-        {
-            Utils::redirect('../rjtd/'. $membreId);
-            return;
-        }         
+        // if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2])
+        // {
+        //     Utils::redirect('../rjtd/'. $membreId);
+        //     return;
+        // }         
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
             Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");

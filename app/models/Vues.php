@@ -4,7 +4,7 @@ class Vues extends Model {
     protected $table = "enseignement_vues";
 
 
-    public function enregistrerVueUnique($idEnseignement, $idSerie, $idUser) 
+    public function enregistrerVueUnique($idEnseignement, $session_id, $idSerie, $idUser) 
     {
         try {
             // 1. On vérifie si une vue existe déjà pour ce couple enseignement/utilisateur
@@ -25,13 +25,14 @@ class Vues extends Model {
 
             // 2. Si la vue n'existe pas, on l'enregistre
             if (!$existeDeja) {
-                $sqlInsert = "INSERT INTO $this->table (enseignement_id, user_id, serie_id, viewed_at, user_agent, ip_address) 
-                            VALUES (:id_e, :id_u, :serie_id, :viewed_at, :user_agent, :ip)";
+                $sqlInsert = "INSERT INTO $this->table (enseignement_id, user_id, session_id, serie_id, viewed_at, user_agent, ip_address) 
+                            VALUES (:id_e, :id_u, :session_id, :serie_id, :viewed_at, :user_agent, :ip)";
                 
                 $stmtInsert = $this->db->prepare($sqlInsert);
                 $stmtInsert->execute([
                     'id_e'      => $idEnseignement,
                     'id_u'      => $idUser,
+                    'session_id' => $session_id,
                     'serie_id'  => $idSerie,
                     'user_agent'=> $_SERVER['HTTP_USER_AGENT'] ?? null,
                     'viewed_at' => date('Y-m-d H:i:s'),

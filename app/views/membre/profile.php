@@ -175,6 +175,7 @@
                         <div class="mt-12 flex flex-wrap justify-center">
                         <?php if ($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[3]):?>
                             <?php if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] 
+                                    || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2]
                                     || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && !$paiement
                                     || $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[0]): ?>
                                     <a href="../attente/<?= $Membre->member_id ?>" 
@@ -206,6 +207,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Colonne pour telecharger des fichiers -->
+            <?php if($Membre->niveau_initiation === ARRAY_TYPE_NIVEAU_INITIATION[3]): ?>
+                <div class="lg:col-span-12 xl:col-span-12 space-y-6 ">
+                    <div class="backdrop-blur-xl rounded-[2.5rem] p-6 color-border shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xs font-black text-white uppercase tracking-[0.3em] opacity-80 border-l-4 border-[#cfbb30] pl-4 mb-6">Ressources</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <a href="../../assets/ressources/engagement/FORMULAIRE%20ENGAGEMENT%20A%20LA%20COMMUNAUTE%20LOBOLA.docx" 
+                                    class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-lg color-border hover:bg-white/10 transition-all duration-300" download target="_blank" rel="noopener noreferrer">
+                                        <i class="fas fa-file-pdf text-red-500"></i>
+                                        <span class="text-sm font-medium text-gray-200">Formulaire d'Engagement</span>
+                                    </a>
+                                </li>
+                                <!-- <li>
+                                    <a href="../download/calendrier_rituel.pdf" 
+                                    class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-lg color-border hover:bg-white/10 transition-all duration-300">
+                                        <i class="fas fa-file-pdf text-red-500"></i>
+                                        <span class="text-sm font-medium text-gray-200">Calendrier des Rituels</span>
+                                    </a>
+                                </li> -->
+                                <!-- Ajouter d'autres ressources si nécessaire -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
 

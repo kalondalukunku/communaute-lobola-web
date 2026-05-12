@@ -76,11 +76,14 @@
                                 <?= $membre->nom_postnom ?>
                             </h1>
                             <div class="flex flex-wrap justify-center md:justify-start gap-4 items-center">
-                                <span class="flex items-center gap-2 text-gray-500 bg-gray-50 px-4 py-1.5 rounded-full text-[11px] font-medium">
+                                <span class="flex items-center gap-2 text-paper bg-gray-50 px-4 py-1.5 rounded-full text-[11px] font-medium">
                                     <i class="far fa-envelope text-primary"></i> <?= $membre->email ?>
                                 </span>
-                                <span class="flex items-center gap-2 text-gray-500 bg-gray-50 px-4 py-1.5 rounded-full text-[11px] font-medium">
-                                    <i class="far fa-clock text-primary"></i> Dernière activité : <?= $suiviDetails['stats']['last_activity'] ? Helper::formatDate2($suiviDetails['stats']['last_activity']) : 'Jamais' ?>
+                                <span class="flex items-center gap-2 text-paper bg-gray-50 px-4 py-1.5 rounded-full text-[11px] font-medium">
+                                    <i class="fas fa-level-up-alt text-primary"></i> <?= $membre->niveau_initiation ?>
+                                </span>
+                                <span class="flex items-center gap-2 text-paper bg-gray-50 px-4 py-1.5 rounded-full text-[11px] font-medium">
+                                    <i class="far fa-clock text-primary"></i> Dernière activité : <?= $membre->updated_at ? Helper::formatDate2($membre->updated_at) : 'Jamais' ?>
                                 </span>
                             </div>
                         </div>
@@ -103,6 +106,33 @@
                 </div>
             </div>
 
+            <!-- entete session actuelle -->
+            <div class="flex justify-between bg-secondary color-border rounded-[2rem] p-5">
+                <h2 class="text-md font-bold text-primary flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                        <i class="fas fa-headphones text-xs text-[#000]"></i>
+                    </span>
+                    <?= $sessionSelect->nom ?>
+                </h2>
+
+                <?php if(!$histoInitiation && $membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[3] && $suiviDetails['stats']['progress_bar'] > 50): ?>
+                    <div class="flex flex-wrap justify-end gap-3">
+                        <a href="https://wa.me/<?= str_replace('+', '', $membre->phone_number) ?>" target="_blank" class="bg-green-500 text-paper px-6 py-2.5 rounded-xl text-xs font-semibold hover:bg-green-600 transition-all">
+                            Appeler sur WhatsApp
+                            <i class="fab fa-whatsapp text-sm"></i>
+                        </a>
+
+                        <form action="" method="post">
+                            <button type="submit" 
+                                name="cllil_admin_membre_evoluer"
+                                class="bg-primary hover:bg-primary text-paper text-xs font-semibold py-2.5 px-6 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span id="btnText">Evoluer</span>
+                                <i id="btnIcon" class="fas fa-arrow-up"></i>
+                            </button>
+                        </form> 
+                    </div>
+                <?php endif; ?>
+            </div>
             <!-- Contenu : Onglets ou Colonnes -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 

@@ -30,8 +30,8 @@
         <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
 
             <div>
-                <h1 class="font-serif text-xl md:text-md font-bold text-primary">Enseignants de la communauté</h1>
-                <p class="text-xs text-gray-400 mt-1 font-medium italic">Ajouter et gérez les transmeteurs du savoir des ancêtres</p>
+                <h1 class="font-serif text-xl md:text-md font-bold text-primary">Administrateurs de la communauté</h1>
+                <p class="text-xs text-gray-400 mt-1 font-medium italic">Ajouter et gérez les administrateurs de la plateforme</p>
             </div>
             
             <div class="flex items-center gap-6">
@@ -44,12 +44,12 @@
             </div>
         </header>
 
-        <!-- lien d'ajout un enseignant -->
+        <!-- lien d'ajout un administrateur -->
         <section class="max-w-7xl mx-auto p-6 space-y-10">
             <div class="flex justify-end">
                 <a href="add" 
                 class="mt-auto inline-flex items-center justify-center w-full py-3 px-6 bg-primary text-paper text-sm font-bold rounded-xl group-hover:bg-primary group-hover:text-slate-900 transition-all duration-300 group-hover:shadow-primary/30">
-                    <span>Ajouter un enseignant</span>
+                    <span>Ajouter un administrateur</span>
                     <i class="fas fa-plus ml-2 transition-transform group-hover:translate-x-2"></i>
                 </a>
             </div>

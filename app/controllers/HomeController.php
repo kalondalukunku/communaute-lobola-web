@@ -1,14 +1,14 @@
 <?php
     require_once APP_PATH . 'models/Payment.php';
     require_once APP_PATH . 'models/Category.php';
-    require_once APP_PATH . 'models/Membre.php';
+    require_once APP_PATH . 'models/Session.php';
     require_once APP_PATH . 'models/Serie.php';
     require_once APP_PATH . 'models/Enseignement.php';
     require_once APP_PATH . 'models/Vues.php';
 
 class HomeController extends Controller {
     
-    private $MembreModel;
+    private $SessionModel;
     private $CategoryModel;
     private $SerieModel;
     private $EnseignementModel;
@@ -16,11 +16,8 @@ class HomeController extends Controller {
     private $PaymentModel;
 
     public function __construct()
-    {
-        // Auth::requireLogin('membre') ?? Auth::requireLogin('enseignant');
-        // Auth::isRole(ARRAY_ROLE_USER[0]);
-        
-        $this->MembreModel = new Membre();
+    {        
+        $this->SessionModel = new Sessions();
         $this->CategoryModel = new Category();
         $this->SerieModel = new Serie();
         $this->EnseignementModel = new Enseignement();
@@ -33,27 +30,23 @@ class HomeController extends Controller {
         Auth::requireLogin(['membre','enseignant']);
 
         $dbCategories = $this->CategoryModel->all();
-        $BolokeleId = $dbCategories[0]->category_id;
+        $allSessions = $this->SessionModel->all();
         $MaatId = $dbCategories[1]->category_id;
+        $lastSession = end($allSessions);
 
-        $Enseignements = $this->EnseignementModel->all($MaatId);
-        $Series = $this->SerieModel->all($MaatId);
-        $isOn = true;
-        $paiedMembre = null;
-
-        if(isset(Session::get('membre')['member_id'])) {
-            $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
+        $SeriesAlwaysOn = $this->SerieModel->findOneWithTeachings('d3fded1cb2174f52891d0f144497f1b3', $MaatId, $lastSession->session_id, true);
+        $inSession = Helper::isTodayInSession($lastSession->date_debut, $lastSession->date_fin); 
+        if($inSession) {
+            $Series = $this->SerieModel->all($MaatId, $lastSession->session_id, true);
+        } else {
+            $Series = null;
         }
+        $isOn = true;
 
-        /**
-         * LOGIQUE DE DISPARITION AUTOMATIQUE
-         * Fenêtre active uniquement du 22 au (22 + 15 jours)
-         */
         $showRestriction = false;
         $now = new DateTime(); // Date actuelle
         
-        // Liste des mois de début (Février, Avril, Juin, Août, Octobre, Décembre)
-        $startMonths = [2, 5, 6, 8, 10, 12];
+        $startMonths = [2, 5, 7, 9, 11];
         
         foreach ($startMonths as $m) {
             $currentYear = (int)$now->format('Y');
@@ -78,10 +71,10 @@ class HomeController extends Controller {
             'title' => SITE_NAME .' | Acceuil',
             'description' => 'Lorem jfvbjfbrfbhrfvbhkrfbhk rvirvjrljlrrjrjl zfeuhzuz',
             'Series' => $Series,
+            'SeriesAlwaysOn' => $SeriesAlwaysOn,
             'showRestriction' => $showRestriction,
             'VuesModel' => $this->VuesModel,
             'isOn' => $isOn,
-            'paiedMembre' => $paiedMembre,
             'MaatId' => $MaatId,
         ];
         $this->view('home/index', $data);

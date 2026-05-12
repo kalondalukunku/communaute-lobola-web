@@ -45,7 +45,7 @@ define('API_KEY_CALL_APP', "api_lobola_access_rYJ1TBGfPkSkgpLwkIoVni1fBkN4RRIIEc
 // others
 define('ARRAY_ROLE_USER',['Admin','Enseignant','Membre']);
 define('ARRAY_TYPE_ENGAGEMENT',['Menseul','Trimestriel','Semestriel','Annuel']);
-define('ARRAY_TYPE_DEVISE',['CDF','USD','EUR']);
+define('ARRAY_TYPE_DEVISE',['USD','EUR']);
 define('ARRAY_TYPE_SEXE',['Kamis','Kamite']);
 define('ARRAY_STATUS_MEMBER',['attente_engagement','attente_integration','active','suspended','integration_rejetee','inactive','engagement_rejetee']);
 define('ARRAY_STATUS_ENGAGEMENT',['Approuvé','Non Approuvé','Rejété']);

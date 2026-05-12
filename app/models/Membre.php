@@ -27,7 +27,7 @@ class Membre extends Model {
                                     LEFT JOIN
                                         engagements AS E
                                     ON M.member_id = E.member_id 
-                                    WHERE M.email = :email OR M.phone_number = :email
+                                    WHERE M.email = :email OR M.phone_number = :email OR M.nom_postnom = :email
                                     LIMIT 1");
         $stmt->execute([
             'email'         => $connect,
@@ -106,21 +106,21 @@ class Membre extends Model {
         $q = $this->db->prepare($query);
         $this->db->beginTransaction();
     
-    foreach ($datas as $item) {
-        // On lie uniquement les colonnes autorisées pour éviter les erreurs SQL
-        $q->execute([
-            ':pays_id'   => $item['id'] ?? null,
-            ':pays'      => $item['name'] ?? null,
-            ':iso2'      => $item['iso2'] ?? null,
-            ':iso3'      => $item['iso3'] ?? null,
-            ':phonecode' => $item['phonecode'] ?? null,
-            ':timezones' => $item['timezones'] ?? null,
-            ':latitude'  => $item['latitude'] ?? null,
-            ':longitude' => $item['longitude'] ?? null,
-        ]);
-    }
+        foreach ($datas as $item) {
+            // On lie uniquement les colonnes autorisées pour éviter les erreurs SQL
+            $q->execute([
+                ':pays_id'   => $item['id'] ?? null,
+                ':pays'      => $item['name'] ?? null,
+                ':iso2'      => $item['iso2'] ?? null,
+                ':iso3'      => $item['iso3'] ?? null,
+                ':phonecode' => $item['phonecode'] ?? null,
+                ':timezones' => $item['timezones'] ?? null,
+                ':latitude'  => $item['latitude'] ?? null,
+                ':longitude' => $item['longitude'] ?? null,
+            ]);
+        }
 
-    return $this->db->commit();
+        return $this->db->commit();
         // return $q->execute($datas);
     }
     
@@ -363,6 +363,7 @@ class Membre extends Model {
                     E.reference_code, 
                     E.montant, 
                     E.devise, 
+                    E.doc_approuved, 
                     E.signed_at, 
                     E.date_expiration
                     
@@ -517,7 +518,7 @@ class Membre extends Model {
     public function getMemberProgress($member_id) 
     {
         // 1. Compter le total des enseignements actifs
-        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM teachings WHERE is_active = '1'");
+        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE is_active = '1'");
         $stmtTotal->execute();
         $totalActive = (int)$stmtTotal->fetchColumn();
 
@@ -529,7 +530,7 @@ class Membre extends Model {
             SELECT COUNT(DISTINCT enseignement_id) 
             FROM enseignement_vues
             WHERE user_id = :mid 
-            AND enseignement_id IN (SELECT enseignement_id COLLATE utf8mb4_unicode_ci FROM teachings WHERE is_active = '1')
+            AND enseignement_id IN (SELECT enseignement_id   FROM session_teachings WHERE is_active = '1')
         ");
         $stmtSeen->execute(['mid' => $member_id]);
         $totalSeen = (int)$stmtSeen->fetchColumn();
@@ -540,11 +541,89 @@ class Membre extends Model {
         return min(100, round($percentage)); // Plafonné à 100%
     }
 
-    public function getMembersActivityReport($search = null) 
+    // public function getMembersActivityReport($search = null, $session_id = null) 
+    // {
+    //     // 1. Obtenir le dénominateur (total des enseignements actifs)
+    //     $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE is_active = '1'");
+    //     $stmtTotal->execute();
+    //     $totalActive = (int)$stmtTotal->fetchColumn();
+
+    //     if ($totalActive === 0) {
+    //         return [];
+    //     }
+
+    //     // 2. Préparation de la condition de recherche
+    //     $searchCondition = "";
+    //     $params = [];
+    //     if (!empty($search)) {
+    //         // Filtre sur le nom ou l'email
+    //         $searchCondition = " AND (m.nom_postnom LIKE :search OR m.email LIKE :search OR m.phone_number LIKE :search OR m.ville LIKE :search OR m.niveau_initiation LIKE :search OR m.genre LIKE :search OR m.domaine_etude LIKE :search) ";
+    //         $params['search'] = '%' . $search . '%';
+    //     }
+    //     $params['session_id'] = $session_id; // Si besoin de filtrer par session_id dans la sous-requête ou ailleurs
+        
+
+    //     // 3. Requête principale avec Jointure et Recherche
+    //     $query = "
+    //         SELECT 
+    //             m.member_id,
+    //             m.nom_postnom,
+    //             m.email,
+    //             m.path_profile,
+    //             m.phone_number,
+    //             m.status,
+    //             COUNT(DISTINCT ev.enseignement_id) as total_seen,
+    //             MAX(ev.viewed_at) as last_seen_date
+    //         FROM members m
+    //         INNER JOIN enseignement_vues ev 
+    //             ON m.member_id   = ev.user_id  
+    //         WHERE ev.session_id = :session_id
+    //             AND ev.enseignement_id IN (
+    //                 SELECT enseignement_id   
+    //                 FROM session_teachings 
+    //                 WHERE is_active = '1'
+    //             )
+    //         $searchCondition
+    //         GROUP BY m.member_id
+    //         ORDER BY total_seen DESC
+    //     ";
+
+    //     $stmt = $this->db->prepare($query);
+    //     $stmt->execute($params);
+    //     $membersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //     $report = [];
+
+    //     // 4. Construction du tableau final
+    //     foreach ($membersData as $member) {
+    //         $totalSeen = (int)$member['total_seen'];
+    //         $calcPercentage = ($totalSeen / $totalActive) * 100;
+
+    //         $report[] = [
+    //             'member_id' => $member['member_id'],
+    //             'nom_postnom' => $member['nom_postnom'],
+    //             'email' => $member['email'],
+    //             'path_profile' => $member['path_profile'],
+    //             'phone_number' => $member['phone_number'],
+    //             'status' => $member['status'],
+    //             'stats' => [
+    //                 'read_count' => $totalSeen,
+    //                 'total_to_read' => $totalActive,
+    //                 'progress_bar' => min(100, round($calcPercentage)),
+    //                 'last_activity' => $member['last_seen_date']
+    //             ]
+    //         ];
+    //     }
+
+    //     return $report;
+    // }
+
+    public function getMembersActivityReport($search = null, $session_id = null) 
     {
-        // 1. Obtenir le dénominateur (total des enseignements actifs)
-        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM teachings WHERE is_active = '1'");
-        $stmtTotal->execute();
+        // 1. Obtenir le référentiel des enseignements actifs pour CETTE session
+        // Cela évite de compter des enseignements d'autres sessions
+        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE session_id = ?");
+        $stmtTotal->execute([$session_id]);
         $totalActive = (int)$stmtTotal->fetchColumn();
 
         if ($totalActive === 0) {
@@ -553,14 +632,15 @@ class Membre extends Model {
 
         // 2. Préparation de la condition de recherche
         $searchCondition = "";
-        $params = [];
+        $params = [':session_id' => $session_id];
+        
         if (!empty($search)) {
-            // Filtre sur le nom ou l'email
-            $searchCondition = " AND (m.nom_postnom LIKE :search OR m.email LIKE :search OR m.phone_number LIKE :search OR m.ville LIKE :search OR m.niveau_initiation LIKE :search OR m.genre LIKE :search OR m.domaine_etude LIKE :search) ";
-            $params['search'] = '%' . $search . '%';
+            $searchCondition = " AND (m.nom_postnom LIKE :search OR m.email LIKE :search OR m.phone_number LIKE :search OR m.ville LIKE :search OR m.niveau_initiation LIKE :search) ";
+            $params[':search'] = '%' . $search . '%';
         }
 
-        // 3. Requête principale avec Jointure et Recherche
+        // 3. Requête principale
+        // On compte uniquement les vues qui appartiennent à la session et qui sont dans la liste des actifs
         $query = "
             SELECT 
                 m.member_id,
@@ -572,14 +652,15 @@ class Membre extends Model {
                 COUNT(DISTINCT ev.enseignement_id) as total_seen,
                 MAX(ev.viewed_at) as last_seen_date
             FROM members m
-            INNER JOIN enseignement_vues ev 
-                ON m.member_id COLLATE utf8mb4_unicode_ci = ev.user_id COLLATE utf8mb4_unicode_ci
-            WHERE ev.enseignement_id IN (
-                SELECT enseignement_id COLLATE utf8mb4_unicode_ci 
-                FROM teachings 
-                WHERE is_active = '1'
-            )
-            $searchCondition
+            LEFT JOIN enseignement_vues ev 
+                ON m.member_id   = ev.user_id  
+                AND ev.session_id = :session_id
+                AND ev.enseignement_id IN (
+                    SELECT enseignement_id   
+                    FROM session_teachings 
+                    WHERE session_id = :session_id
+                )
+            WHERE 1=1 $searchCondition
             GROUP BY m.member_id
             ORDER BY total_seen DESC
         ";
@@ -590,9 +671,14 @@ class Membre extends Model {
 
         $report = [];
 
-        // 4. Construction du tableau final
+        // 4. Construction du tableau final avec calcul lus/non-lus
         foreach ($membersData as $member) {
             $totalSeen = (int)$member['total_seen'];
+            $unreadCount = $totalActive - $totalSeen;
+            
+            // Sécurité pour ne pas descendre en dessous de 0 si la DB a des doublons incohérents
+            $unreadCount = max(0, $unreadCount); 
+            
             $calcPercentage = ($totalSeen / $totalActive) * 100;
 
             $report[] = [
@@ -604,6 +690,7 @@ class Membre extends Model {
                 'status' => $member['status'],
                 'stats' => [
                     'read_count' => $totalSeen,
+                    'unread_count' => $unreadCount,
                     'total_to_read' => $totalActive,
                     'progress_bar' => min(100, round($calcPercentage)),
                     'last_activity' => $member['last_seen_date']
@@ -614,7 +701,7 @@ class Membre extends Model {
         return $report;
     }
 
-    public function getMemberDetailedReport($memberId)
+    public function getMemberDetailedReport($memberId, $session_id)
     {
         // 1. Informations de base du membre
         $stmtMember = $this->db->prepare("SELECT member_id, nom_postnom, email, path_profile FROM members WHERE member_id = ?");
@@ -625,14 +712,17 @@ class Membre extends Model {
 
         // 2. Récupérer TOUS les enseignements actifs (le référentiel)
         // On récupère le titre, la durée, etc.
-        $stmtTeachings = $this->db->prepare("SELECT enseignement_id, title, duration_minutes, is_active, created_at FROM teachings ORDER BY created_at DESC");
-        $stmtTeachings->execute();
+        $stmtTeachings = $this->db->prepare("SELECT t.enseignement_id, t.title, t.duration_minutes, t.created_at 
+                                            FROM teachings t
+                                            INNER JOIN session_teachings st ON t.enseignement_id = st.enseignement_id  
+                                            WHERE st.session_id = ?");
+        $stmtTeachings->execute([$session_id]);
         $allTeachings = $stmtTeachings->fetchAll(PDO::FETCH_ASSOC);
         $totalActive = count($allTeachings);
 
         // 3. Récupérer les IDs des enseignements déjà vus par ce membre
-        $stmtSeen = $this->db->prepare("SELECT enseignement_id, viewed_at FROM enseignement_vues WHERE user_id = ?");
-        $stmtSeen->execute([$memberId]);
+        $stmtSeen = $this->db->prepare("SELECT enseignement_id, viewed_at FROM enseignement_vues WHERE user_id = ? AND session_id = ?");
+        $stmtSeen->execute([$memberId, $session_id]);
         $seenData = $stmtSeen->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC); 
         // fetchGroup permet d'avoir l'id en clé pour une recherche rapide : [ 'id_1' => [[viewed_at => ...]], ... ]
 
@@ -683,17 +773,16 @@ class Membre extends Model {
 
     public function getMemberActivityDetails($member_id) 
     {
-        $query = "
-            SELECT 
-                t.title,
-                t.enseignement_id,
-                ev.viewed_at
-            FROM enseignement_vues ev
-            INNER JOIN teachings t ON ev.enseignement_id COLLATE utf8mb4_unicode_ci = t.enseignement_id COLLATE utf8mb4_unicode_ci
-            WHERE ev.user_id = :member_id
-            AND t.is_active = '1'
-            ORDER BY ev.viewed_at DESC
-        ";
+        $query = "SELECT 
+            t.title,
+            t.enseignement_id,
+            ev.viewed_at
+        FROM enseignement_vues ev
+        INNER JOIN session_teachings st 
+            ON t.enseignement_id   = st.enseignement_id  
+        WHERE ev.user_id = :member_id
+        AND st.is_active = '1'
+        ORDER BY ev.viewed_at DESC";
 
         $stmt = $this->db->prepare($query);
         $stmt->execute(['member_id' => $member_id]);

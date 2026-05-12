@@ -129,6 +129,12 @@
                                 <p class="text-xs font-bold text-slate-500"><?= $Membre->domaine_etude ?></p>
                             </div>
                         </div>
+                        <div class="flex justify-center">
+                            <a href="https://wa.me/<?= str_replace('+', '', $Membre->phone_number) ?>" class="flex items-center gap-3 bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl transition-all group" target="_blank">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">WhatsApp</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -284,6 +290,8 @@
                                 <div class="space-y-3">
                                     <div><p class="text-[10px] text-slate-200 uppercase font-bold">Inscrit le</p><p class="text-xs text-slate-500 font-bold"><?= Helper::formatDate2($Membre->created_at) ?></p></div>
                                     <div><p class="text-[10px] text-slate-200 uppercase font-bold">Nationalité</p><p class="text-xs text-slate-500 font-bold"><?= $Membre->nationalite ?></p></div>
+                                    <div><p class="text-[10px] text-slate-200 uppercase font-bold">Pays</p><p class="text-xs text-slate-500 font-bold"><?= $Membre->pays ?></p></div>
+                                    <div><p class="text-[10px] text-slate-200 uppercase font-bold">Ville</p><p class="text-xs text-slate-500 font-bold"><?= $Membre->ville ?></p></div>
                                 </div>
                             </div>
 
@@ -348,7 +356,7 @@
     <!-- Conteneur du Modal -->
     <div 
         id="modalContent"
-        class="bg-paper rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
         
         <!-- Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-100">

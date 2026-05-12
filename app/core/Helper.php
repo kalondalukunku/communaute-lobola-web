@@ -632,4 +632,35 @@ class Helper {
         if ($score >= 25) return "Novice";
         return "Débutant";
     }
+
+    public static function badgeSession($dateDebut, $dateFin) {
+        if (new DateTime() < new DateTime($dateDebut)) {
+            return '<div class="absolute bg-blue-500 top-6 right-4 p-2 text-[9px] text-white font-bold rounded-full">
+                        À venir
+                    </div>';
+        } elseif (new DateTime() > new DateTime($dateFin)) {
+            return '<div class="absolute bg-red-500 top-6 right-4 p-2 text-[9px] text-white font-bold rounded-full">
+                        Déjà fini
+                    </div>';
+        } else {
+            return '<div class="absolute bg-green-500 top-6 right-4 p-2 text-[9px] text-white font-bold rounded-full">
+                        En cours
+                    </div>';
+        }
+    }
+
+    public static function isTodayInSession($dateDebut, $dateFin) 
+    {
+        // 1. Créer l'objet pour la date d'aujourd'hui (à minuit pour comparer les jours uniquement)
+        // Ou laissez tel quel pour inclure l'heure précise.
+        $today = new DateTime();
+
+        // 2. Convertir les entrées en objets DateTime si ce sont des chaînes de caractères
+        $start = ($dateDebut instanceof DateTime) ? $dateDebut : new DateTime($dateDebut);
+        $end = ($dateFin instanceof DateTime) ? $dateFin : new DateTime($dateFin);
+
+        // 3. Comparaison logique
+        // On vérifie si aujourd'hui est supérieur ou égal au début ET inférieur ou égal à la fin
+        return ($today >= $start && $today <= $end);
+    }
 }
