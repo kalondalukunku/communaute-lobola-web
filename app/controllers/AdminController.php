@@ -184,6 +184,26 @@ class AdminController extends Controller
         $this->view('admin/dashboard', $data);
     }
 
+    public function comptabilite() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+
+        $allPayment = $this->PaymentModel->getAllPayments();  
+        $totalPayment = $this->PaymentModel->getTotalPayments();  
+        $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
+        $totalPaymentYear = $this->PaymentModel->getTotalPaymentsYear();
+
+        $data = [
+            'allPayment' => $allPayment,
+            'totalPayment' => $totalPayment,
+            'totalPaymentMonth' => $totalPaymentMonth,
+            'totalPaymentYear' => $totalPaymentYear
+        ];
+
+        $this->view('admin/comptabilite', $data);
+    }
+
     public function add() 
     {
         Auth::requireLogin('admin');
@@ -388,15 +408,19 @@ class AdminController extends Controller
         $psnPg = (int) basename($_GET['page'] ?? 1);
 
         $stt = ARRAY_STATUS_MEMBER[2];
+        $order_where = "E.signed_at";
         
         if($sttGet === 'approuve' || !isset($_GET['stt']))
-            $stt = ARRAY_STATUS_ENGAGEMENT[0];
+            {
+                $stt = ARRAY_STATUS_ENGAGEMENT[0];
+                $order_where = "M.nom_postnom";
+            }
         elseif($sttGet === 'non_approuve')
             $stt = ARRAY_STATUS_ENGAGEMENT[1];
         elseif($sttGet === 'rejete')
             $stt = ARRAY_STATUS_ENGAGEMENT[2];
 
-        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['statut' => $stt]);
+        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['statut' => $stt], 10, $order_where);
         $AllEngages = $results['data'];
         $totalrecords = $results['total_records'];
         $currentPage = $results['current_page'];
@@ -430,26 +454,26 @@ class AdminController extends Controller
 
                 $res = $this->MembreModel->dechiffreePdf($pathFilePdf,$pathFileEnc, CLEF_CHIFFRAGE_FILE);
 
-                if($res === true)
-                {
+                // if($res === true)
+                // {
                     Utils::redirect('membre/'.$membre->member_id.'?fl=file.'.$membre->document_ext);
                     unlink($pathFilePdf);
-                }
+                // }
             }
             
-            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
-            {
-                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
+            // if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete'.$membre->member_id])) 
+            // {
+            //     $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
                 
-                if($mId === $membre->member_id)
-                {
-                    if($this->MembreModel->delete($membre->member_id))
-                    {
-                        Session::setFlash('success', 'Membre supprimé avec succès.');
-                        Utils::redirect('membres');
-                    }    
-                }
-            }
+            //     if($mId === $membre->member_id)
+            //     {
+            //         if($this->MembreModel->delete($membre->member_id))
+            //         {
+            //             Session::setFlash('success', 'Membre supprimé avec succès.');
+            //             Utils::redirect('membres');
+            //         }    
+            //     }
+            // }
         }
 
         $this->view('admin/engages', $data);
@@ -559,8 +583,8 @@ class AdminController extends Controller
         $pathFilePdf = FILE_VIEW_FOLDER_PATH . $name;
 
         if (!$name && !file_exists($pathFilePdf)) {
-            Utils::redirect(RETOUR_EN_ARRIERE);
-            exit;
+            // Utils::redirect(RETOUR_EN_ARRIERE);
+            // exit;
         }
 
         $Membre = $this->MembreModel->findByMemberId($membreId);
@@ -577,7 +601,8 @@ class AdminController extends Controller
             'Membre' => $Membre,
             'MembreMotif' => $MembreMotif,
             'Payment' => $Payment,
-            'name' => $name
+            'name' => $name,
+            'pathFilePdf' => $pathFilePdf,
         ];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_integration_approuve'])) 

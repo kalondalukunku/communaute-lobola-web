@@ -45,6 +45,11 @@
                         <i class="fas fa-shield-alt w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-semibold">Administrateurs</span>
                     </a>
+                    <a href="/admin/comptabilite" 
+                       class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-paper/5 <?= Helper::setActiveAdmin('admin/comptabilite', true) ? 'bg-primary/10 text-primary border border-primary/20' : 'hover:text-white' ?>">
+                        <i class="fas fa-wallet w-5 text-center group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-semibold">Comptabilité</span>
+                    </a>
                 </div>
             </div>
 
@@ -65,10 +70,10 @@
                     
                     <div x-show="openMenu === 'membres'" x-collapse x-cloak>
                         <div class="pb-3 pl-12 pr-4 space-y-2">
-                            <a href="/admin/membres" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Liste complète</a>
-                            <a href="/admin/inities" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/inities', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Type d'initié</a>
-                            <a href="/admin/membres_suivi" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres_suivi', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Suivi d'activité</a>
+                            <a href="/admin/membres" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Tous les membres</a>
                             <a href="/admin/engages" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/engages', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Membres Engagés</a>
+                            <a href="/admin/inities" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/inities', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Type d'initié</a>
+                            <a href="/admin/membres_suivi" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres_suivi', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Suivi des membres</a>
                         </div>
                     </div>
                 </div>

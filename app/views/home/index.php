@@ -141,20 +141,20 @@
                                         <i class="far fa-calendar-alt text-xs"></i>
                                         <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
                                     </div>
-                                    <?php if(Session::get('membre')['bolokele'] == 1): ?>
-                                        <a href="../../enseignement/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                        </a>
-                                    <?php else: ?>
+                                    <?php if($item->category_id === $BolokeleId && Session::get('membre')['bolokele'] != 1): ?>
                                         <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
                                             S'engager pour accéder <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="../../enseignement/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
                                         </a>
                                     <?php endif; ?>
                                 </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?>
+                <?php elseif($SeriesAlwaysOn): ?>
                         <div class="audio-card rounded-2xl color-border group relative overflow-hidden">
                             <?php 
                                 // Vérification si l'enseignement a moins de 24h
@@ -206,22 +206,9 @@
                                         <i class="far fa-calendar-alt text-xs"></i>
                                         <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($SeriesAlwaysOn->created_at) ?></span>
                                     </div>
-                                    <?php if(Session::get('membre')['bolokele'] == 1): ?>
-                                        <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                            Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                        </a>
-                                    <?php else: ?>
-                                        
-                                        <?php if(Session::get('enseignant')): ?>
-                                            <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                                Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                                S'engager pour accéder <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
+                                    <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+                                        Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>

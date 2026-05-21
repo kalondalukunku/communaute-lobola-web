@@ -115,7 +115,7 @@
                     <?= $sessionSelect->nom ?>
                 </h2>
 
-                <?php if(!$histoInitiation && $membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[3] && $suiviDetails['stats']['progress_bar'] > 50): ?>
+                <?php if(!$histoInitiation && $membre->niveau_initiation !== ARRAY_TYPE_NIVEAU_INITIATION[3] && $suiviDetails['stats']['progress_bar'] > 70): ?>
                     <div class="flex flex-wrap justify-end gap-3">
                         <a href="https://wa.me/<?= str_replace('+', '', $membre->phone_number) ?>" target="_blank" class="bg-green-500 text-paper px-6 py-2.5 rounded-xl text-xs font-semibold hover:bg-green-600 transition-all">
                             Appeler sur WhatsApp

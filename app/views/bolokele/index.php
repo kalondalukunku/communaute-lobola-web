@@ -9,7 +9,12 @@
         include APP_PATH . 'templates/alertView.php'; 
     ?>
 
-    <?php if(Session::get('enseignant') || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] && isset($paiedMembre->payment_status) && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1])): ?>
+    <?php if(Session::get('enseignant') 
+        || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] 
+        && isset($paiedMembre->payment_status) 
+        && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1]
+        && $paiedMembre->payment_prochain  < date('Y-m-d H:i:s'))
+    ): ?>
         <main class="flex-grow container mx-auto px-4 py-12">
             <div class="fade-in">
                 <!-- Section Titre -->

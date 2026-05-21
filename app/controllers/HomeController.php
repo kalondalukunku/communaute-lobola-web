@@ -32,14 +32,16 @@ class HomeController extends Controller {
         $dbCategories = $this->CategoryModel->all();
         $allSessions = $this->SessionModel->all();
         $MaatId = $dbCategories[1]->category_id;
+        $BolokeleId = $dbCategories[0]->category_id;
         $lastSession = end($allSessions);
+        $SeriesAlwaysOn = null;
 
-        $SeriesAlwaysOn = $this->SerieModel->findOneWithTeachings('d3fded1cb2174f52891d0f144497f1b3', $MaatId, $lastSession->session_id, true);
         $inSession = Helper::isTodayInSession($lastSession->date_debut, $lastSession->date_fin); 
         if($inSession) {
             $Series = $this->SerieModel->all($MaatId, $lastSession->session_id, true);
         } else {
             $Series = null;
+            $SeriesAlwaysOn = $this->SerieModel->findOneWithTeachings('d3fded1cb2174f52891d0f144497f1b3', $MaatId, $lastSession->session_id, true);
         }
         $isOn = true;
 
@@ -76,6 +78,7 @@ class HomeController extends Controller {
             'VuesModel' => $this->VuesModel,
             'isOn' => $isOn,
             'MaatId' => $MaatId,
+            'BolokeleId' => $BolokeleId,
         ];
         $this->view('home/index', $data);
     }

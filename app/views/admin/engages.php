@@ -165,7 +165,7 @@
                                 <th class="pl-5 pr-3 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Identité</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Engagement</th>
                                 <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Statut engagement</th>
-                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Date d'intégration</th>
+                                <th class="px-3 py-3 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400">Date d'engagement</th>
                                 <th class="pl-3 pr-5 py-6 text-[10px] uppercase tracking-[0.2em] font-black text-gray-400 text-center">Options</th>
                             </tr>
                         </thead>
@@ -201,12 +201,13 @@
                                                             <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 
                                                             <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] ? 'Approuvé' : '' ?>
                                                             <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 0 ? 'Engagement à confirmer' : '' ?>
-                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 1 ? 'Paiement à confirmer' : '' ?>
+                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 1 && !$membre->payment_status ? 'Attente de paiement' : '' ?>
+                                                            <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[1] && $membre->doc_approuved == 1 && $membre->payment_status ? 'Déjà payé' : '' ?>
                                                             <?= $membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[2] ? 'Rejété' : '' ?>
                                                         </span>
                                                         </td>
                                                         <td class="px-3 py-3">
-                                                        <p class="text-xs font-medium text-white">Le <?= Helper::formatDate2($membre->created_at) ?></p>
+                                                        <p class="text-xs font-medium text-white">Le <?= Helper::formatDate2($membre->date_engagement) ?></p>
                                                         <p class="text-[10px] text-primary font-bold">Enseignement #42</p>
                                                         </td>
                                                         <td class="pl-6 pr-10 py-5">

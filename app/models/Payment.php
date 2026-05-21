@@ -38,16 +38,6 @@ class Payment extends Model {
         return $q->fetch();
     }
 
-    // public function getTotalPayments()
-    // {
-    //     $query = "SELECT SUM(amount) as total 
-    //             FROM payments 
-    //             WHERE payment_prochain > NOW()";
-    //     $q = $this->db->prepare($query);
-    //     $q->execute();
-    //     return $q->fetch()->total;
-    // }
-
     public function getTotalPayments(): float
     {
         // 1. Définition des taux de change (1 USD = X devise)
@@ -135,5 +125,71 @@ class Payment extends Model {
         }
 
         return round($totalInUSD, 2);
+    }
+
+    public function getTotalPaymentsYear(): float
+    {
+        // 1. Définition des taux de change (Base 1 USD)
+        $exchangeRates = [
+            'CDF' => 2300, 
+            'EUR' => 0.87,
+            'USD' => 1.0
+        ];
+
+        /**
+         * 2. Sélection groupée par devise pour l'année actuelle uniquement.
+         * On filtre sur l'année en cours (CURRENT_DATE).
+         * Remplacez 'created_at' par votre colonne de date (ex: 'payment_date' ou 'payment_prochain').
+         */
+        $query = "SELECT devise, SUM(amount) as subtotal 
+                FROM payments 
+                WHERE YEAR(payment_date) = YEAR(CURRENT_DATE)
+                    AND payment_status = 'Payé'
+                GROUP BY devise";
+        
+        $q = $this->db->prepare($query);
+        $q->execute();
+        $results = $q->fetchAll(PDO::FETCH_OBJ);
+
+        $totalInUSD = 0.0;
+
+        // 3. Traitement et conversion
+        if ($results) {
+            foreach ($results as $row) {
+                $currency = strtoupper($row->devise);
+                $amount = (float)$row->subtotal;
+
+                if ($currency === 'USD') {
+                    $totalInUSD += $amount;
+                } elseif (isset($exchangeRates[$currency]) && $exchangeRates[$currency] > 0) {
+                    // Conversion : Montant / Taux
+                    $totalInUSD += ($amount / $exchangeRates[$currency]);
+                } else {
+                    // Par sécurité, on ne traite pas ou on log si la devise est inconnue
+                    // Ici on choisit de ne pas l'ajouter pour ne pas fausser le total USD
+                }
+            }
+        }
+
+        return round($totalInUSD, 2);
+    }
+
+    public function getAllPayments()
+    {
+        $query = "SELECT 
+                    *,
+                    M.nom_postnom,
+                    E.modalite_engagement,
+                    CASE 
+                        WHEN payment_status = 'Payé' THEN amount
+                        ELSE 0
+                    END AS amount_paid
+                FROM $this->table
+                INNER JOIN members M ON $this->table.member_id = M.member_id
+                INNER JOIN engagements E ON $this->table.engagement_id = E.engagement_id
+                ORDER BY payment_date DESC";
+        $q = $this->db->prepare($query);
+        $q->execute();
+        return $q->fetchAll();
     }
 }

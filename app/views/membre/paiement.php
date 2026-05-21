@@ -44,6 +44,12 @@
                                         +243 819 889 889 (BASELE)
                                     </span>
                                 </div>
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200/50">
+                                    <span class="text-xs text-gray-500">Orange :</span>
+                                    <span class="text-xs md:text-sm font-bold text-primary">
+                                        +243 841 112 307 (BASELE)
+                                    </span>
+                                </div>
                                 <!-- <div class="flex justify-between items-center py-2 border-b border-gray-200/50">
                                     <span class="text-xs text-gray-500">Orange Money :</span>
                                     <span class="text-sm font-bold text-primary">

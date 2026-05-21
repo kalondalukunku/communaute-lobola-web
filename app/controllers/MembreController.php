@@ -3,6 +3,7 @@ require_once APP_PATH . 'models/Membre.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Session.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pays.php';
@@ -22,6 +23,7 @@ class MembreController extends Controller
     private $PaysModel;
     private $PdfModel;
     private $VillesModel;
+    private $SessionModel;
 
     public function __construct()
     {        
@@ -29,6 +31,7 @@ class MembreController extends Controller
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
         $this->TokensModel = new Tokens();
+        $this->SessionModel = new Sessions();
         $this->EnseignementModel = new Enseignement();
         $this->ActionsRaisonsModel = new ActionsRaisons();
         $this->PaysModel = new Pays();
@@ -46,11 +49,15 @@ class MembreController extends Controller
     public function integration() 
     {
         if(Session::get('membre') || Session::get('enseignant')) Utils::redirect('/');
+        $allSessions = $this->SessionModel->all();
+        $lastSession = end($allSessions);
 
-        // if (date('d') >= 15 && date('m') == 02 || date('d') >= 1 && date('m') == 03)   
-        // {
-        //     Utils::redirect('integrations');
-        // }
+        $inSession = Helper::isTodayInSession($lastSession->date_debut, $lastSession->date_fin); 
+        if($inSession)
+        {
+            Utils::redirect('integrations');
+        }
+
         $ip = Utils::getUserIP();
         $pays = Helper::getCountryByIp();
         

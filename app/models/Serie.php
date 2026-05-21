@@ -41,6 +41,7 @@ class Serie extends Model {
                     ssc.updated_at AS serie_session_updated_at,
                     ssc.session_id,
                     t.enseignement_id,
+                    t.category_id,
                     t.title AS teaching_title,
                     t.audio_url,
                     t.description,
@@ -80,6 +81,7 @@ class Serie extends Model {
                     $series[$serieId] = (object)[
                         'serie_id' => $row->serie_id,
                         'session_id' => $row->session_id,
+                        'category_id' => $row->category_id,
                         'nom' => $row->nom,
                         'description' => $row->description,
                         'created_at' => $row->created_at,

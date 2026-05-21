@@ -236,6 +236,9 @@ class Membre extends Model {
     {
         $query = "SELECT 
                         M.*,
+                        P.amount AS montant_paye,
+                        P.devise,
+                        P.payment_status,
                         E.statut AS statut_engagement, 
                         E.engagement_id, 
                         E.modalite_engagement, 
@@ -250,7 +253,10 @@ class Membre extends Model {
                         E.signed_at, 
                         E.date_expiration 
                     
-                    FROM $this->table M LEFT JOIN engagements E ON M.member_id = E.member_id WHERE M.member_id = :member_id LIMIT 1";
+                    FROM $this->table M 
+                    LEFT JOIN engagements E ON M.member_id = E.member_id 
+                    LEFT JOIN payments P ON M.member_id = P.member_id 
+                    WHERE M.member_id = :member_id LIMIT 1";
         $q = $this->db->prepare($query);
         $q->execute(['member_id' => $memberId]); 
         return $q->fetch();
@@ -316,7 +322,7 @@ class Membre extends Model {
         ];
     }
 
-    public function findAllEngages(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null): array
+    public function findAllEngages(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "E.signed_at", ?string $order_by = "ASC"): array
     {
         $limit = $per_page ?? $this->default_per_page ?? 10;
         $page = max(1, $page);
@@ -354,6 +360,9 @@ class Membre extends Model {
         // 4. Requête pour les enregistrements (INNER JOIN filtre les membres sans engagement)
         $sql = "SELECT 
                     M.*,
+                    P.amount AS montant_paye,
+                    P.devise,
+                    P.payment_status,
                     E.statut AS statut_engagement, 
                     E.engagement_id, 
                     E.modalite_engagement, 
@@ -365,12 +374,14 @@ class Membre extends Model {
                     E.devise, 
                     E.doc_approuved, 
                     E.signed_at, 
-                    E.date_expiration
+                    E.date_expiration,
+                    E.signed_at AS date_engagement
                     
                 FROM $this->table M 
                 INNER JOIN engagements E ON M.member_id = E.member_id 
+                LEFT JOIN payments P ON E.member_id = P.member_id
                 $whereSql 
-                ORDER BY M.member_id DESC 
+                ORDER BY $order_where $order_by
                 LIMIT {$limit} OFFSET {$offset}";
         
         $q = $this->db->prepare($sql);
