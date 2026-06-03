@@ -98,10 +98,24 @@
                                 </h3>
                                 <!-- lecture audio -->
                                  <?php foreach ($item->teachings as $teaching): ?>
-                                    <div class="mb-4">
-                                        <h4 class="text-sm font-semibold text-gray-300 mb-1"><?= $teaching->title ?></h4>
+                                    <div class="mb-6 p-4 bg-secondary rounded-xl color-border relative group">
+                                        <h4 class="text-sm font-semibold text-gray-300 mb-4"><?= $teaching->title ?></h4>
+
                                         <audio controls src="../<?= $teaching->audio_url ?>" class="w-full rounded-lg">
                                         </audio>
+
+                                        <!-- Bouton On/Off -->
+                                        <div class="absolute top-4 right-4">
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                    class="sr-only peer status-toggle" 
+                                                    data-ss="<?= $sessionIdGet ?>"
+                                                    data-id="<?= $teaching->id ?>" 
+                                                    onchange="submitToggle2(this)"
+                                                    <?= $teaching->is_active ? 'checked' : '' ?>>
+                                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600 shadow-inner"></div>
+                                            </label>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                                 <!-- <audio controls src="../<?= $item->audio_url ?>" class="w-full rounded-lg mb-4" >

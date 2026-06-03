@@ -48,6 +48,7 @@ class Serie extends Model {
                     t.duration_minutes,
                     t.created_at AS teaching_created_at,
                     COALESCE(ssc.is_active, 0) AS is_active_for_session,
+                    COALESCE(sst.is_active, 0) AS is_active_for_teaching_session,
                     (SELECT COUNT(*) 
                     FROM enseignement_vues ev 
                     WHERE ev.enseignement_id = t.enseignement_id 
@@ -58,9 +59,12 @@ class Serie extends Model {
                 LEFT JOIN session_series ssc
                     ON s.serie_id = ssc.serie_id 
                     AND ssc.session_id = :session_id
+                LEFT JOIN session_teachings sst
+                    ON t.enseignement_id = sst.enseignement_id 
+                    AND sst.session_id = :session_id
                 WHERE (t.category_id = :category_id OR t.category_id IS NULL)
                     $whereclause    
-                ORDER BY s.created_at ASC, t.created_at ASC";
+                ORDER BY s.created_at DESC, t.created_at ASC";
 
         try {
             $stmt = $this->db->prepare($sql);
@@ -99,7 +103,8 @@ class Serie extends Model {
                         'title' => $row->teaching_title,
                         'audio_url' => $row->audio_url,
                         'duration' => $row->duration_minutes,
-                        'created_at' => $row->teaching_created_at
+                        'created_at' => $row->teaching_created_at,
+                        'is_active' => $row->is_active_for_teaching_session
                     ];
                 }
             }

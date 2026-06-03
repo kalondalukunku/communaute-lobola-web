@@ -3,6 +3,7 @@
     require_once APP_PATH . 'models/Membre.php';
     require_once APP_PATH . 'models/Serie.php';
     require_once APP_PATH . 'models/Enseignement.php';
+    require_once APP_PATH . 'models/SessionEnseignement.php';
     require_once APP_PATH . 'models/SerieSession.php';
     require_once APP_PATH . 'models/Api.php';
     require_once APP_PATH . 'models/Vues.php';
@@ -14,6 +15,7 @@ class ApiController extends Controller {
     private $EngagementModel;
     private $SerieModel;
     private $SessionSerieModel;
+    private $SessionEnseignementModel;
     private $EnseignementModel;
     private $ApiModel;
     private $VuesModel;
@@ -25,6 +27,7 @@ class ApiController extends Controller {
         $this->EngagementModel = new Engagement();
         $this->SerieModel = new Serie();
         $this->SessionSerieModel = new SerieSession();
+        $this->SessionEnseignementModel = new EnseignementSession();
         $this->EnseignementModel = new Enseignement();
         $this->ApiModel = new Api();
         $this->VuesModel = new Vues();
@@ -38,12 +41,41 @@ class ApiController extends Controller {
         header('Content-Type: application/json');
         try {
             $sessionSerie = $this->SessionSerieModel->find($sessionId, $serieId);
-            $serie = $this->SerieModel->find($serieId);
+            // $serie = $this->SerieModel->find($serieId);
             $new_state = $sessionSerie->is_active == 1 ? 0 : 1;
             
             $updateSuccess = $this->SessionSerieModel->update(['is_active' => $new_state, 'ss_id' => $sessionSerie->ss_id]);
             // if($serie->is_active ==! 1) $this->SerieModel->update(['is_active' => 1, 'serie_id' => $serieId]);
             // if($new_state === 0 && $serie->enseignements_count == 0) $this->SerieModel->update(['is_active' => 0, 'serie_id' => $serieId]);
+
+            if ($updateSuccess) {
+                echo json_encode([
+                    'status' => 'success',
+                    'new_state' => $new_state,
+                    'message' => 'État mis à jour avec succès'
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour en base']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Une erreur est survenue.']);
+            return;
+        }
+    }
+
+    public function enseignement_state_view_2($enseignementId) 
+    {
+        $sessionId = $_GET['ssd'] ?? null;
+        
+        header('Content-Type: application/json');
+        try {
+            $sessionEnseignement = $this->SessionEnseignementModel->find($sessionId, $enseignementId);
+            // $serie = $this->SerieModel->find($enseignementId);
+            $new_state = $sessionEnseignement->is_active == 1 ? 0 : 1;
+            
+            $updateSuccess = $this->SessionEnseignementModel->update(['is_active' => $new_state, 'st_id' => $sessionEnseignement->st_id]);
 
             if ($updateSuccess) {
                 echo json_encode([
