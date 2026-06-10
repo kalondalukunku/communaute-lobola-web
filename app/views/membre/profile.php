@@ -47,13 +47,13 @@
                             </p>
                         </div>
 
-                        <?php if ($isOn): ?>
+                        <?php if ($inSession): ?>
                             <!-- Cartes de Stats Fluides -->
                             <div class="w-full space-y-3">
                                 <!-- Score de Progression -->
                                 <div class="group/stat bg-white/[0.03] hover:bg-white/[0.06] rounded-2xl p-5 color-border transition-all duration-300">
                                     <div class="flex justify-between items-center mb-3">
-                                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Progression Spirituelle</span>
+                                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest"><strong class="text-primary"><?= $lastSession->nom ?>e Session</strong> Progression Spirituelle</span>
                                         <span class="text-[12px] font-black text-primary"><?= $evaluationSpirituel; ?>%</span>
                                     </div>
                                     <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
@@ -190,6 +190,14 @@
                                     class="group relative inline-flex mt-4 items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-purple-400 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
                                         <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
                                             M'engager aux enseignements avancés
+                                            <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                        </span>
+                                    </a>
+                            <?php elseif($paiement->payment_prochain <= date('Y-m-d')): ?>
+                                    <a href="../repaiement/<?= $Membre->member_id ?>" 
+                                    class="group relative inline-flex mt-4 items-center justify-center px-10 py-4 font-bold text-paper transition-all duration-300 bg-purple-400 rounded-full hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-1">
+                                        <span class="relative z-10 flex items-center gap-2 uppercase text-xs">
+                                            Payer mon prochain versement
                                             <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                                         </span>
                                     </a>

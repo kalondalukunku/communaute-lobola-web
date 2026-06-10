@@ -1,14 +1,16 @@
 <?php
 require_once APP_PATH . 'models/Membre.php';
+require_once APP_PATH . 'models/Payment.php';
 
 class LoginController extends Controller {
 
     private $MembreModel;
+    private $PaymentModel;
 
     public function __construct()
     {        
         $this->MembreModel = new Membre();
- 
+        $this->PaymentModel = new Payment();
     }
 
     public function index() 
@@ -44,6 +46,7 @@ class LoginController extends Controller {
             $this->view('login/index', ['data' => $data]);
             return;
         }
+        $paiement = $this->PaymentModel->getPayment($Membre->member_id, $Membre->engagement_id);
 
         if($Membre->status !== ARRAY_STATUS_MEMBER[2]) {
             if($Membre->status !== ARRAY_STATUS_MEMBER[0])
@@ -57,8 +60,9 @@ class LoginController extends Controller {
 
         if ($Membre && password_verify($pswd, $Membre->pswd)) 
         {
-            // Session::destroy();
-            // Cache::delete('enseignant_connexion');
+            if($paiement->payment_prochain < date('Y-m-d')) $this->MembreModel->update(['bolokele' => 2, 'member_id' => $Membre->member_id]);
+            $Membre = $this->MembreModel->loginMember($connect, $cacheKey);
+
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
             Session::setFlash('success', 'Connecté.');

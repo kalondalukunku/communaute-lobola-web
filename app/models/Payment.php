@@ -30,12 +30,20 @@ class Payment extends Model {
         return $q->execute($datas);
     }
 
-    public function getPayment($memberId, $engagementId)
+    public function getPayment($memberId, $engagementId, $order = 'ORDER BY payment_date DESC')
     {
-        $query = "SELECT * FROM $this->table WHERE member_id = :member_id AND engagement_id = :engagement_id LIMIT 1";
+        $query = "SELECT * FROM $this->table WHERE member_id = :member_id AND engagement_id = :engagement_id $order LIMIT 1";
         $q = $this->db->prepare($query);
         $q->execute(['member_id' => $memberId, 'engagement_id' => $engagementId]);
         return $q->fetch();
+    }
+
+    public function getPaymentsByMember($memberId)
+    {
+        $query = "SELECT * FROM $this->table WHERE member_id = :member_id ORDER BY payment_date DESC";
+        $q = $this->db->prepare($query);
+        $q->execute(['member_id' => $memberId]);
+        return $q->fetchAll();
     }
 
     public function getTotalPayments(): float

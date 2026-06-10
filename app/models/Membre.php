@@ -526,11 +526,11 @@ class Membre extends Model {
         if(file_put_contents($filePdf,$decrypted)) return true;                
     }
 
-    public function getMemberProgress($member_id) 
+    public function getMemberProgress($member_id, $session_id) 
     {
         // 1. Compter le total des enseignements actifs
-        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE is_active = '1'");
-        $stmtTotal->execute();
+        $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE session_id = :session_id AND is_active = '1'");
+        $stmtTotal->execute(['session_id' => $session_id]);
         $totalActive = (int)$stmtTotal->fetchColumn();
 
         if ($totalActive === 0) return 0;
@@ -541,9 +541,9 @@ class Membre extends Model {
             SELECT COUNT(DISTINCT enseignement_id) 
             FROM enseignement_vues
             WHERE user_id = :mid 
-            AND enseignement_id IN (SELECT enseignement_id   FROM session_teachings WHERE is_active = '1')
+            AND enseignement_id IN (SELECT enseignement_id FROM session_teachings WHERE session_id = :session_id AND is_active = '1')
         ");
-        $stmtSeen->execute(['mid' => $member_id]);
+        $stmtSeen->execute(['mid' => $member_id, 'session_id' => $session_id]);
         $totalSeen = (int)$stmtSeen->fetchColumn();
 
         // 3. Calculer le pourcentage

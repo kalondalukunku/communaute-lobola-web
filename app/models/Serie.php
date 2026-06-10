@@ -62,6 +62,7 @@ class Serie extends Model {
                 LEFT JOIN session_teachings sst
                     ON t.enseignement_id = sst.enseignement_id 
                     AND sst.session_id = :session_id
+                    AND sst.is_active = '1'
                 WHERE (t.category_id = :category_id OR t.category_id IS NULL)
                     $whereclause    
                 ORDER BY s.created_at DESC, t.created_at ASC";

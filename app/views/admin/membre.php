@@ -251,6 +251,43 @@
                                 </div>
                             <?php endif; ?>
                         </div>
+                        <!-- historique des paiements -->
+                        <div class="bg-paper rounded-[2.5rem] shadow-sm color-border overflow-hidden">
+                            <div class="p-6 border-b border-slate-50 flex items-center gap-4 bg-paper">
+                                <span class="w-10 h-10 bg-paper shadow-sm color-border text-primary rounded-xl flex items-center justify-center font-black text-sm">03</span>
+                                <h3 class="text-white text-base font-bold">Historique des Paiements</h3>
+                            </div>
+                            <div class="p-8">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-left">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Date de Paiement</th>
+                                                <th class="px-6 py-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Montant</th>
+                                                <th class="px-6 py-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Statut</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach($Paiements as $pay): ?>
+                                            <tr class="border-t border-slate-50">
+                                                <td class="px-6 py-4 text-xs font-bold text-slate-500"><?= Helper::formatDate($pay->payment_date) ?></td>
+                                                <td class="px-6 py-4 text-xs font-bold text-slate-500"><?= $pay->amount .' '. $pay->devise ?></td>
+                                                <td class="px-6 py-4">
+                                                    <?php if($pay->payment_status === ARRAY_PAYMENT_STATUS[1]): ?>
+                                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-2"><i class="fas fa-check-circle"></i> Payé</span>
+                                                    <?php elseif($pay->payment_status === ARRAY_PAYMENT_STATUS[2]): ?>
+                                                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-2"><i class="fas fa-times-circle"></i> Refusé</span>
+                                                    <?php else: ?>
+                                                        <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-2"><i class="fas fa-spinner fa-spin"></i> En attente</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
 
                 <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[1]): ?>

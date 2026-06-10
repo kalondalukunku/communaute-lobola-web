@@ -595,12 +595,14 @@ class AdminController extends Controller
 
         $MembreMotif = $this->ActionsRaisonsModel->find($membreId, ARRAY_ACTIONS_RAISONS[0]);
         $Payment = $this->PaymentModel->getPayment($membreId, $Membre->engagement_id);
+        $Paiements = $this->PaymentModel->getPaymentsByMember($membreId);
 
         $data = [
             'membreId' => $membreId,
             'Membre' => $Membre,
             'MembreMotif' => $MembreMotif,
             'Payment' => $Payment,
+            'Paiements' => $Paiements,
             'name' => $name,
             'pathFilePdf' => $pathFilePdf,
         ];

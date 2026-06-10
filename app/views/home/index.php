@@ -139,7 +139,7 @@
                                 <div class="flex items-center justify-between pt-4">
                                     <div class="flex items-center gap-2 text-gray-500">
                                         <i class="far fa-calendar-alt text-xs"></i>
-                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
+                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->updated_at) ?></span>
                                     </div>
                                     <?php if($item->category_id === $BolokeleId && Session::get('membre')['bolokele'] != 1): ?>
                                         <a href="/membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
@@ -204,7 +204,7 @@
                                 <div class="flex items-center justify-between pt-4">
                                     <div class="flex items-center gap-2 text-gray-500">
                                         <i class="far fa-calendar-alt text-xs"></i>
-                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($SeriesAlwaysOn->created_at) ?></span>
+                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($SeriesAlwaysOn->updated_at) ?></span>
                                     </div>
                                     <a href="../../enseignement/show/<?= $SeriesAlwaysOn->serie_id ?>?ssd=<?= $SeriesAlwaysOn->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
                                         Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
