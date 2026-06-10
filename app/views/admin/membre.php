@@ -381,28 +381,36 @@
                 <?php endif; ?>
 
                 <!-- infos sur l engagement -->
-                <div class="bg-paper rounded-[2.5rem] shadow-sm color-border p-8">
-                    <h3 class="text-white text-base font-bold mb-4 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Détails de l'engagement
-                    </h3>
-                    <!-- <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Détails de l'engagement
-                    </h4> -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Modalité d'engagement</p>
-                            <p class="text-xs font-bold text-slate-500"><?= $Membre->modalite_engagement ?></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Montant de l'engagement</p>
-                            <p class="text-xs font-bold text-slate-500"><?= $Membre->montant_paye . ' ' . $Membre->devise ?></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Engagement expiration</p>
-                            <p class="text-xs font-bold text-slate-500"><?= Helper::formatDate($Membre->date_expiration) ?></p>
+                <?php if ($Membre->engagement_id && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0]) : ?> 
+                    <div class="bg-paper rounded-[2.5rem] shadow-sm color-border p-8">
+                        <h3 class="text-white text-base font-bold mb-4 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Détails de l'engagement
+                        </h3>
+                        <!-- <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Détails de l'engagement
+                        </h4> -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Modalité d'engagement</p>
+                                <p class="text-xs font-bold text-slate-500"><?= $Membre->modalite_engagement ?></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Montant de l'engagement</p>
+                                <p class="text-xs font-bold text-slate-500"><?= $Membre->montant_paye . ' ' . $Membre->devise ?></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-200 uppercase font-bold mb-1">Engagement expiration</p>
+                                <p class="text-xs font-bold text-slate-500"><?= Helper::formatDate($Membre->date_expiration) ?></p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="bg-paper rounded-[2.5rem] shadow-sm color-border p-8 text-center">
+                        <P class="text-white text-base text-xs font-bold flex items-center gap-2 justify-center">
+                            <span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Pas encore engagé aux enseignements avancés nommés "BOLOKELE"
+                        </P>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

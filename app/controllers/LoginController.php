@@ -58,9 +58,11 @@ class LoginController extends Controller {
             
         }
 
+        // var_dump($paiement->payment_prochain); die;
+
         if ($Membre && password_verify($pswd, $Membre->pswd)) 
         {
-            if($paiement->payment_prochain < date('Y-m-d')) $this->MembreModel->update(['bolokele' => 2, 'member_id' => $Membre->member_id]);
+            if($paiement->payment_prochain < date('Y-m-d')) $this->MembreModel->update(['bolokele' => '2', 'member_id' => $Membre->member_id]);
             $Membre = $this->MembreModel->loginMember($connect, $cacheKey);
 
             Cache::set($cacheKey, $Membre);

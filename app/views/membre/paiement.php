@@ -104,7 +104,7 @@
                                     <?php if(!isset($membre->preuve_paiement) && !$membre->preuve_paiement && $membre->doc_approuved == 1): ?>
                                         <div id="preview-placeholder" class="text-center p-4">
                                             <i class="fas fa-camera text-primary text-2xl mb-2"></i>
-                                            <p class="text-[9px] uppercase font-bold text-gray-400">Ajouter la photo</p>
+                                            <p class="text-[9px] uppercase font-bold text-gray-400">Ajouter la preuve</p>
                                         </div>        
                                     <?php endif; ?>
                                     <img id="image-display" src="<?= isset($membre->preuve_paiement) ? '../../'. $membre->preuve_paiement : '' ?>" class="<?= isset($membre->preuve_paiement) ? '' : 'hidden' ?> w-full h-full object-co && isset($paiement->payment_status) === ARRAY_PAYMENT_STATUS[0]ver">

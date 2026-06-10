@@ -361,8 +361,10 @@ class Membre extends Model {
         $sql = "SELECT 
                     M.*,
                     P.amount AS montant_paye,
+                    SUM(P.amount) AS total_paye,
                     P.devise,
                     P.payment_status,
+                    GROUP_CONCAT(P.amount) AS details_paiements,
                     E.statut AS statut_engagement, 
                     E.engagement_id, 
                     E.modalite_engagement, 
@@ -379,8 +381,9 @@ class Membre extends Model {
                     
                 FROM $this->table M 
                 INNER JOIN engagements E ON M.member_id = E.member_id 
-                LEFT JOIN payments P ON E.member_id = P.member_id
+                LEFT JOIN payments P ON E.member_id = P.member_id -- LEFT JOIN pour inclure ceux qui n'ont pas encore payé
                 $whereSql 
+                GROUP BY M.member_id, E.engagement_id
                 ORDER BY $order_where $order_by
                 LIMIT {$limit} OFFSET {$offset}";
         

@@ -13,7 +13,7 @@
         || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] 
         && isset($paiedMembre->payment_status) 
         && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1]
-        && $paiedMembre->payment_prochain  < date('Y-m-d H:i:s'))
+        && $paiedMembre->payment_prochain > date('Y-m-d'))
     ): ?>
         <main class="flex-grow container mx-auto px-4 py-12">
             <div class="fade-in">
@@ -97,6 +97,14 @@
                 </div>
             </div>
         </main>
+    <?php elseif(Session::get('membre')['bolokele'] === '2'): ?>
+        <div class="text-center py-40">
+            <h2 class="font-serif text-4xl text-primary mb-4">Reabonnement de l'engagement</h2>
+            <p class="text-gray-500 text-sm italic mb-8">Veuillez renouveler votre engagement pour accéder aux enseignements.</p>
+            <a href="membre/repaiement/<?= Session::get('membre')['member_id'] ?>" class="inline-block px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-black font-bold transition-colors">
+                Renouveler mon engagement
+            </a>
+        </div>
     <?php else: ?>
         <div class="text-center py-40">
             <h2 class="font-serif text-4xl text-primary mb-4">Accès Restreint</h2>

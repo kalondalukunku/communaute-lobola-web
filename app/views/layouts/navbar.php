@@ -16,7 +16,7 @@
                         Mâat
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
-                    <?php if(isset(Session::get('membre')['engagement_id']) && Session::get('membre')['bolokele'] == 1 || isset(Session::get('enseignant')['enseignant_id'])): ?>
+                    <?php if(isset(Session::get('membre')['engagement_id']) && Session::get('membre')['bolokele'] === '1' || Session::get('membre')['bolokele'] === '2' || isset(Session::get('enseignant')['enseignant_id'])): ?>
                         <a href="/bolokele" class="relative py-2 text-xs font-medium transition-colors hover:text-purple-400 group <?= Helper::setActive('bolokele') ?>">
                             BOLOKELE
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>

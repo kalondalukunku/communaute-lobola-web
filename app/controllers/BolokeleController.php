@@ -26,10 +26,6 @@ class BolokeleController extends Controller
     public function __construct()
     {
         Auth::requireLogin(['membre','enseignant']);
-        if(Session::get('membre')['bolokele'] != 1) {
-            Session::setFlash('error', "Vous n'avez pas accès aux enseignements BOLOKELE. Veuillez vous engager pour y accéder.");
-            Utils::redirect('/');
-        }
         
         $this->VuesModel = new Vues();
         $this->PaymentModel = new Payment();
@@ -56,6 +52,7 @@ class BolokeleController extends Controller
         if(isset(Session::get('membre')['member_id'])) {
             $paiedMembre = $this->PaymentModel->getPayment(Session::get('membre')['member_id'], Session::get('membre')['engagement_id']);
         }
+        // var_dump(Session::get('membre')['bolokele']); die;
 
         $data = [
             'title' => SITE_NAME .' | BOLOKELE',

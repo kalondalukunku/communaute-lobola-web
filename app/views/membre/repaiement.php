@@ -24,9 +24,9 @@
                         Votre prochain paiement d'engagement est prévu pour le <strong><?= date('d/m/Y', strtotime($paiement->payment_prochain)) ?></strong>. Vous pouvez anticiper ce paiement dès maintenant pour continuer à bénéficier de l'accès aux enseignements de <strong>BOLOKELE</strong>.
                     </p>
                 <?php elseif($paiement->payment_prochain <= date('Y-m-d')): ?>
-                    <h1 class="font-serif text-2xl text-primary font-bold mb-3">Paiement engagement</h1>
+                    <h1 class="font-serif text-2xl text-primary font-bold mb-3">Renouvellement de l'engagement</h1>
                     <p class="text-gray-500 mb-8 text-sm leading-relaxed">
-                        Veuillez effectuer votre paiement d'engagement pour réactiver votre accès aux enseignements de <strong>BOLOKELE</strong>.
+                        Veuillez effectuer votre paiement de renouvellement pour réactiver votre accès aux enseignements de <strong>BOLOKELE</strong>.
                     </p>
                 <?php endif; ?>
 
@@ -101,7 +101,7 @@
                                     <?php if(!isset($membre->preuve_paiement) && !$membre->preuve_paiement && $membre->doc_approuved == 1): ?>
                                         <div id="preview-placeholder" class="text-center p-4">
                                             <i class="fas fa-camera text-primary text-2xl mb-2"></i>
-                                            <p class="text-[9px] uppercase font-bold text-gray-400">Ajouter la photo</p>
+                                            <p class="text-[9px] uppercase font-bold text-gray-400">Ajouter la preuve</p>
                                         </div>        
                                     <?php endif; ?>
                                     <img id="image-display" src="" class="<?= isset($membre->preuve_paiement) ? '' : 'hidden' ?> w-full h-full object-co && isset($paiement->payment_status) === ARRAY_PAYMENT_STATUS[0]ver">

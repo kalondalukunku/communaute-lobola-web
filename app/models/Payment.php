@@ -57,9 +57,8 @@ class Payment extends Model {
 
         // 2. Sélectionner la somme groupée par devise pour minimiser les calculs PHP
         $query = "SELECT devise, SUM(amount) as subtotal 
-                FROM payments 
-                WHERE payment_prochain > NOW()
-                    AND payment_status = 'Payé'
+                FROM $this->table 
+                WHERE payment_status = 'Payé'
                 GROUP BY devise";
         
         $q = $this->db->prepare($query);

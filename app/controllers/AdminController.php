@@ -9,6 +9,7 @@ require_once APP_PATH . 'models/Serie.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
 require_once APP_PATH . 'models/Payment.php';
+require_once APP_PATH . 'models/Depense.php';
 require_once APP_PATH . 'models/Category.php';
 require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
@@ -28,6 +29,7 @@ class AdminController extends Controller
     private $EngagementModel;
     private $AdminModel;
     private $PaymentModel;
+    private $DepenseModel;
     private $CategoryModel;
     private $TokensModel;
     private $ActionsRaisonsModel;
@@ -49,6 +51,7 @@ class AdminController extends Controller
         $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
+        $this->DepenseModel = new Depense();
         $this->CategoryModel = new Category();
         $this->TokensModel = new Tokens();
         $this->ActionsRaisonsModel = new ActionsRaisons();
@@ -190,16 +193,65 @@ class AdminController extends Controller
         $cacheKey = 'admin_administraction';
 
         $allPayment = $this->PaymentModel->getAllPayments();  
+        $allDepense = $this->DepenseModel->getAllDepenses();
         $totalPayment = $this->PaymentModel->getTotalPayments();  
+        $totalDepense = $this->DepenseModel->getTotalDepenses();
         $totalPaymentMonth = $this->PaymentModel->getTotalPaymentsMonth();
+        $totalDepenseMonth = $this->DepenseModel->getTotalDepensesMonth();
         $totalPaymentYear = $this->PaymentModel->getTotalPaymentsYear();
+        $totalDepenseYear = $this->DepenseModel->getTotalDepensesYear();
+
+        // var_dump($allDepense); die;
 
         $data = [
             'allPayment' => $allPayment,
+            'allDepense' => $allDepense,
             'totalPayment' => $totalPayment,
+            'totalDepense' => $totalDepense,
             'totalPaymentMonth' => $totalPaymentMonth,
-            'totalPaymentYear' => $totalPaymentYear
+            'totalDepenseMonth' => $totalDepenseMonth,
+            'totalPaymentYear' => $totalPaymentYear,
+            'totalDepenseYear' => $totalDepenseYear
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_ajouter_depense'])) 
+            {
+                $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
+                $montant = Utils::sanitize(trim($_POST['montant'] ?? ''));
+                $devise = Utils::sanitize(trim($_POST['devise'] ?? ''));
+                $description = Utils::sanitize(trim($_POST['description'] ?? ''));
+
+                if($titre === '' || $montant === '' || $devise === '' || $description === '')
+                {
+                    Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                    $this->view('admin/comptabilite',  $data);
+                    return;
+                }
+
+                if(!is_numeric($montant) || $montant <= 0)
+                {
+                    Session::setFlash('error', 'Le montant doit être un nombre positif.');
+                    $this->view('admin/comptabilite',  $data);
+                    return;
+                }
+
+                $depenseData = [
+                    'depense_id' => Utils::generateUuidV4(),
+                    'titre' => $titre,
+                    'montant' => (float)$montant,
+                    'devise' => strtoupper($devise),
+                    'description' => $description,
+                    'date_depense' => date('Y-m-d H:i:s'),
+                ];
+
+                if($this->DepenseModel->insert($depenseData))
+                {
+                    Session::setFlash('success', 'Dépense ajoutée avec succès.');
+                    Utils::redirect('comptabilite');
+                } else {
+                    Session::setFlash('error', "Une erreur est survenue lors de l'ajout de la dépense.");
+                }
+            }
 
         $this->view('admin/comptabilite', $data);
     }
