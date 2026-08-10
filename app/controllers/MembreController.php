@@ -60,9 +60,25 @@ class MembreController extends Controller
 
         $ip = Utils::getUserIP();
         $pays = Helper::getCountryByIp();
+
+        $inviteToken = $_GET['tk'] ?? null;
+        $inviteMemberId = $_GET['invite'] ?? null;
+        $isInvited = false;
+        $inviteMember = null;
+        $inviteRecord = null;
+
+        if($inviteMemberId && $inviteToken)
+        {
+            $inviteRecord = $this->TokensModel->findByUserAndToken($inviteMemberId, $inviteToken);
+            if($inviteRecord && !Utils::isTokenExpired($inviteRecord->expired_at))
+            {
+                $isInvited = true;
+                $inviteMember = $this->MembreModel->findByMemberId($inviteMemberId);
+            }
+        }
         
         $Membre = $this->MembreModel->findByWhere('ip_address', $ip);
-        if($Membre) 
+        if(!$isInvited && $Membre) 
         {
             $RaisonRejet = $this->ActionsRaisonsModel->find($Membre->member_id, ARRAY_ACTIONS_RAISONS[0]);
             if($RaisonRejet)
@@ -71,15 +87,11 @@ class MembreController extends Controller
                $now = date('Y-m-d H:i:s');
                if($heureTest > $now) 
                 {
-                    Utils::redirect('itgtrjt/'. $Membre->member_id);
+                    // Utils::redirect('itgtrjt/'. $Membre->member_id);
                 }
                 else {
                     $this->MembreModel->delete($Membre->member_id);
                 }
-            }
-            else {
-                Utils::redirect('attitgt/'. $Membre->member_id);
-                return;
             }
         }
         
@@ -113,7 +125,20 @@ class MembreController extends Controller
             'allPays' => $allPays,
             // 'allVilles' => $allVilles,
             'Pays' => $pays,
+            'isInvited' => $isInvited,
+            'inviteMember' => $inviteMember,
         ];
+
+        if(!$isInvited)
+        {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_integration']))
+            {
+                Session::setFlash('error', 'Cette demande d’intégration n’est accessible qu’avec une invitation.');
+            }
+
+            $this->view('membre/integration', $data);
+            return;
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['c_lobola_integration']))
         {
@@ -126,11 +151,12 @@ class MembreController extends Controller
             $niveau_initiation = Utils::sanitize(trim($_POST['niveau_initiation'] ?? ''));
             $motivation = Utils::sanitize(trim($_POST['motivation'] ?? ''));
             $ou_connu = Utils::sanitize(trim($_POST['ou_connu'] ?? ''));
-            // $ville = Utils::sanitize(trim($_POST['ville'] ?? ''));
             $phone = Utils::sanitize(trim($_POST['phone'] ?? ''));
+            $inviter_nom = Utils::sanitize(trim($_POST['inviter_nom'] ?? ''));
+            $inviter_phone = Utils::sanitize(trim($_POST['inviter_phone'] ?? ''));
             $adresse = Utils::sanitize(trim($_POST['adresse'] ?? ''));
 
-            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ou_connu || !$phone || !$adresse)
+            if(!$nom_postnom || !$sexe || !$date_naissance || !$domaine_etude || !$nationalite || !$email || !$niveau_initiation || !$motivation || !$ou_connu || !$phone || !$inviter_nom || !$inviter_phone || !$adresse)
             {
                 Session::setFlash('error', 'Remplissez correctement le formulaire.');
                 $this->view('membre/integration',  $data);
@@ -186,6 +212,12 @@ class MembreController extends Controller
                 $this->view('membre/integration', $data);
                 return;
             }
+            if(!str_contains($inviter_phone, '+'))
+            {
+                Session::setFlash('error', "Entrée le numéro de téléphone de l'invitant en commençant par l'indicatif. Ex: +243");
+                $this->view('membre/integration', $data);
+                return;
+            }
             if(in_array($phone, $dbPhoneNumbers))
             {
                 Session::setFlash('error', 'Un membre avec ce numéro de téléphone existe déjà.');
@@ -195,8 +227,13 @@ class MembreController extends Controller
 
             $pays = $this->PaysModel->findWhere('nationalite', $nationalite)->pays;
 
+            $resultUpload = false;
+            $membreId = Utils::generateUuidV4();
+
             $dataAddMembre = [  
+                'member_id'            => $membreId,
                 'ip_address'           => $ip,
+                'invited_by'           => $inviteMemberId ?? null,
                 'nom_postnom'          => $nom_postnom,
                 'genre'                => $sexe,
                 'date_naissance'       => $date_naissance,
@@ -209,6 +246,8 @@ class MembreController extends Controller
                 'nationalite'          => $nationalite,
                 // 'ville'                => $pays['ville'],
                 'phone_number'         => $phone,
+                'inviter_nom'          => $inviter_nom,
+                'inviter_phone'        => $inviter_phone,
                 'adresse'              => $adresse,
                 'status'               => ARRAY_STATUS_MEMBER[1],
             ];
@@ -235,7 +274,6 @@ class MembreController extends Controller
                     return;
                 }
 
-                $membreId = Utils::generateUuidV4();
                 $pathDossier = $this->EnseignementModel->cheminDossierPdf($membreId, "avatar");
                 $nomFichier = $membreId .'.'. $ext;
                 $fichierPath = $pathDossier ."/". $nomFichier;
@@ -266,10 +304,13 @@ class MembreController extends Controller
                 }
             }
 
-            if($resultUpload)
+            if($resultUpload || !empty($_FILES['photo_file']['name']))
             {
                 if($this->MembreModel->insert($dataAddMembre))
                 {
+                    // Ne pas invalider le token après la première utilisation.
+                    // Le lien d'invitation reste valide pendant sa durée d'expiration (7 jours).
+
                     Session::setFlash('success', "Votre demande d'intégration a été enregistrée avec succès.");
                     Utils::redirect('attitgt/'. $membreId);
                 }
@@ -757,6 +798,8 @@ class MembreController extends Controller
             return;
         }
         
+        Utils::redirect('pay/afrik_pay/'. $membreId);  
+        
         $data = [
             'title' => 'Effectuer le paiement de l\'engagement',
             'description' => 'Veuillez effectuer le paiement de votre engagement pour finaliser votre intégration à la communauté Lobola.',
@@ -1187,6 +1230,44 @@ class MembreController extends Controller
         $lastSession = end($allSessions);
         $inSession = Helper::isTodayInSession($lastSession->date_debut, $lastSession->date_fin);
         $evaluationSpirituel = $this->MembreModel->getMemberProgress($membreId, $lastSession->session_id);
+        $invitedMembers = $this->MembreModel->allWhere('invited_by', $membreId, 'created_at', 'DESC');
+        $scoreSessions = $this->MembreModel->getFinishedSessionsProgressByMember($allSessions, $membreId);
+
+        $inviteLink = null;
+        $existingToken = $this->TokensModel->findByIdObj($Membre->member_id, ARRAY_ACTIONS_TOKEN[0]);
+
+        if($existingToken && !Utils::isTokenExpired($existingToken->expired_at))
+        {
+            $inviteLink = SITE_URL . '/membre/integration?invite=' . $Membre->member_id . '&tk=' . $existingToken->token;
+        } 
+        else {
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_generate_invite']))
+            {
+                $tokenId = Utils::generateUuidV4();
+                $token = Utils::generateToken();
+                $expiryDate = Utils::getExpiryDateToken('Y-m-d H:i:s', 168);
+
+                $dataAddToken = [
+                    'token_id'      => $tokenId,
+                    'user_id'       => $membreId,
+                    'objectif'      => ARRAY_ACTIONS_TOKEN[0],
+                    'token'         => $token,
+                    'status'        => ARRAY_STATUS_TOKEN[1],
+                    'expired_at'    => $expiryDate,
+                ];
+
+                if($this->TokensModel->insert($dataAddToken))
+                {
+                    $inviteLink = SITE_URL . '/membre/integration?invite=' . $Membre->member_id . '&tk=' . $token;
+                    Session::setFlash('success', 'Lien d’invitation prêt à être partagé.');
+                }
+                else
+                {
+                    Session::setFlash('error', 'Impossible de générer le lien d’invitation pour le moment.');
+                }
+                
+            }
+        }
 
         $data = [
             'title' => 'Profil de '. $Membre->nom_postnom,
@@ -1195,7 +1276,10 @@ class MembreController extends Controller
             'paiement' => $paiement,
             'evaluationSpirituel' => $evaluationSpirituel,
             'inSession' => $inSession,
+            'scoreSessions' => $scoreSessions,
             'lastSession' => $lastSession,
+            'inviteLink' => $inviteLink,
+            'invitedMembers' => $invitedMembers,
         ];
         
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_expt_fiche']))

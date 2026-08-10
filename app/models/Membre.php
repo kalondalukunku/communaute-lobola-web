@@ -554,83 +554,103 @@ class Membre extends Model {
 
         return min(100, round($percentage)); // Plafonné à 100%
     }
+    
+    
+    public function getFinishedSessionsProgressByMember($sessions, $memberId) 
+    {
+        $report = [];
+        $today = date('Y-m-d H:i:s');
 
-    // public function getMembersActivityReport($search = null, $session_id = null) 
-    // {
-    //     // 1. Obtenir le dénominateur (total des enseignements actifs)
-    //     $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE is_active = '1'");
-    //     $stmtTotal->execute();
-    //     $totalActive = (int)$stmtTotal->fetchColumn();
+        // Filtrer pour ne garder que les sessions dont la date de fin est inférieure à aujourd'hui
+        $finishedSessions = [];
+        if (is_array($sessions)) {
+            foreach ($sessions as $session) {
+                if (is_object($session) && isset($session->date_fin)) {
+                    if ($session->date_fin < $today) {
+                        $finishedSessions[] = $session;
+                    }
+                }
+            }
+        }
 
-    //     if ($totalActive === 0) {
-    //         return [];
-    //     }
+        if (empty($finishedSessions)) {
+            return [];
+        }
 
-    //     // 2. Préparation de la condition de recherche
-    //     $searchCondition = "";
-    //     $params = [];
-    //     if (!empty($search)) {
-    //         // Filtre sur le nom ou l'email
-    //         $searchCondition = " AND (m.nom_postnom LIKE :search OR m.email LIKE :search OR m.phone_number LIKE :search OR m.ville LIKE :search OR m.niveau_initiation LIKE :search OR m.genre LIKE :search OR m.domaine_etude LIKE :search) ";
-    //         $params['search'] = '%' . $search . '%';
-    //     }
-    //     $params['session_id'] = $session_id; // Si besoin de filtrer par session_id dans la sous-requête ou ailleurs
-        
+        try {
+            // Requête 1 : Compte le nombre d'enseignements programmés pour la session
+            $stmtTotal = $this->db->prepare("
+                SELECT COUNT(*) 
+                FROM session_teachings 
+                WHERE session_id = ?
+            ");
 
-    //     // 3. Requête principale avec Jointure et Recherche
-    //     $query = "
-    //         SELECT 
-    //             m.member_id,
-    //             m.nom_postnom,
-    //             m.email,
-    //             m.path_profile,
-    //             m.phone_number,
-    //             m.status,
-    //             COUNT(DISTINCT ev.enseignement_id) as total_seen,
-    //             MAX(ev.viewed_at) as last_seen_date
-    //         FROM members m
-    //         INNER JOIN enseignement_vues ev 
-    //             ON m.member_id   = ev.user_id  
-    //         WHERE ev.session_id = :session_id
-    //             AND ev.enseignement_id IN (
-    //                 SELECT enseignement_id   
-    //                 FROM session_teachings 
-    //                 WHERE is_active = '1'
-    //             )
-    //         $searchCondition
-    //         GROUP BY m.member_id
-    //         ORDER BY total_seen DESC
-    //     ";
+            // Requête 2 : Compte les enseignements vus par le membre pour cette même session
+            $stmtSeen = $this->db->prepare("
+                SELECT 
+                    COUNT(DISTINCT ev.enseignement_id) as total_seen,
+                    MAX(ev.viewed_at) as last_seen_date
+                FROM enseignement_vues ev
+                WHERE ev.user_id = :member_id
+                  AND ev.session_id = :session_id
+                  AND ev.enseignement_id IN (
+                      SELECT enseignement_id 
+                      FROM session_teachings 
+                      WHERE session_id = :session_id
+                  )
+            ");
 
-    //     $stmt = $this->db->prepare($query);
-    //     $stmt->execute($params);
-    //     $membersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($finishedSessions as $session) {
+                $sessionId = $session->session_id;
 
-    //     $report = [];
+                // 1. Nombre total d'enseignements programmés
+                $stmtTotal->execute([$sessionId]);
+                $totalActive = (int)$stmtTotal->fetchColumn();
 
-    //     // 4. Construction du tableau final
-    //     foreach ($membersData as $member) {
-    //         $totalSeen = (int)$member['total_seen'];
-    //         $calcPercentage = ($totalSeen / $totalActive) * 100;
+                $totalSeen = 0;
+                $lastSeenDate = null;
 
-    //         $report[] = [
-    //             'member_id' => $member['member_id'],
-    //             'nom_postnom' => $member['nom_postnom'],
-    //             'email' => $member['email'],
-    //             'path_profile' => $member['path_profile'],
-    //             'phone_number' => $member['phone_number'],
-    //             'status' => $member['status'],
-    //             'stats' => [
-    //                 'read_count' => $totalSeen,
-    //                 'total_to_read' => $totalActive,
-    //                 'progress_bar' => min(100, round($calcPercentage)),
-    //                 'last_activity' => $member['last_seen_date']
-    //             ]
-    //         ];
-    //     }
+                // 2. Si la session contient des enseignements, on cherche les vues du membre
+                if ($totalActive > 0) {
+                    $stmtSeen->execute([
+                        ':member_id'  => $memberId,
+                        ':session_id' => $sessionId
+                    ]);
+                    $seenData = $stmtSeen->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($seenData) {
+                        $totalSeen = (int)$seenData['total_seen'];
+                        $lastSeenDate = $seenData['last_seen_date'];
+                    }
+                }
 
-    //     return $report;
-    // }
+                // 3. Calculs des pourcentages et non-lus
+                $unreadCount = max(0, $totalActive - $totalSeen);
+                $calcPercentage = $totalActive > 0 ? ($totalSeen / $totalActive) * 100 : 0;
+
+                // 4. Ajout au rapport final (le champ "nom" est utilisé pour le titre selon vos objets)
+                $report[] = [
+                    'session_id'    => $sessionId,
+                    'session_title' => $session->nom ?? '', 
+                    'date_debut'    => $session->date_debut ?? '',
+                    'date_fin'      => $session->date_fin ?? '',
+                    'stats' => [
+                        'read_count'    => $totalSeen,
+                        'unread_count'  => $unreadCount,
+                        'total_to_read' => $totalActive,
+                        'progress_bar'  => min(100, round($calcPercentage)),
+                        'last_activity' => $lastSeenDate
+                    ]
+                ];
+            }
+
+        } catch (PDOException $e) {
+            error_log("Erreur dans getFinishedSessionsProgressByMember : " . $e->getMessage());
+            return [];
+        }
+
+        return $report;
+    }
 
     public function getMembersActivityReport($search = null, $session_id = null) 
     {
@@ -639,6 +659,7 @@ class Membre extends Model {
         $stmtTotal = $this->db->prepare("SELECT COUNT(*) FROM session_teachings WHERE session_id = ?");
         $stmtTotal->execute([$session_id]);
         $totalActive = (int)$stmtTotal->fetchColumn();
+        // var_dump($totalActive); die;
 
         if ($totalActive === 0) {
             return [];

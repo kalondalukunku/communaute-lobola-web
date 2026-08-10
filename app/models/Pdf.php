@@ -97,14 +97,14 @@ class PDF extends tFPDF
     /**
      * Design UX Avancé : Liste de membres style "Application Dashboard"
      */
-    public function generateMembersActivityReport($membres) {
+    public function generateMembersActivityReport($membres, $session) {
         $this->AddPage('L');
         $this->AliasNbPages();
 
         // --- TITRE DE SECTION ---
         $this->SetFont('DejaVu', 'B', 24);
         $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
-        $this->Cell(0, 15, "Suivi des membres - 23e Session", 0, 1, 'C');
+        $this->Cell(0, 15, "Suivi des membres - ".$session->nom."e Session", 0, 1, 'C');
         
         $this->SetFont('DejaVu', '', 10);
         $this->SetTextColor(80, 80, 80);
@@ -168,7 +168,7 @@ class PDF extends tFPDF
             $this->Ln(14); // Espacement entre les lignes
         }
 
-        $this->Output('D', 'Suivi_des_membres_-_23e_Session.pdf');
+        $this->Output('D', 'Suivi_des_membres_-_'.$session->nom.'e_Session.pdf');
     }
 
     public function generateMembersActifsReport($membres)

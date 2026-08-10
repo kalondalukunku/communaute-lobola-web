@@ -52,4 +52,20 @@ class Tokens extends Model {
         $q->execute(['user_id' => $memberId]);
         return $q->fetch(PDO::FETCH_OBJ);
     }
+
+    public function findByIdObj($memberId, $objectif, $userType = "membre")
+    {
+        $query = "SELECT * FROM $this->table WHERE user_id = :user_id AND objectif = :objectif AND user_type = :user_type ORDER BY expired_at DESC LIMIT 1";
+        $q = $this->db->prepare($query);
+        $q->execute(['user_id' => $memberId, 'objectif' => $objectif, 'user_type' => $userType]);
+        return $q->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function findByUserAndToken($memberId, $token)
+    {
+        $query = "SELECT * FROM $this->table WHERE user_id = :user_id AND token = :token ORDER BY expired_at DESC LIMIT 1";
+        $q = $this->db->prepare($query);
+        $q->execute(['user_id' => $memberId, 'token' => $token]);
+        return $q->fetch(PDO::FETCH_OBJ);
+    }
 }

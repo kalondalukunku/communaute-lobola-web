@@ -80,27 +80,13 @@
 
         <!-- Contenu Texte -->
         <h1 class="font-serif text-4xl md:text-6xl italic mb-4">Communauté LOBOLA</h1>
-        <p class="gold-text uppercase tracking-[0.3em] text-xs mb-8">Bientôt accessible</p>
+        <p class="gold-text uppercase tracking-[0.3em] text-xs mb-8">Revenez dans quelques heures</p>
         
         <div class="max-w-md w-full">
             <p class="text-gray-400 text-sm mb-10 leading-relaxed font-light">
-                Nous peaufinons l'espace sacré pour votre éveil spirituel. Les portes s'ouvriront très prochainement pour une expérience inédite.
+                Nous mettons à jour l'espace sacré pour votre éveil spirituel. Les portes s'ouvriront très rapidement pour une expérience inédite.
             </p>
         </div>
-        
-        <?php if(Session::get('membre')): ?>
-            <a href="/membre/profile/<?= Session::get('membre')['member_id'] ?>"
-                class="w-full bg-primary hover:bg-primary text-paper color-border font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                <span id="btnText">Voir mon profil</span>
-                <i id="btnIcon" class="fa-solid fa-paper-plane"></i>
-            </a>
-        <?php else: ?>
-            <a href="/login"
-                class="w-full bg-primary hover:bg-primary text-paper color-border font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                <span id="btnText">Se connecter</span>
-                <i id="btnIcon" class="fa-solid fa-paper-plane"></i>
-            </a>
-        <?php endif; ?>
 
     </div>
 

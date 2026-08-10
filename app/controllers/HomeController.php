@@ -41,9 +41,10 @@ class HomeController extends Controller {
             $Series = $this->SerieModel->all($MaatId, $lastSession->session_id, true);
         } else {
             $Series = null;
-            $SeriesAlwaysOn = $this->SerieModel->findOneWithTeachings('d3fded1cb2174f52891d0f144497f1b3', $MaatId, $lastSession->session_id, true);
+            $SeriesAlwaysOn = $this->SerieModel->findOneWithTeachings(SERIE_SUP, $MaatId, $lastSession->session_id, true);
         }
         $isOn = true;
+
 
         $showRestriction = false;
         $now = new DateTime(); // Date actuelle

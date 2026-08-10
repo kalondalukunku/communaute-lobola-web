@@ -2,37 +2,178 @@
 class Utils {
 
     public static function getCountryByIp($ip) {
+        if (empty($ip)) {
+            return null;
+        }
+
         $url = "http://ipwhois.app/json/$ip";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_HTTPGET, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        //     'Content-Type: application.json',
-        //     'Accept: application/json',
-        //     'User-Agent: '. $_SERVER['HTTP_USER_AGENT']
-        // ]);
         $response = curl_exec($ch);
 
-        // $response = file_get_contents($url);
-        // $data = json_decode($response, true);
-
-        if(curl_errno($ch)) {
-            echo 'Erreur cURL : '. curl_error($ch);
+        if (curl_errno($ch)) {
             curl_close($ch);
             return null;
-        } 
+        }
         curl_close($ch);
 
         $data = json_decode($response, true);
 
-        if(isset($data)) {
-            return $data;
-        } else {
-            return "null";
+        if (!is_array($data)) {
+            return null;
         }
+
+        return [
+            'country' => $data['country'] ?? null,
+            'country_code' => $data['country_code'] ?? $data['countryCode'] ?? null,
+            'country_code3' => $data['country_code3'] ?? null,
+            'city' => $data['city'] ?? null,
+            'region' => $data['region'] ?? null,
+            'ip' => $ip,
+            'raw' => $data,
+        ];
+    }
+
+    public static function getCountryNameFromCode($countryCode): string
+    {
+        $codes = [
+            'CD' => 'RD CONGO',
+            'CG' => 'CONGO',
+            'CM' => 'CAMEROUN',
+            'CI' => 'CÔTE D’IVOIRE',
+            'BF' => 'BURKINA FASO',
+            'BJ' => 'BENIN',
+            'GA' => 'GABON',
+            'GH' => 'GHANA',
+            'KE' => 'KENYA',
+            'LS' => 'LESOTHO',
+            'MW' => 'MALAWI',
+            'MZ' => 'MOZAMBIQUE',
+            'NG' => 'NIGERIA',
+            'RW' => 'RWANDA',
+            'SN' => 'SÉNÉGAL',
+            'SL' => 'SIERRA LEONE',
+            'TZ' => 'TANZANIE',
+            'UG' => 'OUGANDA',
+            'ZM' => 'ZAMBIE',
+            'ET' => 'ÉTHIOPIE',
+        ];
+
+        return $codes[strtoupper(trim((string) $countryCode))] ?? '';
+    }
+    
+    public static function getProviderCountriesForMember($memberCountry, $providerCountries): array
+    {
+        $countryKey = self::normalizeCountryName($memberCountry);
+        if ($countryKey === '') {
+            return [];
+        }
+
+        $aliases = [
+            'RD CONGO' => ['RD CONGO', 'RDC', 'CONGO DEMOCRATIQUE', 'CONGO DEMOCRATIC REPUBLIC', 'DR CONGO', 'D R CONGO', 'DRC'],
+            'CONGO' => ['CONGO', 'CG'],
+            'CAMEROUN' => ['CAMEROUN', 'CMR', 'CAMEROON'],
+            'CÔTE D’IVOIRE' => ['CÔTE D’IVOIRE', 'COTE D IVOIRE', 'CIV', 'IVORY COAST'],
+            'BURKINA FASO' => ['BURKINA FASO', 'BFA'],
+            'BENIN' => ['BENIN', 'BJ'],
+            'GABON' => ['GABON', 'GA'],
+            'GHANA' => ['GHANA', 'GH'],
+            'KENYA' => ['KENYA', 'KE'],
+            'LESOTHO' => ['LESOTHO', 'LS'],
+            'MALAWI' => ['MALAWI', 'MW'],
+            'MOZAMBIQUE' => ['MOZAMBIQUE', 'MZ'],
+            'NIGERIA' => ['NIGERIA', 'NG'],
+            'RWANDA' => ['RWANDA', 'RW'],
+            'SÉNÉGAL' => ['SÉNÉGAL', 'SENEGAL', 'SN'],
+            'SIERRA LEONE' => ['SIERRA LEONE', 'SL'],
+            'TANZANIE' => ['TANZANIE', 'TZ'],
+            'OUGANDA' => ['OUGANDA', 'UG'],
+            'ZAMBIE' => ['ZAMBIE', 'ZM'],
+            'ÉTHIOPIE' => ['ÉTHIOPIE', 'ETHIOPIA', 'ET'],
+        ];
+
+        foreach ($aliases as $canonicalCountry => $aliasList) {
+            if (in_array($countryKey, $aliasList, true)) {
+                return [$canonicalCountry => $providerCountries[$canonicalCountry] ?? null];
+            }
+        }
+
+        if (isset($providerCountries[$countryKey])) {
+            return [$countryKey => $providerCountries[$countryKey]];
+        }
+
+        return [];
+    }
+
+    
+    public static function normalizeCountryName($country)
+    {
+        $country = trim((string) $country);
+        if ($country === '') {
+            return '';
+        }
+
+        $country = mb_strtoupper($country, 'UTF-8');
+        $country = str_replace(['_', '-'], ' ', $country);
+        $country = str_replace(['É', 'È', 'Ê', 'Ë'], 'E', $country);
+        $country = str_replace(['À', 'Â', 'Ä'], 'A', $country);
+        $country = str_replace(['Ô', 'Ö'], 'O', $country);
+        $country = str_replace(['Î', 'Ï'], 'I', $country);
+        $country = str_replace(['Û', 'Ü'], 'U', $country);
+        $country = str_replace(['Ç'], 'C', $country);
+        $country = trim($country);
+
+        return $country;
+    }
+
+    public static function getDownloadLinkByCountry($countryName): string
+    {
+        $links = [
+            'RD CONGO' => 'https://kpay.site/pay/link/paiement-livre-cdf-ca840b',
+            'CONGO' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'CAMEROUN' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'CÔTE D’IVOIRE' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'BENIN' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'GABON' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'KENYA' => '',
+            'RWANDA' => '',
+            'SÉNÉGAL' => 'https://kpay.site/pay/link/paiement-livre-f211ca',
+            'SIERRA LEONE' => '',
+            'OUGANDA' => '',
+            'ZAMBIE' => '',
+        ];
+
+        return $links[strtoupper(trim((string) $countryName))] ?? '';
+    }
+
+    public static function convertUsdToLocalCurrency($amountInUsd, $countryName): int
+    {
+        $exchangeRates = [
+            'RD CONGO' => 2300, // 1 USD = 2000 CDF
+            'CONGO' => 600,     // 1 USD = 600 XAF
+            'CAMEROUN' => 600,  // 1 USD = 600 XAF
+            'CÔTE D’IVOIRE' => 600, // 1 USD = 600 XOF
+            'BENIN' => 600,     // 1 USD = 600 XOF
+            'GABON' => 600,     // 1 USD = 600 XAF
+            'KENYA' => 140,     // 1 USD = 140 KES
+            'RWANDA' => 1000,   // 1 USD = 1000 RWF
+            'SÉNÉGAL' => 600,   // 1 USD = 600 XOF
+            'SIERRA LEONE' => 12000, // 1 USD = 12000 SLL
+            'OUGANDA' => 3700,   // 1 USD = 3700 UGX
+            'ZAMBIE' => 20,      // 1 USD = 20 ZMW
+        ];
+
+        $countryKey = strtoupper(trim((string) $countryName));
+        $exchangeRate = $exchangeRates[$countryKey] ?? null;
+
+        if ($exchangeRate === null) {
+            throw new Exception("Taux de change non défini pour le pays: $countryName");
+        }
+
+        return round($amountInUsd * $exchangeRate);
     }
 
     public static function generateUuidV4(): string

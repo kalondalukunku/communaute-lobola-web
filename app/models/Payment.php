@@ -3,7 +3,6 @@ class Payment extends Model {
     
     protected $table = "payments";
 
-
     public function insert(array $datas)
     {
         $keys = array_keys($datas);
@@ -28,6 +27,125 @@ class Payment extends Model {
 
         $q = $this->db->prepare($query);
         return $q->execute($datas);
+    }
+
+    public function kpayPaymentMobile($amount, $provider, $phoneNumber, $externalId)
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/init");
+        curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "X-API-Key: " . "kpay_live_9b874273960439743a7dbcb13969e0cb1e1e64113c184440",
+            "X-Secret-Key: " . "5a043c07d8b5a9510d342cdeb68b1e0a93efa2ca01696bbbb1e090f712d3b643",
+            "Content-Type: application/json",
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            "amount" => $amount,
+            "provider" => "$provider",
+            "phoneNumber" => $phoneNumber,
+            "externalId" => $externalId,
+        ]),
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function kpayPaymentGateway($amount, $externalId, $returnUrl = "https://communaute-lobola.ankhing.com/pay/return")
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/init");
+        curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "X-API-Key: " . "kpay_live_27e7219484cecadf718e38669bdfa5129ccf96d536de7e35",
+            "X-Secret-Key: " . "a118dc73a23348f7b82749dc4b89b50fe0271754974e91543c9c9f6ffa91cb1c",
+            "Content-Type: application/json",
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            "amount" => $amount,
+            "externalId" => $externalId,
+            "returnUrl" => $returnUrl,
+        ]),
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function kpayGetTransactionStatus($transactionId)
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/$transactionId");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "X-API-Key: " . KPAY_API_KEY2,
+                "X-Secret-Key: " . KPAY_SECRET_KEY2,
+                "Content-Type: application/json",
+            ],
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function KpayGetSolde()
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/balance");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "X-API-Key: " . KPAY_API_KEY2,
+                "X-Secret-Key: " . KPAY_SECRET_KEY2,
+            ],
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function KpayExchangeRate($from, $to)
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/exchange-rate?from=$from&to=$to");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "X-API-Key: " . KPAY_API_KEY2,
+                "X-Secret-Key: " . KPAY_SECRET_KEY2,
+            ],
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function KpayRetraitGateway($montant, $externalId)
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/withdraw");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                "X-API-Key: " . KPAY_API_KEY2,
+                "X-Secret-Key: " . KPAY_SECRET_KEY2,
+            ],
+            CURLOPT_POSTFIELDS => json_encode([
+                "amount" => $montant,
+                "externalId" => $externalId,
+                "returnUrl" => SITE_URL . "/admin/comptabilite",
+            ]),
+        ]);
+        return json_decode(curl_exec($ch), true);
+    }
+
+    public function KpayRetraitUSSD($montant, $externalId)
+    {
+        $ch = curl_init("https://admin.kpay.site/api/v1/payments/withdraw");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                "X-API-Key: " . KPAY_API_KEY2,
+                "X-Secret-Key: " . KPAY_SECRET_KEY2,
+            ],
+            CURLOPT_POSTFIELDS => json_encode([
+                "amount" => $montant,
+                "externalId" => $externalId,
+                "returnUrl" => SITE_URL . "/admin/comptabilite",
+            ]),
+        ]);
+        return json_decode(curl_exec($ch), true);
     }
 
     public function getPayment($memberId, $engagementId, $order = 'ORDER BY payment_date DESC')

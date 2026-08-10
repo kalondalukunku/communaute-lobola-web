@@ -13,7 +13,7 @@
         || (Session::get('membre')['niveau_initiation'] === ARRAY_TYPE_NIVEAU_INITIATION[3] 
         && isset($paiedMembre->payment_status) 
         && $paiedMembre->payment_status  === ARRAY_PAYMENT_STATUS[1]
-        && $paiedMembre->payment_prochain > date('Y-m-d'))
+        && Session::get('membre')['bolokele'] === '1')
     ): ?>
         <main class="flex-grow container mx-auto px-4 py-12">
             <div class="fade-in">
@@ -46,49 +46,58 @@
                                 }
                             }
                         ?>
-                        <div class="audio-card rounded-2xl color-border group relative overflow-hidden">
+                        <div class="audio-card bg-gradient-to-b from-[#19012b] to-[#0c0115] border border-white/5 rounded-2xl group relative overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:shadow-primary/20 flex flex-col h-full">
                             
-                            <!-- Bandeau "Nouveau" (Affiché conditionnellement) -->
-                            <?php if ($isNew): ?>
-                                <div class="absolute top-0 right-0 z-10">
-                                    <div class="bg-primary text-black text-[10px] font-black uppercase px-3 py-1 rounded-bl-xl shadow-lg animate-pulse">
-                                        Nouveau
+                            <!-- Effet de lueur interne au survol -->
+                            <div class="absolute inset-0 bg-gradient-to-tr from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                            <!-- Contenu de la carte -->
+                            <div class="p-6 sm:p-7 flex flex-col flex-grow relative z-10">
+                                <!-- Catégorie & Vues -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                                            <i class="fas fa-headphones text-[10px] text-primary"></i>
+                                        </div>
+                                        <span class="text-gray-400 text-[9px] uppercase tracking-widest font-semibold truncate max-w-[120px]"><?= $item->nom !== null ? htmlspecialchars($item->nom) : '' ?></span>
                                     </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Partie Inférieure : Contenu -->
-                            <div class="p-6">
-                                <div class="flex items-center gap-2">
-                                    <span class="badge-category text-primary text-[8px] rounded-full uppercase font-bold">Audio</span>
-                                    <span class="text-gray-500 text-[10px]">•</span>
-                                    <span class="text-gray-500 text-[7px] uppercase tracking-widest font-bold"><?= $item->nom !== null ? htmlspecialchars($item->nom) : '' ?></span>
-                                </div>
-
-                                <div class="flex justify-between items-center mb-2">
-                                    <h3 class="text-xl font-bold text-white mb-2 mt-4 line-clamp-1 group-hover:text-primary transition-colors">
-                                        <?= Helper::textTruncate($item->nom, 30) ?>
-                                    </h3>
-                                    <div class="text-center items-center bg-secondary text-white text-[10px] font-mono px-2 py-1 mt-4 rounded">
-                                        <?php $vues = $VuesModel->countAll(['serie_id' => $item->serie_id]); ?>
-                                        <?= $vues; ?> vue<?= $vues > 1 ? 's' : '' ?>
-                                    </div>
+                                    <?php if ($isNew): ?>
+                                        <div class="flex items-center gap-1.5 bg-primary/10 border border-primary/30 text-primary text-[8px] font-bold uppercase px-3 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                            Nouveau
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="inline-flex items-center gap-1.5 bg-white/5 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-md border border-white/5">
+                                            <i class="far fa-eye text-[9px] opacity-70"></i>
+                                            <?php $vues = $VuesModel->countAll(['serie_id' => $item->serie_id]); ?>
+                                            <?= $vues; ?> vue<?= $vues > 1 ? 's' : '' ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
 
-                                <p class="text-gray-400 text-sm line-clamp-2 mb-6 leading-relaxed">
-                                    Cette série contient actuellement <?= count($item->teachings) ?> enseignements au total.
+                                <!-- Titre & Description -->
+                                <h3 class="text-lg sm:text-xl font-bold text-white leading-snug line-clamp-2 mb-3 group-hover:text-primary transition-colors duration-300 flex-grow">
+                                    <?= Helper::textTruncate($item->nom, 35) ?>
+                                </h3>
+
+                                <p class="text-gray-400 text-xs sm:text-sm mb-6 flex items-center gap-2">
+                                    <i class="fas fa-layer-group text-white/20 text-[10px]"></i>
+                                    Série de <strong class="text-gray-200"><?= count($item->teachings) ?></strong> enseignement<?= count($item->teachings) > 1 ? 's' : '' ?>
                                 </p>
-                                <div class="color-border-b"></div>
+                                
+                                <!-- Séparateur discret -->
+                                <div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5"></div>
 
-                                <div class="flex items-center justify-between pt-4">
-                                    <div class="flex items-center gap-2 text-gray-500">
-                                        <i class="far fa-calendar-alt text-xs"></i>
-                                        <span class="text-[11px] font-bold uppercase tracking-tighter"><?= Helper::formatDate($item->created_at) ?></span>
+                                <!-- Footer de la carte : Date & Action -->
+                                <div class="flex items-center justify-between mt-auto">
+                                    <div class="flex flex-col">
+                                        <span class="text-[9px] text-gray-500 uppercase tracking-wider mb-0.5">Dernier ajout</span>
+                                        <span class="text-[11px] text-gray-300 font-medium"><?= Helper::formatDate($item->updated_at) ?></span>
                                     </div>
-                                    
-                                    <a href="../../bolokele/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-                                        Écouter <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
-                                    </a>
+
+                                        <a href="../../bolokele/show/<?= $item->serie_id ?>?ssd=<?= $item->session_id ?>" class="group/btn inline-flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-black px-4 py-2 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0)] hover:shadow-primary/30">
+                                            Écouter <i class="fas fa-play text-[9px] transition-transform duration-300 group-hover/btn:scale-110"></i>
+                                        </a>
                                 </div>
                             </div>
                         </div>
@@ -97,22 +106,66 @@
                 </div>
             </div>
         </main>
-    <?php elseif(Session::get('membre')['bolokele'] === '2'): ?>
-        <div class="text-center py-40">
-            <h2 class="font-serif text-4xl text-primary mb-4">Reabonnement de l'engagement</h2>
-            <p class="text-gray-500 text-sm italic mb-8">Veuillez renouveler votre engagement pour accéder aux enseignements.</p>
-            <a href="membre/repaiement/<?= Session::get('membre')['member_id'] ?>" class="inline-block px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-black font-bold transition-colors">
-                Renouveler mon engagement
-            </a>
-        </div>
+    <?php elseif(Session::get('membre')['bolokele'] === '2' || $paiedMembre->payment_prochain > date('Y-m-d')): ?>
+        <section class="flex items-center justify-center px-4 py-20 animate-fade-in-up">
+            <div class="w-full max-w-md rounded-3xl border border-slate-200/60 shadow-2xl shadow-primary glass-effect p-8 sm:p-10 text-center relative overflow-hidden">
+                
+                <!-- Ligne décorative accentuant le haut de la carte -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-primary"></div>
+
+                <!-- Icône décorative -->
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-primary">
+                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+
+                <h2 class="font-serif text-3xl md:text-4xl text-primary mb-4 tracking-tight">Reabonnement</h2>
+                
+                <p class="text-slate-600 leading-relaxed mb-8 px-2">
+                    Veuillez renouveler votre engagement en effectuant le paiement pour accéder aux enseignements.
+                </p>
+
+                <!-- Bouton d'action optimisé -->
+                <a href="pay/afrik_pay/<?= Session::get('membre')['member_id'] ?>" 
+                class="group relative inline-flex items-center justify-center w-full px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20">
+                    <span>Renouveler mon accès</span>
+                    <svg class="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
     <?php else: ?>
-        <div class="text-center py-40">
-            <h2 class="font-serif text-4xl text-primary mb-4">Accès Restreint</h2>
-            <p class="text-gray-500 text-sm italic mb-8">"Pour accéder à ce contenu, veuillez faire une demande d'engagement."</p>
-            <a href="../../membre/engagement/<?= Session::get('membre')['member_id'] ?>" class="inline-block px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-black font-bold transition-colors">
-                S'engager pour accéder aux enseignements
-            </a>
-        </div>
+        <section class="flex items-center justify-center px-4 py-20 animate-fade-in-up">
+            <div class="w-full max-w-md rounded-3xl border border-slate-200/60 shadow-2xl shadow-primary/50 glass-effect p-8 sm:p-10 text-center relative overflow-hidden">
+                
+                <!-- Ligne décorative accentuant le haut de la carte -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-primary"></div>
+
+                <!-- Icône de sécurité -->
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-primary">
+                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+
+                <h2 class="font-serif text-3xl md:text-4xl text-primary mb-4 tracking-tight">Accès Restreint</h2>
+                
+                <p class="text-slate-600 leading-relaxed mb-8 px-2">
+                    Pour accéder à ce contenu, veuillez effectuer une demande d'engagement.
+                </p>
+
+                <!-- Bouton d'action optimisé -->
+                <a href="../../membre/engagement/<?= Session::get('membre')['member_id'] ?>" 
+                class="group relative inline-flex items-center justify-center w-full px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20">
+                    <span>S'engager pour accéder</span>
+                    <svg class="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
     <?php endif; ?>
 
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

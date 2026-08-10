@@ -5,6 +5,7 @@ require_once APP_PATH . 'models/Session.php';
 require_once APP_PATH . 'models/SessionEnseignement.php';
 require_once APP_PATH . 'models/SerieSession.php';
 require_once APP_PATH . 'models/Enseignement.php';
+require_once APP_PATH . 'models/Livre.php';
 require_once APP_PATH . 'models/Serie.php';
 require_once APP_PATH . 'models/Enseignant.php';
 require_once APP_PATH . 'models/Engagement.php';
@@ -21,6 +22,7 @@ class AdminController extends Controller
 {
     private $MembreModel; 
     private $EnseignementModel;
+    private $LivreModel;
     private $SessionModel;
     private $SessionEnseignementModel;
     private $SerieSessionModel;
@@ -48,6 +50,7 @@ class AdminController extends Controller
         $this->SessionModel = new Sessions();
         $this->SessionEnseignementModel = new EnseignementSession();
         $this->EnseignementModel = new Enseignement();
+        $this->LivreModel = new Livre();
         $this->EnseignantModel = new Enseignant();
         $this->EngagementModel = new Engagement();
         $this->PaymentModel = new Payment();
@@ -201,7 +204,12 @@ class AdminController extends Controller
         $totalPaymentYear = $this->PaymentModel->getTotalPaymentsYear();
         $totalDepenseYear = $this->DepenseModel->getTotalDepensesYear();
 
-        // var_dump($allDepense); die;
+        $SoldeKpay = $this->PaymentModel->KpayGetSolde();
+        $xaf = $SoldeKpay[0]['balance'];
+        $cdf = $SoldeKpay[1]['balance'];
+        // $xafExchange = $this->PaymentModel->KpayExchangeRate('XAF', 'CDF');
+        // (int) $TotalSolde = $cdf + ($xaf * $xafExchange['rate']);
+        // var_dump($TotalSolde); die;
 
         $data = [
             'allPayment' => $allPayment,
@@ -211,47 +219,60 @@ class AdminController extends Controller
             'totalPaymentMonth' => $totalPaymentMonth,
             'totalDepenseMonth' => $totalDepenseMonth,
             'totalPaymentYear' => $totalPaymentYear,
-            'totalDepenseYear' => $totalDepenseYear
+            'totalDepenseYear' => $totalDepenseYear,
+            'SoldeKpay' => $SoldeKpay,
         ];
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_ajouter_depense'])) 
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_ajouter_depense']))
+        {
+            $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
+            $montant = Utils::sanitize(trim($_POST['montant'] ?? ''));
+            $devise = Utils::sanitize(trim($_POST['devise'] ?? ''));
+            $description = Utils::sanitize(trim($_POST['description'] ?? ''));
+
+            if($titre === '' || $montant === '' || $devise === '' || $description === '')
             {
-                $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
-                $montant = Utils::sanitize(trim($_POST['montant'] ?? ''));
-                $devise = Utils::sanitize(trim($_POST['devise'] ?? ''));
-                $description = Utils::sanitize(trim($_POST['description'] ?? ''));
-
-                if($titre === '' || $montant === '' || $devise === '' || $description === '')
-                {
-                    Session::setFlash('error', 'Remplissez correctement le formulaire.');
-                    $this->view('admin/comptabilite',  $data);
-                    return;
-                }
-
-                if(!is_numeric($montant) || $montant <= 0)
-                {
-                    Session::setFlash('error', 'Le montant doit être un nombre positif.');
-                    $this->view('admin/comptabilite',  $data);
-                    return;
-                }
-
-                $depenseData = [
-                    'depense_id' => Utils::generateUuidV4(),
-                    'titre' => $titre,
-                    'montant' => (float)$montant,
-                    'devise' => strtoupper($devise),
-                    'description' => $description,
-                    'date_depense' => date('Y-m-d H:i:s'),
-                ];
-
-                if($this->DepenseModel->insert($depenseData))
-                {
-                    Session::setFlash('success', 'Dépense ajoutée avec succès.');
-                    Utils::redirect('comptabilite');
-                } else {
-                    Session::setFlash('error', "Une erreur est survenue lors de l'ajout de la dépense.");
-                }
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/comptabilite',  $data);
+                return;
             }
+
+            if(!is_numeric($montant) || $montant <= 0)
+            {
+                Session::setFlash('error', 'Le montant doit être un nombre positif.');
+                $this->view('admin/comptabilite',  $data);
+                return;
+            }
+
+            $depenseData = [
+                'depense_id' => Utils::generateUuidV4(),
+                'titre' => $titre,
+                'montant' => (float)$montant,
+                'devise' => strtoupper($devise),
+                'description' => $description,
+                'date_depense' => date('Y-m-d H:i:s'),
+            ];
+
+            if($this->DepenseModel->insert($depenseData))
+            {
+                Session::setFlash('success', 'Dépense ajoutée avec succès.');
+                Utils::redirect('comptabilite');
+            } else {
+                Session::setFlash('error', "Une erreur est survenue lors de l'ajout de la dépense.");
+            }
+        }
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_retrait']))
+        {
+            $numero = Utils::sanitize(trim($_POST['numero'] ?? ''));
+            $montant = Utils::sanitize(trim($_POST['montant'] ?? ''));
+            
+            $externalId = uniqid('payment_', true);
+            $DataResponse = $this->PaymentModel->KpayRetraitGateway($montant, $externalId, $numero);
+            var_dump($DataResponse); die;
+            Utils::redirect($DataResponse['gatewayUrl']);
+            exit;
+        }
 
         $this->view('admin/comptabilite', $data);
     }
@@ -648,6 +669,7 @@ class AdminController extends Controller
         $MembreMotif = $this->ActionsRaisonsModel->find($membreId, ARRAY_ACTIONS_RAISONS[0]);
         $Payment = $this->PaymentModel->getPayment($membreId, $Membre->engagement_id);
         $Paiements = $this->PaymentModel->getPaymentsByMember($membreId);
+        $invitedMembers = $this->MembreModel->allWhere('invited_by', $membreId, 'created_at', 'DESC');
 
         $data = [
             'membreId' => $membreId,
@@ -655,6 +677,7 @@ class AdminController extends Controller
             'MembreMotif' => $MembreMotif,
             'Payment' => $Payment,
             'Paiements' => $Paiements,
+            'invitedMembers' => $invitedMembers,
             'name' => $name,
             'pathFilePdf' => $pathFilePdf,
         ];
@@ -908,7 +931,7 @@ class AdminController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_suivi']))
         {
-            $this->PdfModel->generateMembersActivityReport($membreSuivi);
+            $this->PdfModel->generateMembersActivityReport($membreSuivi, $sessionSelect);
         }
         
         $this->view('admin/membres_suivi', $data);
@@ -1279,7 +1302,6 @@ class AdminController extends Controller
         if($sessionIdGet) {
             $allEnseignements = $this->SerieModel->all($categoryGet, $sessionIdGet);
         }
-        // var_dump($allEnseignements);die;
         
         $data = [
             'allEnseignements' => $allEnseignements,
@@ -1291,6 +1313,141 @@ class AdminController extends Controller
         ];
 
         $this->view('admin/enseignements', $data);
+    }
+
+    public function livres() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+        
+        $Livres = $this->LivreModel->getAll();
+        // var_dump($Livres);die;
+        
+        $data = [
+            'Livres' => $Livres,
+        ];
+
+        $this->view('admin/livres', $data);
+    }
+    
+    public function addlivre() 
+    {
+        Auth::requireLogin('admin');
+        $cacheKey = 'admin_administraction';
+        
+        $data = [
+        ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_add_livre'])) 
+        {
+            $titre = Utils::sanitize(trim($_POST['titre'] ?? ''));
+            $auteur = Utils::sanitize(trim($_POST['auteur'] ?? ''));
+            $categorie = Utils::sanitize(trim($_POST['categorie'] ?? ''));
+            $description = Utils::sanitize(trim($_POST['description'] ?? ''));
+            
+            if(!$titre || !$auteur || !$categorie || !$description)
+            {
+                Session::setFlash('error', 'Remplissez correctement le formulaire.');
+                $this->view('admin/addlivre',  $data);
+                return;
+            }
+
+            $dataAddLivre = [
+                'titre' => $titre,
+                'auteur' => $auteur,
+                'categorie' => $categorie,
+                'description' => $description,
+            ];
+
+            if (!empty($_FILES['book_file']['name']) && !empty($_FILES['cover_file']['name']))
+            {
+                $file = $_FILES['book_file'];
+                $file2 = $_FILES['cover_file'];
+                $filename = $file['name'];
+                $filename2 = $file2['name'];
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $ext2 = strtolower(pathinfo($filename2, PATHINFO_EXTENSION));
+                $allowedTypes = ['application/pdf', 'application/epub'];
+                $allowedTypes2 = ['image/jpeg', 'image/png', 'image/jpg'];
+                // Verif erreur d'upload
+                if ($file['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du document");
+                    $this->view('admin/addlivre', $data);
+                    return;
+                }
+                if ($file2['error'] !== UPLOAD_ERR_OK)
+                {
+                    Session::setFlash('error', "Erreur lors de l'envoi du couverture du livre");
+                    $this->view('admin/addlivre', $data);
+                    return;
+                }
+                // verif mime reel
+                $mime = mime_content_type($file['tmp_name']);
+                $mime2 = mime_content_type($file2['tmp_name']);
+                if (!in_array($mime, $allowedTypes))
+                {
+                    Session::setFlash('error', "Format du fichier document non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('admin/addlivre', $data);
+                    return;
+                }
+                if (!in_array($mime2, $allowedTypes2))
+                {
+                    Session::setFlash('error', "Format du fichier de l'image non autorisé ou mauvais format du fichier autorisé.");
+                    $this->view('admin/addlivre', $data);
+                    return;
+                }
+
+                $livreId = Utils::generateUuidV4();
+                $pathDossier = $this->EnseignementModel->cheminDossierPdf($livreId, "livres");
+                $nomFichier = str_replace([' ',"'","?"], '_', $titre) .'.'. $ext;
+                $nomFichier2 = str_replace([' ',"'","?"], '_', $titre) .'.'. $ext2;
+                $fichierPath = $pathDossier ."/". $nomFichier;
+                $fichierPath2 = $pathDossier ."/". $nomFichier2;
+                $uploadPath = BASE_PATH . $fichierPath;
+                $uploadPath2 = BASE_PATH . $fichierPath2;
+
+                if(!is_dir($pathDossier)) {
+                    if(!mkdir($pathDossier, 0777, true)) 
+                    {
+                        Session::setFlash('error', "Une erreur est survenue. veuillez réessayez plutard.");
+                        $this->view('admin/addlivre',  $data);
+                        return;
+                    }
+                }
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath) && move_uploaded_file($file2['tmp_name'], $uploadPath2))
+                {
+                    if(file_exists($uploadPath) && filesize($uploadPath) > 0 && file_exists($uploadPath2) && filesize($uploadPath2) > 0)
+                    {
+                        $dataAddLivre['livre_id']   = $livreId;
+                        $dataAddLivre['url_livre']       = $fichierPath;
+                        $dataAddLivre['url_couverture']       = $fichierPath2;
+                        $resultUpload = true;                   
+                    }
+
+                } else {
+                    Session::setFlash('error', "Impossible d'enregistrer le document.");
+                    $this->view('admin/addlivre', ['data' => $data]);
+                    return;
+                }
+            }
+            
+            if($resultUpload || !empty($_FILES['book_file']['name']) && !empty($_FILES['cover_file']['name']))
+            {
+                if($this->LivreModel->insert($dataAddLivre))
+                {
+                    Session::setFlash('success', 'Livre ajouté avec succès.');
+                    Utils::redirect('livres');
+                } else {
+                    Session::setFlash('error', "Une erreur est survenue lors de l'ajout du livre.");
+                    $this->view('admin/addlivre',  $data);
+                    return;
+                }
+            }
+        }
+
+        $this->view('admin/addlivre', $data);
     }
 
     public function sessions() 
@@ -1314,7 +1471,6 @@ class AdminController extends Controller
             $nom = Utils::sanitize(trim($_POST['nom'] ?? ''));
             $date_debut = Utils::sanitize(trim($_POST['date_debut'] ?? ''));
             $date_fin = Utils::sanitize(trim($_POST['date_fin'] ?? ''));
-            
             
             if(!$nom || !$date_debut || !$date_fin)
             {

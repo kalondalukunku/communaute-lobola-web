@@ -137,6 +137,31 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-paper rounded-[2rem] shadow-sm color-border p-8">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <span class="w-1.5 h-4 bg-primary rounded-full"></span> Membres invités
+                    </h3>
+                    <?php if (!empty($invitedMembers)): ?>
+                        <div class="space-y-3">
+                            <?php foreach ($invitedMembers as $invitedMember): ?>
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white"><?= htmlspecialchars($invitedMember->nom_postnom ?? '') ?></p>
+                                            <p class="text-xs text-slate-400">Rejoint le <?= Helper::formatDate2($invitedMember->created_at ?? '') ?></p>
+                                        </div>
+                                        <span class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                                            <?= htmlspecialchars($invitedMember->status ?? '') ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-sm text-slate-400">Aucun membre n’a encore été invité par ce membre.</p>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <!-- Colonne Droite : Processus (8/12) -->

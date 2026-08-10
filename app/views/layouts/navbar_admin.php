@@ -93,6 +93,7 @@
                         <div class="pb-3 pl-12 pr-4 space-y-2">
                             <a href="/admin/enseignants" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/enseignants', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Enseignants</a>
                             <a href="/admin/enseignements" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/enseignements', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Enseignements</a>
+                            <a href="/admin/livres" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/livres', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Livres</a>
                             <a href="/admin/sessions" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/sessions', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Sessions</a>
                         </div>
                     </div>
