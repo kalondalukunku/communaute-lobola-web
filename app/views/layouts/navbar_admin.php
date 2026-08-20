@@ -50,6 +50,11 @@
                         <i class="fas fa-wallet w-5 text-center group-hover:scale-110 transition-transform"></i>
                         <span class="text-xs font-semibold">Comptabilité</span>
                     </a>
+                    <a href="/admin/blog" 
+                       class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-paper/5 <?= Helper::setActiveAdmin('admin/blog', true) ? 'bg-primary/10 text-primary border border-primary/20' : 'hover:text-white' ?>">
+                        <i class="fas fa-newspaper w-5 text-center group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-semibold">Blog</span>
+                    </a>
                 </div>
             </div>
 

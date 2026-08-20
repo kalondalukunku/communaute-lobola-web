@@ -1,0 +1,28 @@
+[
+    {
+        "id": "post_demo",
+        "type": "Conseil",
+        "content": "Le vrai changement commence par une conscience claire et un cœur humble. Prenez le temps de vous réajuster avant de juger les autres.",
+        "author": "Administrateur",
+        "role": "admin",
+        "created_at": "2026-08-18 13:49:38",
+        "comments": [
+            {
+                "id": "comment_demo",
+                "author": "Membre",
+                "role": "membre",
+                "content": "Merci pour ce conseil. Il m’aide à mieux respirer dans les situations difficiles.",
+                "created_at": "2026-08-18 13:49:38",
+                "replies": [
+                    {
+                        "id": "reply_demo",
+                        "author": "Administrateur",
+                        "role": "admin",
+                        "content": "C’est exactement le but : inspirer la paix avant la réaction.",
+                        "created_at": "2026-08-18 13:49:38"
+                    }
+                ]
+            }
+        ]
+    }
+]

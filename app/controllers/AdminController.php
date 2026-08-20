@@ -69,6 +69,67 @@ class AdminController extends Controller
     {
         Utils::redirect('/admin/dashboard');
     }
+
+    public function blog()
+    {
+        Auth::requireLogin('admin');
+
+        $data = [
+            'title' => SITE_NAME . ' | Blog Admin',
+            'description' => 'Publier un article dans le blog du sanctuaire.',
+        ];
+
+        $this->view('admin/blog', $data);
+    }
+
+    public function create_blog()
+    {
+        Auth::requireLogin('admin');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Utils::redirect('/admin/blog');
+            return;
+        }
+
+        $type = trim($_POST['type'] ?? '');
+        $title = trim($_POST['title'] ?? '');
+        $content = trim($_POST['content'] ?? '');
+
+        if ($type === '' || $title === '' || $content === '') {
+            Session::setFlash('error', 'Veuillez remplir le type, le titre et le contenu du blog.');
+            Utils::redirect('/admin/blog');
+            return;
+        }
+
+        $storageFile = APP_PATH . '../storage/blog_posts.json';
+        $posts = [];
+
+        if (file_exists($storageFile)) {
+            $existing = json_decode(file_get_contents($storageFile), true);
+            $posts = is_array($existing) ? $existing : [];
+        }
+
+        $posts[] = [
+            'id' => uniqid('blog_'),
+            'type' => $type,
+            'title' => $title,
+            'content' => $content,
+            'author' => Session::get('admin')['nom'] ?? 'Administrateur',
+            'role' => 'admin',
+            'created_at' => date('Y-m-d H:i:s'),
+            'comments' => [],
+        ];
+
+        $dir = dirname($storageFile);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        file_put_contents($storageFile, json_encode($posts, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        Session::setFlash('success', 'Le blog a bien été publié.');
+        Utils::redirect('/blog');
+    }
     
     public function edtpswd()
     {
@@ -1515,6 +1576,20 @@ class AdminController extends Controller
                 ];
 
                 if(!$this->SerieSessionModel->insert($dataAddSessionEnseignement))
+                {
+                    Session::setFlash('error', "Une erreur est survenue. Veuillez réessayer.");
+                    $this->view('admin/sessions',  $data);
+                    return;
+                }
+            }
+
+            foreach ($allSessions as $session) {
+                $dataAddSessionEnseignement = [
+                    'session_id' => $sessionId,
+                    'enseignement_id' => $session->enseignement_id,
+                ];
+
+                if(!$this->SessionEnseignementModel->insert($dataAddSessionEnseignement))
                 {
                     Session::setFlash('error', "Une erreur est survenue. Veuillez réessayer.");
                     $this->view('admin/sessions',  $data);

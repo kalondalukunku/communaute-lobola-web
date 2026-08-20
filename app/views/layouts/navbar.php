@@ -19,6 +19,14 @@
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                         </a>
                     <?php endif; ?>
+                    <a href="/prieres" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('prieres') ?>">
+                        Prières
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                    </a>
+                    <a href="/relique" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('relique') ?>">
+                        Reliques
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                    </a>
                     <a href="/livres" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('livres') ?>">
                         Livres
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
@@ -27,6 +35,10 @@
                         Musiques
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
+                    <!-- <a href="/blog" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('blog') ?>">
+                        Blog
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                    </a> -->
                     <!-- <a href="/help" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('help') ?>">
                         Aide
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
@@ -103,12 +115,21 @@
                         BOLOKELE
                     </a>
                 <?php endif; ?>
+                <a href="/prieres" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
+                    Prières
+                </a>
+                <a href="/relique" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
+                    Reliques
+                </a>
                 <a href="/livres" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Livres
                 </a>
                 <a href="/musique" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Musiques
                 </a>
+                <!-- <a href="/blog" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
+                    Blog
+                </a> -->
                 <!-- <a href="/help" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Aide
                 </a> -->

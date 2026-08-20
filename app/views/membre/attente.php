@@ -73,7 +73,7 @@
                     
                     <!-- Boutons d'action -->
                     <div class="flex flex-col gap-3">
-                        <a href="../paiement/<?= $Membre->member_id ?>" class="w-full bg-primary text-white py-4 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                        <a href="/pay/afrik_pay/<?= $Membre->member_id ?>" class="w-full bg-primary text-white py-4 px-8 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95">
                             <i class="fas fa-credit-card mr-2"></i> Effectuer mon paiement
                         </a>
                         <a href="../profile/<?= $Membre->member_id ?>" class="text-[11px] text-gray-600 font-bold hover:text-primary transition-colors uppercase tracking-widest mt-3">

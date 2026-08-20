@@ -1,5 +1,13 @@
 <?php 
     $title = $Series->nom ?? SITE_NAME;
+    $cosmogonyVideos = [
+        ['video_id' => 'RJcdgFIwm0k', 'title' => 'Cosmogonie Dogon du Mali'],
+        ['video_id' => 'vV0_S8ZXERA', 'title' => 'Cosmogonie Fang, Ekang'],
+        ['video_id' => 'dFF_WTNixMo', 'title' => 'Cosmogonie Egyptienne d\'Héliopolis'],
+        ['video_id' => '5Cr4Ghsq9zM', 'title' => 'Cosmogonie Japonaise (Izanagi & Izanami)'],
+        ['video_id' => 'sBXo4tdQsGI', 'title' => 'Cosmogonie Arabe'],
+        ['video_id' => 'WoNz_gy6Tmg', 'title' => 'Cosmogonie Chrétienne'],
+    ];
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar.php';
     include APP_PATH . 'templates/alertView.php'; 
@@ -167,123 +175,6 @@
             </div>
         </div>
 
-        <?php if($Series->nom === "Mâat • Introduction & Préparation"): ?>
-            <div class="w-[80%] mx-auto mt-12 mb-20">
-
-                <!-- SECTION PHOTOS / GALERIE (Droite - 5 colonnes) -->
-                <div class="lg:col-span-5 bg-paper color-border rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
-                    <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-primary/5 blur-[50px] rounded-full"></div>
-
-                    <div class="relative z-10 flex flex-col h-full">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                                <i class="fa-solid fa-images text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold font-serif text-white">Galerie Photos</h3>
-                                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Archives & Documents</p>
-                            </div>
-                        </div>
-
-                        <!-- Grille de Photos -->
-                        <div class="grid grid-cols-2 gap-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-                            <!-- Photo Item 1 -->
-                            <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
-                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
-                                    <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (1).jpg?w=400&h=400&fit=crop" 
-                                        alt="Document 2" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="px-1 pb-1">
-                                    <p class="text-[11px] text-gray-400 truncate mb-2 italic">Nfumu Kimbangu</p>
-                                    <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (1).jpg" 
-                                    download="Nfumu_Kimbangu.jpg" 
-                                    class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
-                                        <i class="fa-solid fa-download"></i>
-                                        Télécharger
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
-                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
-                                    <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (3).jpg?w=400&h=400&fit=crop" 
-                                        alt="Document 2" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="px-1 pb-1">
-                                    <p class="text-[11px] text-gray-400 truncate mb-2 italic">Nkumu Elim'e Nzale</p>
-                                    <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (3).jpg" 
-                                    download="Nkumu Elim'e Nzale.jpg" 
-                                    class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
-                                        <i class="fa-solid fa-download"></i>
-                                        Télécharger
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
-                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
-                                    <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (5).jpg?w=400&h=400&fit=crop" 
-                                        alt="Document 2" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="px-1 pb-1">
-                                    <p class="text-[11px] text-gray-400 truncate mb-2 italic">Kalala Omotunde</p>
-                                    <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (5).jpg" 
-                                    download="Kalala Omotunde.jpg" 
-                                    class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
-                                        <i class="fa-solid fa-download"></i>
-                                        Télécharger
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
-                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
-                                    <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (4).jpg?w=400&h=400&fit=crop" 
-                                        alt="Document 2" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="px-1 pb-1">
-                                    <p class="text-[11px] text-gray-400 truncate mb-2 italic">Mbuta Sankara</p>
-                                    <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (4).jpg" 
-                                    download="Mbuta Sankara.jpg" 
-                                    class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
-                                        <i class="fa-solid fa-download"></i>
-                                        Télécharger
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col bg-white/5 rounded-2xl p-2 border border-white/5">
-                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
-                                    <img src="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (2).jpg?w=400&h=400&fit=crop" 
-                                        alt="Document 2" 
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="px-1 pb-1">
-                                    <p class="text-[11px] text-gray-400 truncate mb-2 italic">Mbuta Lumumba</p>
-                                    <a href="<?= ASSETS ?>ressources/Photos_Ancetres/ancetre (2).jpg" 
-                                    download="Mbuta Lumumba.jpg" 
-                                    class="flex items-center justify-center gap-2 w-full py-2 bg-primary hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors">
-                                        <i class="fa-solid fa-download"></i>
-                                        Télécharger
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Note Footer Galerie -->
-                        <div class="mt-auto pt-6">
-                            <p class="text-xs text-gray-500 italic text-center">Cliquez sur une image pour l'agrandir</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        <?php endif; ?>
-
         <?php if($Series->nom === "Mâat • Module 1 : Religions & Spiritualités"): ?>
             <div class="w-[80%] mx-auto mt-12 mb-20">
 
@@ -307,7 +198,7 @@
                             <iframe 
                                 id="youtube-player"
                                 class="w-full h-full"
-                                src="https://www.youtube.com/embed/" 
+                                src="https://www.youtube.com/embed/RJcdgFIwm0k" 
                                 title="YouTube video player" 
                                 frameborder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -315,46 +206,30 @@
                             </iframe>
                         </div>
 
+                        <div class="mt-4">
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Cosmogonie active</p>
+                            <h4 id="youtube-video-title" class="mt-2 text-lg font-semibold text-white">Cosmogonie de la naissance du monde</h4>
+                        </div>
+
                         <!-- Liste des autres vidéos (Miniatures) -->
                         <div class="flex gap-4 mt-6 overflow-x-auto pb-2 custom-scrollbar">
-                            <!-- Exemple de miniature cliquable -->
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/RJcdgFIwm0k'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/RJcdgFIwm0k/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/vV0_S8ZXERA'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/vV0_S8ZXERA/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/dFF_WTNixMo'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/dFF_WTNixMo/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/5Cr4Ghsq9zM'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/5Cr4Ghsq9zM/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/sBXo4tdQsGI'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/sBXo4tdQsGI/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <button onclick="document.getElementById('youtube-player').src='https://www.youtube.com/embed/WoNz_gy6Tmg'" class="flex-shrink-0 w-32 aspect-video rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group">
-                                <img src="https://img.youtube.com/vi/WoNz_gy6Tmg/mqdefault.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </button>
-                            <!-- Répéter pour d'autres vidéos -->
+                            <?php foreach ($cosmogonyVideos as $video): ?>
+                                <button type="button"
+                                    data-video-id="<?= htmlspecialchars($video['video_id']) ?>"
+                                    data-video-title="<?= htmlspecialchars($video['title']) ?>"
+                                    class="video-thumb flex-shrink-0 w-32 rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all relative group bg-black/30 focus:outline-none"
+                                >
+                                    <div class="aspect-video relative">
+                                        <img src="https://img.youtube.com/vi/<?= htmlspecialchars($video['video_id']) ?>/mqdefault.jpg" alt="<?= htmlspecialchars($video['title']) ?>" class="w-full h-full object-cover opacity-60 group-hover:opacity-100">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <i class="fa-solid fa-play text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        </div>
+                                    </div>
+                                    <div class="px-2 py-2 bg-white/5">
+                                        <span class="block text-[10px] text-gray-200 font-medium leading-snug line-clamp-2"><?= htmlspecialchars($video['title']) ?></span>
+                                    </div>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -371,5 +246,30 @@
         </div>
     <?php endif; ?>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const player = document.getElementById('youtube-player');
+        const videoTitle = document.getElementById('youtube-video-title');
+        const thumbs = document.querySelectorAll('.video-thumb');
+
+        thumbs.forEach((thumb) => {
+            thumb.addEventListener('click', function () {
+                const videoId = this.dataset.videoId;
+                const title = this.dataset.videoTitle;
+
+                if (player && videoId) {
+                    player.src = 'https://www.youtube.com/embed/' + videoId;
+                }
+
+                if (videoTitle && title) {
+                    videoTitle.textContent = title;
+                }
+
+                thumbs.forEach((item) => item.classList.remove('border-primary'));
+                this.classList.add('border-primary');
+            });
+        });
+    });
+</script>
 <script src="<?= ASSETS ?>js/modules/player.js?v=<?= APP_VERSION ?>"></script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

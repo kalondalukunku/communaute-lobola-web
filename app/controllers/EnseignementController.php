@@ -60,13 +60,13 @@ class EnseignementController extends Controller
         }
 
         $message = SITE_URL ."/enseignement/show/{$serieId}\n\n" .
-                "EmEm Htp,\n\n" .
+                "EmEm Htp Le Shenuti LOBOLA-LO-ILONDO,\n\n" .
                 "J'écoute actuellement l'enseignement : *{$Series->nom}*. \n\n" .
                 "J'ai une question à ce sujet qui est celle-ci : ... ";
 
         // Pour l'utiliser dans un lien <a> :
         $urlEncodedMessage = urlencode($message);
-        $whatsappUrl = "https://wa.me/243819889889?text=" . $urlEncodedMessage;
+        $whatsappUrl = "https://wa.me/243814126893?text=" . $urlEncodedMessage;
 
         $data = [
             'Series' => $Series,
