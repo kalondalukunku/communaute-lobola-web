@@ -436,6 +436,93 @@
                         </P>
                     </div>
                 <?php endif; ?>
+                
+                <?php if (!empty($invitedMembers)): ?>
+                    <div x-data="{
+                        page: 1,
+                        perPage: 3,
+                        totalItems: 0,
+                        get totalPages() {
+                            return Math.ceil(this.totalItems / this.perPage);
+                        },
+                        updateView() {
+                            let start = (this.page - 1) * this.perPage;
+                            let end = this.page * this.perPage;
+                            
+                            // Parcourt les éléments générés par PHP et gère leur affichage
+                            Array.from(this.$refs.container.children).forEach((el, index) => {
+                                el.style.display = (index >= start && index < end) ? '' : 'none';
+                            });
+                        }
+                        }"
+                        x-init="
+                            $nextTick(() => {
+                                totalItems = $refs.container.children.length;
+                                updateView();
+                            });
+                            $watch('page', () => updateView());
+                        "
+                        class="w-full">
+
+                        <!-- Votre code original (j'ai juste ajouté x-ref='container' sur la div parente) -->
+                        <div x-ref="container" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            <?php foreach ($invitedMembers as $invitedMember): ?>
+                                <div class="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-4 py-3 hover:bg-white/10 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 text-sm uppercase font-bold text-primary">
+                                            <?= htmlspecialchars(substr($invitedMember->nom_postnom ?? 'M', 0, 1)) ?>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-white"><?= htmlspecialchars($invitedMember->nom_postnom ?? '') ?></p>
+                                            <p class="text-[10px] text-gray-400 tracking-wider">Rejoint le <?= Helper::formatDate2($invitedMember->created_at ?? '') ?></p>
+                                        </div>
+                                    </div>
+                                    <span class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-primary">
+                                        <?php if($invitedMember->status === ARRAY_STATUS_MEMBER[2]): ?>
+                                            ACTIVE
+                                        <?php elseif($invitedMember->status === ARRAY_STATUS_MEMBER[3]): ?>
+                                            SUSPENDUE
+                                        <?php elseif($invitedMember->status === ARRAY_STATUS_MEMBER[5]): ?>
+                                            INACTIVE
+                                        <?php elseif($invitedMember->status === ARRAY_STATUS_MEMBER[1]): ?>
+                                            Attente Intégration
+                                        <?php elseif($invitedMember->status === ARRAY_STATUS_MEMBER[4]): ?>
+                                            Intégration Rejetée
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Contrôles de pagination (s'affichent uniquement s'il y a plus de 3 éléments) -->
+                        <div x-show="totalPages > 1" style="display: none;" class="flex items-center justify-between mt-4 border-t border-white/10 pt-4">
+                            <button 
+                                @click="page > 1 ? page-- : null" 
+                                :disabled="page === 1"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/5 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                Précédent
+                            </button>
+                            
+                            <span class="text-xs text-gray-400">
+                                Page <span x-text="page" class="text-white font-bold"></span> sur <span x-text="totalPages" class="text-white font-bold"></span>
+                            </span>
+                            
+                            <button 
+                                @click="page < totalPages ? page++ : null" 
+                                :disabled="page === totalPages"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/5 bg-white/5 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center py-10 rounded-3xl border border-dashed border-white/10 bg-white/[0.02]">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-3">
+                            <i class="fas fa-user-plus text-gray-600 text-lg"></i>
+                        </div>
+                        <p class="text-sm text-gray-400 px-4">Aucun membre n’a encore rejoint la communauté grâce à votre lien.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

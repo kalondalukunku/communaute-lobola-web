@@ -18,14 +18,28 @@
         <main class="flex-grow container mx-auto px-4 py-12">
             <div class="fade-in">
                 <!-- Section Titre -->
-                <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-primary/10 pb-6">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-primary/10 pb-6 my-auto gap-6">
                     <div class="max-w-3xl">
                         <h2 class="font-serif text-3xl text-primary mb-4">Bibliothèque Sacrée de l'enseignement avancé : <span class="text-purple-400">Bolokele</span></h2>
                         <p class="text-gray-500 text-sm italic">Découvrez les enseignements hautement spirituels enseignés par les maîtres LOBOLA LO ILONDO et reservés uniquement aux membres engagés.</p>
                     </div>
-                    <!-- <div class="bg-green-100 text-green-800 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 mt-6 md:mt-0 shadow-sm border border-green-200">
-                        <i class="fas fa-check-circle"></i> Engagement Actif • Décembre 2023
-                    </div> -->
+                    <!-- Compteur date de fin de l abonnement -->
+                    <div class="p-4 rounded-2xl shadow-xl border border-gray-700 max-w-md w-75">
+                        <!-- <h2 class="text-xl font-bold mb-4 text-gray-200 border-b border-gray-700 pb-2">Statut de votre abonnement</h2> -->
+
+                        <!-- Votre code d'origine adapté avec un ID pour le temps restant -->
+                        <div class="text-right pb-1">
+                            <span class="text-gray-400 text-xs">Votre accès est valide jusqu'au :</span>
+                            <!-- La date PHP est injectée ici. On ajoute un attribut data-date pour que le JS sache quelle date cibler -->
+                            <p class="text-primary font-semibold text-sm" id="expiry-date" data-date="<?= date('Y-m-d H:i:s', strtotime($paiedMembre->payment_prochain)) ?>">
+                                <?= date('d/m/Y à H:i:s', strtotime($paiedMembre->payment_prochain)) ?>
+                            </p>
+                            <!-- Zone d'affichage du compte à rebours en direct -->
+                            <div class="mt-2 text-xs font-mono bg-gray-900 px-3 py-1.5 rounded text-amber-400 inline-block border border-gray-700">
+                                Temps restant : <span id="countdown-timer" class="font-bold">Calcul en cours...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Grille des Enseignements -->
@@ -168,4 +182,53 @@
         </section>
     <?php endif; ?>
 
+    <script>
+        // Fonction pour initialiser et mettre à jour le compte à rebours
+        function initCountdown() {
+            const dateElement = document.getElementById('expiry-date');
+            const timerElement = document.getElementById('countdown-timer');
+
+            if (!dateElement || !timerElement) return;
+
+            // Récupérer la date cible depuis l'attribut data-date (format standard YYYY-MM-DD HH:mm:ss ou ISO)
+            // Vous pouvez remplacer la valeur de data-date dynamiquement via PHP : data-date="<?= $paiedMembre->payment_prochain ?>"
+            const targetDateStr = dateElement.getAttribute('data-date');
+            const targetTime = new Date(targetDateStr.replace(' ', 'T')).getTime();
+
+            function updateTimer() {
+                const now = new Date().getTime();
+                const difference = targetTime - now;
+
+                if (difference <= 0) {
+                    timerElement.textContent = "Expiré";
+                    timerElement.classList.remove('text-amber-400');
+                    timerElement.classList.add('text-red-500');
+                    clearInterval(intervalId);
+                    return;
+                }
+
+                // Calculs du temps restant (jours, heures, minutes, secondes)
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                // Formater l'affichage proprement
+                let timeString = "";
+                if (days > 0) {
+                    timeString += `${days}j `;
+                }
+                timeString += `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+
+                timerElement.textContent = timeString;
+            }
+
+            // Exécuter immédiatement puis toutes les secondes
+            updateTimer();
+            const intervalId = setInterval(updateTimer, 1000);
+        }
+
+        // Lancer le script au chargement de la page
+        document.addEventListener('DOMContentLoaded', initCountdown);
+    </script>
 <?php include APP_PATH . 'views/layouts/footer.php'; ?>

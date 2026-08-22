@@ -50,7 +50,7 @@ class Payment extends Model {
         return json_decode(curl_exec($ch), true);
     }
 
-    public function kpayPaymentGateway($amount, $externalId, $returnUrl = "https://communaute-lobola.ankhing.com/pay/return")
+    public function kpayPaymentGateway($amount, $currency, $externalId, $returnUrl = "https://communaute-lobola.ankhing.com/pay/return")
     {
         $ch = curl_init("https://admin.kpay.site/api/v1/payments/init");
         curl_setopt_array($ch, [
@@ -63,6 +63,7 @@ class Payment extends Model {
         ],
         CURLOPT_POSTFIELDS => json_encode([
             "amount" => $amount,
+            "currency" => $currency,
             "externalId" => $externalId,
             "returnUrl" => $returnUrl,
         ]),

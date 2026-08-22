@@ -70,6 +70,7 @@ class PayController extends Controller
         // conversion USD to local currency based on country
         $montant = Utils::getMonthsNumber($Membre->modalite_engagement) * $Membre->montant;
         $localAmount = Utils::convertUsdToLocalCurrency($montant, $memberCountry);
+        $localCurrency = Utils::getLocalCurrency($memberCountry);
         // $countryData = $providerCountries[$countryKey] ?? null;
 
         $data = [
@@ -88,13 +89,14 @@ class PayController extends Controller
             $operateur = Utils::sanitize(trim($_POST['operateur'] ?? ''));   
 
             // $DataResponse = $this->PaymentModel->kpayPaymentMobile($localAmount, $operateur, $phoneNumber, $externalId);
-            $DataResponse = $this->PaymentModel->kpayPaymentGateway($localAmount, $externalId);
+            $DataResponse = $this->PaymentModel->kpayPaymentGateway($localAmount, $localCurrency, $externalId);
             $dataTrans = [
                 'trans_id' => $DataResponse['id'],
                 'member_id' => $membreId,
                 'reference' => $DataResponse['reference'],
                 'status' => $DataResponse['status'],
                 'amount' => $DataResponse['amount'],
+                'currency' => $localCurrency,
                 'externalId' => $DataResponse['externalId'],
             ];
             $this->TransactionsModel->insert($dataTrans);

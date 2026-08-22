@@ -176,6 +176,26 @@ class Utils {
         return round($amountInUsd * $exchangeRate);
     }
 
+    public static function getLocalCurrency($countryName): string
+    {
+        $currencies = [
+            'RD CONGO' => 'CDF',
+            'CONGO' => 'XAF',
+            'CAMEROUN' => 'XAF',
+            'CÔTE D’IVOIRE' => 'XOF',
+            'BENIN' => 'XOF',
+            'GABON' => 'XAF',
+            'KENYA' => 'KES',
+            'RWANDA' => 'RWF',
+            'SÉNÉGAL' => 'XOF',
+            'SIERRA LEONE' => 'SLL',
+            'OUGANDA' => 'UGX',
+            'ZAMBIE' => 'ZMW',
+        ];
+
+        return $currencies[strtoupper(trim((string) $countryName))] ?? '';
+    }
+
     public static function generateUuidV4(): string
     {
         $data = random_bytes(16);
