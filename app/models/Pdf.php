@@ -375,63 +375,36 @@ class PDF extends tFPDF
         $this->AddPage();
         $this->AliasNbPages();
 
-        // --- TITRE DE SECTION ---
         $this->SetFont('DejaVu', 'B', 24);
         $this->SetTextColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
         $this->Cell(0, 15, "liste des membres intégration validée", 0, 1, 'C');
-        
+
         $this->SetFont('DejaVu', '', 10);
         $this->SetTextColor(80, 80, 80);
         $this->Cell(0, 5, count($membres) . " membres répertoriés", 0, 1, 'C');
         $this->Ln(10);
 
-        // En-têtes du tableau
         $this->SetFillColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
         $this->SetTextColor(255, 255, 255);
         $this->SetDrawColor($this->couleurPrimaire[0], $this->couleurPrimaire[1], $this->couleurPrimaire[2]);
         $this->SetFont('DejaVu', 'B', 10);
 
-        // Définition des largeurs de colonnes (Total 277mm pour A4 Paysage avec marges de 10mm)
-        $w = [85, 50, 73, 40, 30];
-        $header = ['Nom Complet', 'Initiation', 'Email', 'Téléphone', 'Statut'];
+        $w = [150, 127];
+        $header = ['Nom complet', 'Statut'];
 
-        for($i=0; $i<count($header); $i++) {
-            if($i == 4) {
-                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'C', true);
-            } else {
-                $this->Cell($w[$i], 12, $header[$i], 0, 0, 'L', true);
-            }
+        foreach ($header as $index => $label) {
+            $this->Cell($w[$index], 12, $label, 0, 0, $index === 1 ? 'C' : 'L', true);
         }
         $this->Ln();
 
-        // Données des membres
         $this->SetTextColor(50, 50, 50);
         $this->SetFont('DejaVu', '', 9);
-        
-        // Couleurs pour les lignes alternées
-        // $this->SetFillColor(250, 249, 240); // Très léger doré/beige pour l'alternance
 
-        foreach($membres as $m) {
-            // Extraction des données (s'adapte objet ou tableau)
-            $id = $m->member_id;
-            $nom = $m->nom_postnom;
-            $niveau = $m->niveau_initiation === '' ? 'Pas encore initié' : $m->niveau_initiation;
-            $email = $m->email;
-            $tel = $m->phone_number;
-            // $mod = $m->modalite_engagement;
-            $statut = $m->status;
-
-            $this->Cell($w[0], 10, $nom, 0, 0, 'L');
-            $this->Cell($w[1], 10, $niveau, 0, 0, 'L');
-            $this->Cell($w[2], 10, $email, 0, 0, 'L');
-            $this->Cell($w[3], 10, $tel, 0, 0, 'L');
-            // $this->Cell($w[4], 10, $mod, 0, 0, 'L');
-            $this->Cell($w[4], 10, $statut, 0, 0, 'C');
+        foreach ($membres as $m) {
+            $this->Cell($w[0], 10, $m->nom_postnom, 0, 0, 'L');
+            $this->Cell($w[1], 10, 'Mot de passe pas encore défini', 0, 0, 'C');
             $this->Ln();
-            // $fill = !$fill;
         }
-        // Ligne de fermeture du tableau
-        // $this->Cell(array_sum($w), 0, '', 'T');
         $this->Output('D', 'communaute_lobola_-_Liste_des_membres_integration_valide.pdf');
     }
 
