@@ -89,17 +89,28 @@
 
             <!-- MODULE DE RECHERCHE -->
             <div class="backdrop-blur-xl rounded-[2rem] p-6 bg-white/[0.02] color-border shadow-xl">
-                <div class="relative max-w-lg">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-500 text-sm"></i>
-                    </div>
-                    <input 
-                        type="text" 
-                        placeholder="Rechercher par titre, auteur, catégorie..." 
-                        x-model="search"
-                        @input="resetPage()"
-                        class="flex w-full pl-11 pr-4 py-3 bg-white/5 color-border rounded-2xl text-sm text-primary placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cfbb30]/50 focus:border-[#cfbb30]/50 transition-all duration-300"
-                    />
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <label class="relative block w-full sm:max-w-lg">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-500 text-sm"></i>
+                        </div>
+                        <input
+                            type="search"
+                            placeholder="Rechercher par titre, auteur, catégorie..."
+                            x-model="search"
+                            @input="resetPage()"
+                            class="flex w-full pl-11 pr-4 py-3 bg-white/5 color-border rounded-2xl text-sm text-primary placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cfbb30]/50 focus:border-[#cfbb30]/50 transition-all duration-300"
+                        />
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-gray-400">
+                        Afficher
+                        <select x-model.number="perPage" @change="resetPage()" class="rounded-xl bg-white/5 color-border px-3 py-2.5 text-sm text-white focus:border-[#cfbb30] focus:outline-none">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                        par page
+                    </label>
                 </div>
             </div>
 
@@ -197,7 +208,7 @@
                 </div>
 
                 <!-- PAGINATION -->
-                <div x-show="totalPages > 1" 
+                <div x-show="filteredIndices.length > 0"
                     style="display: none;" 
                     class="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-t border-white/5 bg-white/[0.01]">
                     

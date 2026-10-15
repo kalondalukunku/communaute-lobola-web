@@ -16,6 +16,7 @@ require_once APP_PATH . 'models/Tokens.php';
 require_once APP_PATH . 'models/ActionsRaisons.php';
 require_once APP_PATH . 'models/Pdf.php';
 require_once APP_PATH . 'models/HistoriqueInitiation.php';
+require_once APP_PATH . 'models/Pensee.php';
 require_once APP_PATH . 'helpers/SendMail.php';
 
 class AdminController extends Controller 
@@ -129,6 +130,186 @@ class AdminController extends Controller
 
         Session::setFlash('success', 'Le blog a bien été publié.');
         Utils::redirect('/blog');
+    }
+
+    public function pensees()
+    {
+        Auth::requireLogin('admin');
+        if (empty($_SESSION['pensees_csrf'])) {
+            $_SESSION['pensees_csrf'] = bin2hex(random_bytes(32));
+        }
+
+        $this->view('admin/pensees', [
+            'title' => SITE_NAME . ' | Pensées',
+            'csrfToken' => $_SESSION['pensees_csrf'],
+            'thoughts' => (new Pensee())->allForAdmin(),
+        ]);
+    }
+
+    public function ajouter_pensee()
+    {
+        Auth::requireLogin('admin');
+        if (empty($_SESSION['pensees_csrf'])) {
+            $_SESSION['pensees_csrf'] = bin2hex(random_bytes(32));
+        }
+
+        $this->view('admin/ajouter_pensee', [
+            'title' => SITE_NAME . ' | Ajouter une pensée',
+            'csrfToken' => $_SESSION['pensees_csrf'],
+        ]);
+    }
+
+    public function modifier_pensee($thoughtId)
+    {
+        Auth::requireLogin('admin');
+        if (!is_string($thoughtId) || !preg_match('/^[a-f0-9]{32}$/i', $thoughtId)) {
+            Session::setFlash('error', 'Identifiant de pensée invalide.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        $model = new Pensee();
+        $thought = $model->find(strtolower($thoughtId));
+        if (!$thought) {
+            Session::setFlash('error', 'Cette pensée est introuvable.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        if (empty($_SESSION['pensees_csrf'])) {
+            $_SESSION['pensees_csrf'] = bin2hex(random_bytes(32));
+        }
+
+        $this->view('admin/modifier_pensee', [
+            'title' => SITE_NAME . ' | Modifier une pensée',
+            'csrfToken' => $_SESSION['pensees_csrf'],
+            'thought' => $thought,
+        ]);
+    }
+
+    public function update_pensee($thoughtId)
+    {
+        Auth::requireLogin('admin');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        if (!is_string($thoughtId) || !preg_match('/^[a-f0-9]{32}$/i', $thoughtId)) {
+            Session::setFlash('error', 'Identifiant de pensée invalide.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+        $thoughtId = strtolower($thoughtId);
+
+        $providedToken = $_POST['csrf_token'] ?? '';
+        $sessionToken = $_SESSION['pensees_csrf'] ?? '';
+        if (!is_string($providedToken) || $sessionToken === '' || !hash_equals($sessionToken, $providedToken)) {
+            Session::setFlash('error', 'Votre session a expiré. Veuillez réessayer.');
+            Utils::redirect('/admin/modifier_pensee/' . $thoughtId);
+            return;
+        }
+
+        $content = trim($_POST['content'] ?? '');
+        if ($content === '' || mb_strlen($content) > 5000) {
+            Session::setFlash('error', 'Le texte doit contenir entre 1 et 5 000 caractères.');
+            Utils::redirect('/admin/modifier_pensee/' . $thoughtId);
+            return;
+        }
+
+        try {
+            if (!(new Pensee())->update($thoughtId, $content)) {
+                throw new RuntimeException('La modification de la pensée a échoué.');
+            }
+            Session::setFlash('success', 'La pensée a bien été modifiée.');
+            Utils::redirect('/admin/pensees');
+        } catch (InvalidArgumentException $exception) {
+            Session::setFlash('error', $exception->getMessage());
+            Utils::redirect('/admin/pensees');
+        } catch (Throwable $exception) {
+            error_log('Erreur lors de la modification d’une pensée : ' . $exception->getMessage());
+            Session::setFlash('error', 'La pensée n’a pas pu être modifiée. Veuillez réessayer.');
+            Utils::redirect('/admin/modifier_pensee/' . $thoughtId);
+        }
+    }
+
+    public function supprimer_pensee($thoughtId)
+    {
+        Auth::requireLogin('admin');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        if (!is_string($thoughtId) || !preg_match('/^[a-f0-9]{32}$/i', $thoughtId)) {
+            Session::setFlash('error', 'Identifiant de pensée invalide.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        $providedToken = $_POST['csrf_token'] ?? '';
+        $sessionToken = $_SESSION['pensees_csrf'] ?? '';
+        if (!is_string($providedToken) || $sessionToken === '' || !hash_equals($sessionToken, $providedToken)) {
+            Session::setFlash('error', 'Votre session a expiré. Veuillez réessayer.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        try {
+            if (!(new Pensee())->delete(strtolower($thoughtId))) {
+                Session::setFlash('error', 'Cette pensée est introuvable ou a déjà été supprimée.');
+                Utils::redirect('/admin/pensees');
+                return;
+            }
+            Session::setFlash('success', 'La pensée et ses interactions ont bien été supprimées.');
+        } catch (Throwable $exception) {
+            error_log('Erreur lors de la suppression d’une pensée : ' . $exception->getMessage());
+            Session::setFlash('error', 'La pensée n’a pas pu être supprimée. Veuillez réessayer.');
+        }
+
+        Utils::redirect('/admin/pensees');
+    }
+
+    public function create_pensee()
+    {
+        Auth::requireLogin('admin');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        $providedToken = $_POST['csrf_token'] ?? '';
+        $sessionToken = $_SESSION['pensees_csrf'] ?? '';
+        if (!is_string($providedToken) || $sessionToken === '' || !hash_equals($sessionToken, $providedToken)) {
+            Session::setFlash('error', 'Votre session a expiré. Veuillez réessayer.');
+            Utils::redirect('/admin/pensees');
+            return;
+        }
+
+        $content = trim($_POST['content'] ?? '');
+        if ($content === '' || mb_strlen($content) > 5000) {
+            Session::setFlash('error', 'La pensée doit contenir entre 1 et 5 000 caractères.');
+            Utils::redirect('/admin/ajouter_pensee');
+            return;
+        }
+
+        $admin = Session::get('admin');
+        try {
+            $published = (new Pensee())->create(
+                (string) ($admin['admin_id'] ?? 'admin'),
+                trim((string) ($admin['nom'] ?? 'Administrateur')),
+                $content
+            );
+            if (!$published) {
+                throw new RuntimeException('La publication de la pensée a échoué.');
+            }
+            Session::setFlash('success', 'La pensée a bien été publiée.');
+            Utils::redirect('/admin/pensees');
+        } catch (Throwable $exception) {
+            error_log('Erreur lors de la publication d’une pensée : ' . $exception->getMessage());
+            Session::setFlash('error', 'La pensée n’a pas pu être publiée. Veuillez réessayer.');
+            Utils::redirect('/admin/pensees');
+        }
     }
     
     public function edtpswd()
@@ -413,42 +594,37 @@ class AdminController extends Controller
     public function membres() 
     {
         Auth::requireLogin('admin');
+        // var_dump(Session::get('admin')); die;
         $cacheKey = 'admin_administraction';
         
-        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $search = ($query !== '') ? basename($query) : null;
         $sttGet = basename($_GET['stt'] ?? '');
-        $psnPg = (int) basename($_GET['page'] ?? 1);
 
-        $stt = "";
-        $order_where = "updated_at";
-        $order_by = "DESC";
-        
-        if($sttGet === 'active' || !isset($_GET['stt']))
-        {
-            $stt = ARRAY_STATUS_MEMBER[2];
-            $order_where = "nom_postnom";
-            $order_by = "ASC";  
+        $memberStatuses = [
+            'active' => ['status' => ARRAY_STATUS_MEMBER[2], 'order' => 'nom_postnom', 'direction' => 'ASC'],
+            'att_validation' => ['status' => ARRAY_STATUS_MEMBER[1], 'order' => 'created_at', 'direction' => 'ASC'],
+            'inactive' => ['status' => ARRAY_STATUS_MEMBER[5], 'order' => 'updated_at', 'direction' => 'DESC'],
+            'att_rejete' => ['status' => ARRAY_STATUS_MEMBER[4], 'order' => 'updated_at', 'direction' => 'DESC'],
+            'suspended' => ['status' => ARRAY_STATUS_MEMBER[3], 'order' => 'updated_at', 'direction' => 'DESC'],
+        ];
+        $currentStatus = isset($memberStatuses[$sttGet]) ? $sttGet : 'active';
+        $stt = $memberStatuses[$currentStatus]['status'];
+        $allMembres = [];
+        foreach ($memberStatuses as $key => $statusConfig) {
+            $results = $this->MembreModel->findAllMembres(
+                1,
+                null,
+                ['status' => $statusConfig['status']],
+                null,
+                $statusConfig['order'],
+                $statusConfig['direction'],
+                false
+            );
+            foreach ($results['data'] as $membre) {
+                $membre->admin_filter_status = $key;
+                $allMembres[] = $membre;
+            }
         }
-        elseif($sttGet === 'att_validation')
-        {
-            $stt = ARRAY_STATUS_MEMBER[1];   
-            $order_where = "created_at";
-            $order_by = "ASC";
-        }
-        elseif($sttGet === 'suspended')
-            $stt = ARRAY_STATUS_MEMBER[3];
-        elseif($sttGet === 'att_rejete')
-            $stt = ARRAY_STATUS_MEMBER[4];
-        elseif($sttGet === 'inactive')
-            $stt = ARRAY_STATUS_MEMBER[5];
-
-        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['status' => $stt], 10, $order_where, $order_by);
-        $allMembres = $results['data'];
-        $totalrecords = $results['total_records'];
-        $currentPage = $results['current_page'];
-        $parPage = $results['per_page'];
-        $totalPages = $results['total_pages'];
+        $totalrecords = count($allMembres);
 
         $NbrAllMembres = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[2]], $cacheKey);
         $NbrAllMembresAttente = $this->MembreModel->countAll(['status' => ARRAY_STATUS_MEMBER[1]], $cacheKey);
@@ -458,14 +634,12 @@ class AdminController extends Controller
         $data = [
             'allMembres' => $allMembres,
             'totalrecords' => $totalrecords,
-            'currentPage' => $currentPage,
-            'parPage' => $parPage,
-            'totalPages' => $totalPages,
             'NbrAllMembres' => $NbrAllMembres,
             'NbrAllMembresAttente' => $NbrAllMembresAttente,
             'totalPaymentMonth' => $totalPaymentMonth,
             'NbrAllMembresInities' => $NbrAllMembresInities,
-            'stt' => $stt
+            'stt' => $stt,
+            'currentStatus' => $currentStatus
         ];
 
         foreach($allMembres as $membre) {
@@ -536,30 +710,32 @@ class AdminController extends Controller
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
         
-        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $search = ($query !== '') ? basename($query) : null;
         $sttGet = basename($_GET['stt'] ?? '');
-        $psnPg = (int) basename($_GET['page'] ?? 1);
 
-        $stt = ARRAY_STATUS_MEMBER[2];
-        $order_where = "E.signed_at";
-        
-        if($sttGet === 'approuve' || !isset($_GET['stt']))
-            {
-                $stt = ARRAY_STATUS_ENGAGEMENT[0];
-                $order_where = "M.nom_postnom";
+        $engagementStatuses = [
+            'approuve' => ['status' => ARRAY_STATUS_ENGAGEMENT[0], 'order' => 'M.nom_postnom'],
+            'non_approuve' => ['status' => ARRAY_STATUS_ENGAGEMENT[1], 'order' => 'E.signed_at'],
+            'rejete' => ['status' => ARRAY_STATUS_ENGAGEMENT[2], 'order' => 'E.signed_at'],
+        ];
+        $currentStatus = isset($engagementStatuses[$sttGet]) ? $sttGet : 'approuve';
+        $stt = $engagementStatuses[$currentStatus]['status'];
+        $AllEngages = [];
+        foreach ($engagementStatuses as $key => $statusConfig) {
+            $results = $this->MembreModel->findAllEngages(
+                1,
+                null,
+                ['statut' => $statusConfig['status']],
+                null,
+                $statusConfig['order'],
+                "ASC",
+                false
+            );
+            foreach ($results['data'] as $membre) {
+                $membre->admin_filter_status = $key;
+                $AllEngages[] = $membre;
             }
-        elseif($sttGet === 'non_approuve')
-            $stt = ARRAY_STATUS_ENGAGEMENT[1];
-        elseif($sttGet === 'rejete')
-            $stt = ARRAY_STATUS_ENGAGEMENT[2];
-
-        $results = $this->MembreModel->findAllEngages($psnPg, $search, ['statut' => $stt], 10, $order_where);
-        $AllEngages = $results['data'];
-        $totalrecords = $results['total_records'];
-        $currentPage = $results['current_page'];
-        $parPage = $results['per_page'];
-        $totalPages = $results['total_pages'];
+        }
+        $totalrecords = count($AllEngages);
 
         $NbrAllEngages = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[0]], $cacheKey);
         $NbrAllEngagesAttente = $this->EngagementModel->countAll(['statut' => ARRAY_STATUS_ENGAGEMENT[1]], $cacheKey);
@@ -570,14 +746,12 @@ class AdminController extends Controller
         $data = [
             'AllEngages' => $AllEngages,
             'totalrecords' => $totalrecords,
-            'currentPage' => $currentPage,
-            'parPage' => $parPage,
-            'totalPages' => $totalPages,
             'NbrAllEngages' => $NbrAllEngages,
             'NbrAllEngagesAttente' => $NbrAllEngagesAttente,
             'totalPaymentMonth' => $totalPaymentMonth,
             'membresEngages' => $membresEngages,
-            'membresEngagesRejetes' => $membresEngagesRejetes
+            'membresEngagesRejetes' => $membresEngagesRejetes,
+            'currentStatus' => $currentStatus
         ];
 
         foreach($AllEngages as $membre) {
@@ -619,34 +793,30 @@ class AdminController extends Controller
         Auth::requireLogin('admin');
         $cacheKey = 'admin_administraction';
         
-        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
-        $search = ($query !== '') ? basename($query) : null;
-        $typeInitiationGet = basename($_GET['tpint'] ?? '');
-        $psnPg = (int) basename($_GET['page'] ?? 1);
+        $initiationTypes = [
+            'neuvaine' => ARRAY_TYPE_NIVEAU_INITIATION[3],
+            '30jours' => ARRAY_TYPE_NIVEAU_INITIATION[2],
+            '15jours' => ARRAY_TYPE_NIVEAU_INITIATION[1],
+            'novice' => ARRAY_TYPE_NIVEAU_INITIATION[0],
+        ];
+        $typeInitiationGet = basename($_GET['tpint'] ?? 'neuvaine');
+        if (!isset($initiationTypes[$typeInitiationGet])) {
+            $typeInitiationGet = 'neuvaine';
+        }
 
-        $typeInitiation = "";
         $order_where = "nom_postnom";
         $order_by = "ASC";
-        
-        if($typeInitiationGet === 'neuvaine' || !isset($_GET['tpint']))
-        {
-            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[3];
-        }
-        elseif($typeInitiationGet === '15jours')
-        {
-            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[1];   
-        }
-        elseif($typeInitiationGet === '30jours')
-            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[2];
-        elseif($typeInitiationGet === 'novice')
-            $typeInitiation = ARRAY_TYPE_NIVEAU_INITIATION[0];
 
-        $results = $this->MembreModel->findAllMembres($psnPg, $search, ['niveau_initiation' => $typeInitiation], 10, $order_where, $order_by);
-        $allMembres = $results['data'];
-        $totalrecords = $results['total_records'];
-        $currentPage = $results['current_page'];
-        $parPage = $results['per_page'];
-        $totalPages = $results['total_pages'];
+        $allMembres = [];
+        foreach ($initiationTypes as $status => $niveauInitiation) {
+            $results = $this->MembreModel->findAllMembres(1, null, ['niveau_initiation' => $niveauInitiation], null, $order_where, $order_by, false);
+            $membersForStatus = $results['data'];
+
+            foreach ($membersForStatus as $membre) {
+                $membre->admin_filter_status = $status;
+                $allMembres[] = $membre;
+            }
+        }
 
         $NbrAllMembresNeuvaine = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[3]], $cacheKey);
         $NbrAllMembres30 = $this->MembreModel->countAll(['niveau_initiation' => ARRAY_TYPE_NIVEAU_INITIATION[2]], $cacheKey);
@@ -655,15 +825,11 @@ class AdminController extends Controller
 
         $data = [
             'allMembres' => $allMembres,
-            'totalrecords' => $totalrecords,
-            'currentPage' => $currentPage,
-            'parPage' => $parPage,
-            'totalPages' => $totalPages,
             'NbrAllMembresNeuvaine' => $NbrAllMembresNeuvaine,
             'NbrAllMembres30' => $NbrAllMembres30,
             'NbrAllMembresNovice' => $NbrAllMembresNovice,
             'NbrAllMembres15' => $NbrAllMembres15,
-            'typeInitiation' => $typeInitiation
+            'currentInitiationStatus' => $typeInitiationGet,
         ];
 
         foreach($allMembres as $membre) {

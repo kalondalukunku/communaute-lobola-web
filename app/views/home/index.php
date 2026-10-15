@@ -249,6 +249,77 @@
                     </div>
                 </div>
             <?php endif; ?>
+
+            <?php if (count($popularThoughts) > 0): ?>
+                <section class="my-15 rounded-2xl border border-primary/20 bg-gradient-to-br from-[#130121] via-[#1d0c2d] to-[#0f172a] p-6 shadow-xl sm:p-8" aria-labelledby="popular-thoughts-title">
+                    <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-primary">La communauté s’exprime</span>
+                            <h2 id="popular-thoughts-title" class="mt-2 font-serif text-2xl text-white sm:text-3xl">Pensées populaires</h2>
+                            <p class="mt-2 text-sm text-gray-400">Les pensées qui suscitent le plus de réactions et d’échanges.</p>
+                        </div>
+                        <?php if (Session::isLogged('membre')): ?>
+                            <a href="<?= BASE_URL ?>/pensees" class="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary hover:text-black sm:self-auto">
+                                Toutes les pensées <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (!empty($popularThoughts)): ?>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <?php foreach ($popularThoughts as $thought): ?>
+                                <article class="flex flex-col rounded-2xl border border-white/10 bg-black/20 p-5">
+                                    <div class="mb-3 flex items-center gap-2 text-xs text-gray-400">
+                                        <i class="fa-solid fa-feather-pointed text-primary"></i>
+                                        <span><?= htmlspecialchars($thought['author_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <span aria-hidden="true">·</span>
+                                        <time datetime="<?= htmlspecialchars($thought['created_at'], ENT_QUOTES, 'UTF-8') ?>">
+                                            <?= htmlspecialchars(Helper::formatDate($thought['created_at']), ENT_QUOTES, 'UTF-8') ?>
+                                        </time>
+                                    </div>
+                                    <?php
+                                        $thoughtContent = trim($thought['content']);
+                                        $isThoughtTruncated = mb_strlen($thoughtContent) > 280;
+                                        if ($isThoughtTruncated) {
+                                            $thoughtContent = mb_substr($thoughtContent, 0, 280) . '…';
+                                        }
+                                    ?>
+                                    <p class="flex-grow whitespace-pre-line break-words text-sm leading-7 text-gray-100"><?= htmlspecialchars($thoughtContent, ENT_QUOTES, 'UTF-8') ?></p>
+                                    <div class="mt-5 flex items-center gap-5 border-t border-white/10 pt-4 text-xs text-gray-400">
+                                        <span><i class="fa-regular fa-heart mr-1 text-primary"></i><?= (int) $thought['likes_count'] ?> J’aime</span>
+                                        <span><i class="fa-regular fa-comment mr-1 text-primary"></i><?= (int) $thought['comments_count'] ?> commentaires</span>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="rounded-xl border border-dashed border-white/10 bg-black/20 p-5 text-sm text-gray-400">Aucune pensée n’a encore été publiée.</p>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+
+            <section class="my-15 rounded-2xl color-border bg-paper p-6 sm:p-8" aria-labelledby="social-links-title">
+                <div class="mb-6">
+                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-primary">Restez connectés</span>
+                    <h2 id="social-links-title" class="mt-2 font-serif text-2xl text-white sm:text-3xl">Shenuti Lobola Lo Ilondo sur les réseaux</h2>
+                    <p class="mt-2 text-sm text-gray-400">Retrouvez ses vidéos et ses enseignements sur ses chaînes officielles.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    <?php foreach ($socialLinks as $social): ?>
+                        <a href="<?= htmlspecialchars($social['url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer"
+                            class="group flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition hover:border-primary/40 hover:bg-primary/5">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/5 <?= $social['color'] ?> transition group-hover:bg-primary/10">
+                                <i class="<?= $social['icon'] ?> text-xl"></i>
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-sm font-semibold text-white"><?= htmlspecialchars($social['name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="mt-1 block text-xs text-gray-400">Suivre la chaîne</span>
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500 transition group-hover:text-primary"></i>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
         </div>
     </main>
 

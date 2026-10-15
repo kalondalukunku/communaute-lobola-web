@@ -12,8 +12,10 @@
     $projetFolder = rtrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', str_replace('\\', '/', __DIR__)), '/');
 
     define('ADMIN_EMAIL', 'communaute.lobola@ankhing.com');
+    define('ADMIN_EMAIL2', 'conseildessagesdekama@gmail.com');
 
     define('APP_VERSION', '1.2.1');
+    define('DB_BACKUP_CRON_TOKEN', 'dd077a2c5a42aa4c9a66b0a2830368db45fe5dff6b311e6d9674943c3994e6e8');
 
     define('BASE_URL', $protocol . $domain . $projetFolder);
     define('BASE_PATH', __DIR__ . '/');
@@ -50,8 +52,6 @@
         $file = APP_PATH . "helpers/$helper.php";
         if(file_exists($file)) require_once $file;
     }
-
-    $_SESSION['prsc'] = false;
 
     // Démarrer l'application
     $app = new App();

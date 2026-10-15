@@ -188,8 +188,8 @@
                                 <i class="fa-brands fa-youtube text-xl"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold font-serif text-white">Vidéos Complémentaires</h3>
-                                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Immersion Visuelle</p>
+                                <h3 class="text-xl font-bold font-serif text-white">Vidéos Vin d'innocence</h3>
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">A suivre attentivement</p>
                             </div>
                         </div>
 
@@ -236,6 +236,50 @@
 
             </div>
         <?php endif; ?>
+
+        <?php if($Series->nom === "Consommation du Vin d'innocence"): ?>
+            <div class="w-[80%] mx-auto mt-12 mb-20">
+
+                <!-- SECTION VIDÉOS YOUTUBE (Gaucher - 7 colonnes) -->
+                <div class="lg:col-span-7 bg-paper color-border rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-12 -left-12 w-32 h-32 bg-red-500/5 blur-[50px] rounded-full"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center text-red-500">
+                                <i class="fa-brands fa-youtube text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold font-serif text-white">Vidéos Complémentaires</h3>
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Immersion Visuelle</p>
+                            </div>
+                        </div>
+
+                        <!-- Lecteur Principal Vidéo -->
+                        <div class="aspect-video w-full rounded-2xl overflow-hidden color-border bg-black/40">
+                            <video id="youtube-player" class="w-full h-full" src="<?= ASSETS ?>ressources/videos/consommation_vin1.mp4" controls>
+                                Votre navigateur ne supporte pas la lecture de vidéos.
+                            </video>
+                        </div>
+                        
+                        <!-- Lecteur Principal Vidéo -->
+                        <div class="aspect-video w-full rounded-2xl overflow-hidden color-border bg-black/40">
+                            <video id="youtube-player" class="w-full h-full" src="<?= ASSETS ?>ressources/videos/consommation_vin2.mp4" controls>
+                                Votre navigateur ne supporte pas la lecture de vidéos.
+                            </video>
+                        </div>
+                        
+                        <!-- Lecteur Principal Vidéo -->
+                        <div class="aspect-video w-full rounded-2xl overflow-hidden color-border bg-black/40">
+                            <video id="youtube-player" class="w-full h-full" src="<?= ASSETS ?>ressources/videos/consommation_vin3.mp4" controls>
+                                Votre navigateur ne supporte pas la lecture de vidéos.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
     <?php else: ?>
         <div class="text-center py-20">
             <h2 class="font-serif text-3xl text-primary mb-4">Bibliothèque Sacrée</h2>

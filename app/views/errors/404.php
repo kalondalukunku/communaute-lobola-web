@@ -83,7 +83,7 @@
         <div class="pt-4">
             <p class="text-xs text-gray-400">
                 Si vous pensez qu'il s'agit d'une erreur technique, merci de 
-                <a href="mailto:<?= ADMIN_EMAIL ?>" class="text-[#cfbb30] underline decoration-dotted font-medium">contacter le support</a>.
+                <a href="mailto:<?= ADMIN_EMAIL2 ?>" class="text-[#cfbb30] underline decoration-dotted font-medium">contacter le support</a>.
             </p>
         </div>
 

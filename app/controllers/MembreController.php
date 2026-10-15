@@ -789,11 +789,11 @@ class MembreController extends Controller
         }
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
-            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
             Session::destroy();
             Cache::delete('membre_connexion');
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
+            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
             Utils::redirect('../profile/'. $membreId);
             return;
         }
@@ -1089,11 +1089,11 @@ class MembreController extends Controller
         // }         
         if($Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0] && $paiement && $paiement->payment_status === ARRAY_PAYMENT_STATUS[1])
         {
-            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
             Session::destroy();
             Cache::delete('membre_connexion');
             Cache::set($cacheKey, $Membre);
             Session::set('membre', $Membre);
+            Session::setFlash('success', "Votre engagement a été validé. Bienvenue aux enseignements avancés nommés : BOLOKELE.");
             Utils::redirect('../profile/'. $membreId);
             return;
         }

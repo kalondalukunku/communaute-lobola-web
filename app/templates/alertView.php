@@ -49,7 +49,7 @@
             ?>
             
             <!-- Bloc de notification dynamique -->
-            <div class="notification-slide relative overflow-hidden <?= $bgClass; ?> <?= $textClass; ?> p-5 rounded-2xl shadow-2xl border-l-4 <?= $borderClass; ?> <?= $bgClass === 'bg-white' ? 'border' : ''; ?> border-gray-100">
+            <div class="notification-slide relative overflow-hidden <?= $bgClass; ?> <?= $textClass; ?> p-5 rounded-2xl shadow-2xl border-l-4 <?= $borderClass; ?> <?= $bgClass === 'bg-white' ? 'border' : ''; ?> border-gray-100" data-auto-dismiss>
                 <div class="flex items-start gap-4">
                     <div class="<?= $iconBgClass; ?> w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="<?= htmlspecialchars($icon); ?> text-sm"></i>
@@ -75,3 +75,11 @@
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
+<script>
+    document.querySelectorAll('#notification-container [data-auto-dismiss]').forEach(notification => {
+        window.setTimeout(() => {
+            notification.classList.add('notification-dismiss');
+            window.setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    });
+</script>

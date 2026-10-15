@@ -10,6 +10,10 @@ class App {
 
     public function __construct()
     {
+        if (class_exists('Session') && method_exists('Session', 'start')) {
+            Session::start();
+        }
+
         // 1. Récupère et nettoie les parties de l'URL de manière sécurisée.
         $url = $this->parseUrl();
         
@@ -55,11 +59,6 @@ class App {
 
         // 6. Appel du contrôleur et de la méthode
         try {
-            // Vérification de l'existence de la classe Session avant l'appel (pour plus de robustesse)
-            if (class_exists('Session') && method_exists('Session', 'start')) {
-                 Session::start();
-            }
-            
             call_user_func_array([$this->controller, $this->method], $this->params);
         } catch (Throwable $e) {
             // Intercepte toute erreur (y compris les E_NOTICE transformées en Exception)

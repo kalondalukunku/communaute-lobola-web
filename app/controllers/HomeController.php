@@ -5,6 +5,7 @@
     require_once APP_PATH . 'models/Serie.php';
     require_once APP_PATH . 'models/Enseignement.php';
     require_once APP_PATH . 'models/Vues.php';
+    require_once APP_PATH . 'models/Pensee.php';
 
 class HomeController extends Controller {
     
@@ -80,6 +81,12 @@ class HomeController extends Controller {
             'isOn' => $isOn,
             'MaatId' => $MaatId,
             'BolokeleId' => $BolokeleId,
+            'popularThoughts' => (new Pensee())->mostPopular(),
+            'socialLinks' => [
+                ['name' => 'YouTube — Negro Spiritual TV', 'url' => 'https://www.youtube.com/@negrospiritualtv2055', 'icon' => 'fa-brands fa-youtube', 'color' => 'text-red-500'],
+                ['name' => 'TikTok — Shenuti Lobola', 'url' => 'https://www.tiktok.com/@shenuti.lobolaloil', 'icon' => 'fa-brands fa-tiktok', 'color' => 'text-white'],
+                ['name' => 'TikTok — Shenuti Enseignement', 'url' => 'https://www.tiktok.com/@shenuti.enseignement', 'icon' => 'fa-brands fa-tiktok', 'color' => 'text-white'],
+            ],
         ];
         $this->view('home/index', $data);
     }

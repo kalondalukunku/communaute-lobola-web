@@ -36,7 +36,7 @@
                     Si vous estimez que cette décision résulte d'une erreur d'appréciation ou si vous souhaitez apporter des éléments complémentaires, vous avez la possibilité de déposer un recours auprès de notre service administratif.
                 </p>
                 
-                <a href="mailto:<?= ADMIN_EMAIL ?>" class="inline-flex items-center justify-center bg-white border border-primary/20 text-primary py-3 px-6 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-all w-full md:w-auto">
+                <a href="mailto:<?= ADMIN_EMAIL2 ?>" class="inline-flex items-center justify-center bg-white border border-primary/20 text-primary py-3 px-6 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-all w-full md:w-auto">
                     <i class="fas fa-envelope-open-text mr-2"></i> Contacter le support
                 </a>
             </div>

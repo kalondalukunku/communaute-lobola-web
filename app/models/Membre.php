@@ -262,7 +262,7 @@ class Membre extends Model {
         return $q->fetch();
     }
 
-    public function findAllMembres(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "updated_at", ?string $order_by = "ASC"): array
+    public function findAllMembres(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "updated_at", ?string $order_by = "ASC", bool $paginate = true): array
     {
         $limit = $per_page ?? $this->default_per_page ?? 10;
         $page = max(1, $page);
@@ -289,17 +289,21 @@ class Membre extends Model {
         $whereSql = " WHERE " . implode(" AND ", $whereClauses);
 
         // 3. Requête pour le nombre total d'enregistrements
-        $sql_count = "SELECT COUNT(M.member_id) FROM $this->table M $whereSql";
-        
-        $q_count = $this->db->prepare($sql_count);
-        $q_count->execute($params);
-        $total_records = (int) $q_count->fetchColumn();
+        $total_records = 0;
+        if ($paginate) {
+            $sql_count = "SELECT COUNT(M.member_id) FROM $this->table M $whereSql";
+            $q_count = $this->db->prepare($sql_count);
+            $q_count->execute($params);
+            $total_records = (int) $q_count->fetchColumn();
+        }
 
         // 4. Requête pour les membres uniquement
         $sql = "SELECT M.* FROM $this->table M 
                 $whereSql 
-                ORDER BY M.$order_where $order_by 
-                LIMIT {$limit} OFFSET {$offset}";
+                ORDER BY M.$order_where $order_by";
+        if ($paginate) {
+            $sql .= " LIMIT {$limit} OFFSET {$offset}";
+        }
         
         $q = $this->db->prepare($sql);
         
@@ -310,6 +314,9 @@ class Membre extends Model {
         
         $q->execute();
         $results = $q->fetchAll(PDO::FETCH_OBJ);
+        if (!$paginate) {
+            $total_records = count($results);
+        }
 
         // 5. Retour des données formatées
         return [
@@ -322,7 +329,7 @@ class Membre extends Model {
         ];
     }
 
-    public function findAllEngages(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "E.signed_at", ?string $order_by = "ASC"): array
+    public function findAllEngages(int $page = 1, ?string $search = null, array $conditions = [], ?int $per_page = null, ?string $order_where = "E.signed_at", ?string $order_by = "ASC", bool $paginate = true): array
     {
         $limit = $per_page ?? $this->default_per_page ?? 10;
         $page = max(1, $page);
@@ -348,14 +355,16 @@ class Membre extends Model {
         $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
         // 3. Requête pour le nombre total (INNER JOIN garantit qu'on ne compte que les membres avec engagement)
-        $sql_count = "SELECT COUNT(DISTINCT M.member_id) 
-                    FROM $this->table M 
-                    INNER JOIN engagements E ON M.member_id = E.member_id 
-                    $whereSql";
-        
-        $q_count = $this->db->prepare($sql_count);
-        $q_count->execute($params);
-        $total_records = (int) $q_count->fetchColumn();
+        $total_records = 0;
+        if ($paginate) {
+            $sql_count = "SELECT COUNT(DISTINCT M.member_id)
+                        FROM $this->table M
+                        INNER JOIN engagements E ON M.member_id = E.member_id
+                        $whereSql";
+            $q_count = $this->db->prepare($sql_count);
+            $q_count->execute($params);
+            $total_records = (int) $q_count->fetchColumn();
+        }
 
         // 4. Requête pour les enregistrements (INNER JOIN filtre les membres sans engagement)
         $sql = "SELECT 
@@ -384,8 +393,10 @@ class Membre extends Model {
                 LEFT JOIN payments P ON E.member_id = P.member_id -- LEFT JOIN pour inclure ceux qui n'ont pas encore payé
                 $whereSql 
                 GROUP BY M.member_id, E.engagement_id
-                ORDER BY $order_where $order_by
-                LIMIT {$limit} OFFSET {$offset}";
+                ORDER BY $order_where $order_by";
+        if ($paginate) {
+            $sql .= " LIMIT {$limit} OFFSET {$offset}";
+        }
         
         $q = $this->db->prepare($sql);
         
@@ -395,6 +406,9 @@ class Membre extends Model {
         
         $q->execute();
         $results = $q->fetchAll(PDO::FETCH_OBJ);
+        if (!$paginate) {
+            $total_records = count($results);
+        }
 
         // 5. Retour des données formatées
         return [

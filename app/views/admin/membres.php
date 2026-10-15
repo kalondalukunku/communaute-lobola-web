@@ -1,11 +1,28 @@
-<?php 
+<?php
+    $memberSearchIndex = [];
+    foreach ($allMembres as $index => $membre) {
+        $memberSearchIndex[] = [
+            'index' => $index,
+            'search' => mb_strtolower(implode(' ', [
+                $membre->nom_postnom ?? '',
+                $membre->email ?? '',
+                $membre->niveau_initiation ?? '',
+                $membre->phone_number ?? '',
+                $membre->domaine_etude ?? '',
+                $membre->nationalite ?? '',
+                $membre->ville ?? '',
+            ]), 'UTF-8'),
+            'status' => $membre->admin_filter_status,
+        ];
+    }
+
     $title = "Admin - Liste des membres";
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 
 ?>
 
-        <main class="flex-grow flex flex-col min-w-0">
+        <main class="flex-grow flex flex-col min-w-0" x-data="adminTable(<?= htmlspecialchars(json_encode($memberSearchIndex, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 10, <?= htmlspecialchars(json_encode($currentStatus), ENT_QUOTES, 'UTF-8') ?>)">
             <!-- Header Mobile Dédié -->
             <div class="lg:hidden p-4 bg-paper border-b border-slate-200 flex items-center justify-between sticky top-0 z-30 shadow-sm">
                 <button @click="sidebarOpen = true" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600">
@@ -27,20 +44,19 @@
             </div>
         
             <!-- Header -->
-            <header class="h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 flex justify-between items-center sticky top-0 z-40">
+            <header class="min-h-24 bg-paper backdrop-blur-md border-b border-gray-100 px-3 py-4 flex flex-col gap-3 justify-between sm:flex-row sm:items-center sticky top-0 z-40">
                 
                 <div>
                     <h1 class="font-serif text-xl md:text-md font-bold text-primary">Membres de la communauté</h1>
                     <p class="text-xs text-gray-400 mt-1 font-medium italic">Accueillez et gérez les âmes du sanctuaire</p>
                 </div>
                 
-                <div class="flex items-center hidden sm:block gap-6">
-                    <form action="" method="get">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
-                            <input type="text" name="q" placeholder="Rechercher un membre..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="pl-10 pr-6 py-3 bg-paper rounded-2xl text-sm color-border focus:ring-2 focus:ring-primary/20 outline-none w-64 transition-all" style="color: var(--primary);">                    
-                        </div>
-                    </form>
+                <div class="flex items-center gap-6">
+                    <label class="relative block w-full sm:w-64">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-primary"></i>
+                        <input type="search" x-model="search" @input="resetPage()" placeholder="Rechercher un membre..."
+                            class="w-full rounded-2xl bg-paper py-3 pl-10 pr-6 text-sm color-border outline-none transition-all focus:ring-2 focus:ring-primary/20" style="color: var(--primary);">
+                    </label>
                 </div>
             </header>
 
@@ -112,12 +128,8 @@
                 <!-- Table Card -->
                 <div class="bg-paper rounded-[3rem] shadow-xl shadow-black/[0.02] color-border overflow-hidden">
                     <div class="px-10 py-8 color-border-b flex items-center justify-between">
-                        <div class="flex text-[10px] items-center gap-8">
+                        <div class="flex text-[10px] items-center gap-4">
                             <?php
-                                $full_uri = $_SERVER['REQUEST_URI'] ?? '/';
-                                $path_only = parse_url($full_uri, PHP_URL_PATH);
-                                $clean_path = rtrim($path_only, '/');
-                                
                                 $psnStatus = [
                                     'active' => 'Actif',
                                     'att_validation' => 'Attente Intégration',
@@ -126,81 +138,57 @@
                                     'suspended' => 'Suspendu',
                                 ];
 
-                                $current_status = $_GET['stt'] ?? 'active';
-
                                 foreach ($psnStatus as $key => $label) 
                                 {
-                                    $is_active = ($current_status === $key);
-
-                                    $active_class = $is_active
-                                        ? "relative font-bold text-xs text-primary after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-1 after:bg-primary after:rounded-full" // Active
-                                        : 'font-bold text-xs text-gray-400 hover:text-primary transition'; // Inactive
-
-                                    $new_params = $_GET;
-
-                                    $new_params['stt'] = $key;
-
-                                    if(isset($new_params['page'])) unset($new_params['page']);
-                                    // if(isset($new_params['q'])) unset($new_params['q']);
-
-                                    $url_params = http_build_query($new_params);
-                                    $badge_html = $is_active 
-                                                    ? '<span class="absolute -top-3 -right-3 w-6 h-6 bg-primary text-[#001411] rounded-full flex items-center justify-center text-[10px] font-bold"> ' . $totalrecords . ' </span>' 
-                                                    : '';
-
-                                    echo "<a href=\"?{$url_params}\" class=\"px-3 py-1.5 md:px-4 md:py-2 text-xs font-medium color-border rounded-2xl {$active_class} flex-shrink-0 transition duration-150 ease-in-out\">
-                                            {$label}
-                                            {$badge_html}
-                                        </a>";
+                                    $escapedKey = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+                                    $escapedLabel = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+                                    echo "<button type=\"button\" @click=\"setStatus('{$escapedKey}')\" :class=\"activeStatus === '{$escapedKey}' ? 'color-border bg-primary/10 text-primary' : 'text-gray-400 hover:text-primary'\" class=\"relative flex-shrink-0 rounded-2xl color-border px-2 py-1.5 text-[12px] font-bold transition md:px-3 md:py-2\">
+                                            {$escapedLabel}
+                                            <span x-show=\"statusCounts['{$escapedKey}']\" x-text=\"statusCounts['{$escapedKey}'] || 0\" class=\"ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-[#001411]\"></span>
+                                        </button>";
                                 }
                                 ?>
 
-                                <?php if($stt === ARRAY_STATUS_MEMBER[2] && $totalrecords > 0): ?>
-                                    <form action="" method="post" class="absolute right-20 hidden lg:block">
-                                        <button type="submit" 
-                                            name="cllil_admin_expt_membres_actifs"
-                                            class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                            <span id="btnText">Rapport membres actif</span>
-                                            <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
-                                        </button>
-                                    </form>
-                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[1] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
-                                            <button type="submit" 
-                                                name="cllil_admin_expt_membres_attente"
-                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                                <span id="btnText">Rapport membres attente intégration</span>
-                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
-                                            </button>
-                                        </form>
-                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[5] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
-                                            <button type="submit" 
-                                                name="cllil_admin_expt_membres_inactifs"
-                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                                <span id="btnText">Rapport membres intégration validés</span>
-                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
-                                            </button>
-                                        </form>
-                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[4] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
-                                            <button type="submit" 
-                                                name="cllil_admin_expt_membres_rejetes"
-                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                                <span id="btnText">Rapport membres intégration rejetés</span>
-                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
-                                            </button>
-                                        </form>
-                                    <?php elseif($stt === ARRAY_STATUS_MEMBER[3] && $totalrecords > 0): ?>
-                                        <form action="" method="post" class="absolute right-20 hidden lg:block">
-                                            <button type="submit" 
-                                                name="cllil_admin_expt_membres_suspendus"
-                                                class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                                <span id="btnText">Rapport membres suspendus</span>
-                                                <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
+                                <form action="" method="post" x-show="activeStatus === 'active' && statusCounts.active > 0" class="absolute right-20 hidden md:block">
+                                    <button type="submit" 
+                                        name="cllil_admin_expt_membres_actifs"
+                                        class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span id="btnText" class="hidden xl:block">Rapport membres actif</span>
+                                        <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
+                                <form action="" method="post" x-show="activeStatus === 'att_validation' && statusCounts.att_validation > 0" class="absolute right-20 hidden md:block">
+                                    <button type="submit" 
+                                        name="cllil_admin_expt_membres_attente"
+                                        class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span id="btnText" class="hidden xl:block">Rapport membres attente intégration</span>
+                                        <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
+                                <form action="" method="post" x-show="activeStatus === 'inactive' && statusCounts.inactive > 0" class="absolute right-20 hidden md:block">
+                                    <button type="submit" 
+                                        name="cllil_admin_expt_membres_inactifs"
+                                        class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span id="btnText" class="hidden xl:block">Rapport membres intégration validés</span>
+                                        <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
+                                <form action="" method="post" x-show="activeStatus === 'att_rejete' && statusCounts.att_rejete > 0" class="absolute right-20 hidden md:block">
+                                    <button type="submit" 
+                                        name="cllil_admin_expt_membres_rejetes"
+                                        class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span id="btnText" class="hidden xl:block">Rapport membres intégration rejetés</span>
+                                        <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
+                                <form action="" method="post" x-show="activeStatus === 'suspended' && statusCounts.suspended > 0" class="absolute right-20 hidden md:block">
+                                    <button type="submit" 
+                                        name="cllil_admin_expt_membres_suspendus"
+                                        class="w-full bg-primary hover:bg-primary text-paper text-[12px] font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span id="btnText"  class="hidden xl:block">Rapport membres suspendus</span>
+                                        <i id="btnIcon" class="fas fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
                         </div>
                     </div>
 
@@ -218,8 +206,8 @@
                             <tbody class="divide-y divide-gray-50">
                                     <!-- Membre Actif -->
                                     <?php if(count($allMembres) > 0): ?>
-                                            <?php foreach ($allMembres as $membre): ?>
-                                                    <tr class="color-border-b row-animate">
+                                            <?php foreach ($allMembres as $index => $membre): ?>
+                                                    <tr class="color-border-b row-animate" x-show="isRowVisible(<?= $index ?>)" style="display: none;">
                                                             <td class="pl-5 pr-3 py-5">
                                                             <div class="flex items-center gap-4">
                                                                     <div class="w-12 h-12 rounded-2xl text-white border-2 color-border-b flex items-center justify-center font-bold text-secondary text-sm">
@@ -260,7 +248,7 @@
                                                             <div class="flex justify-end gap-2">
                                                                 <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
 
-                                                                <?php if($stt === ARRAY_STATUS_MEMBER[5]): ?>
+                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[5]): ?>
                                                                     <form action="" method="post">
                                                                         <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
                                                                             <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>
@@ -270,6 +258,9 @@
                                                             </td>
                                                     </tr>
                                             <?php endforeach; ?>
+                                            <tr x-show="filteredRows.length === 0" style="display: none;">
+                                                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-400 italic">Aucun membre ne correspond à votre recherche.</td>
+                                            </tr>
                                     <?php else: ?>
                                         <tr>
                                             <td colspan="5" class="px-6 py-5 text-center text-sm text-gray-400 italic">
@@ -282,11 +273,19 @@
                     </div>
 
                     <!-- Footer Pagination -->
-                    <div class="px-7 py-4 bg-[#001411] flex items-center justify-between">
-                        <p class="text-[10px] text-gray-400 font-bold tracking-widest">Page <?= $currentPage; ?> sur <?= $totalPages; ?></p>
-                        
-                        <div class="flex gap-2">
-                            <?php Helper::generatePaginationFull($currentPage, $totalPages); ?>
+                    <div class="px-7 py-4 bg-[#001411] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <p class="text-xs text-gray-400">Affichage de <span x-text="filteredRows.length ? (page - 1) * perPage + 1 : 0" class="font-semibold text-white"></span> à <span x-text="Math.min(page * perPage, filteredRows.length)" class="font-semibold text-white"></span> sur <span x-text="filteredRows.length" class="font-semibold text-white"></span> membre(s)</p>
+                            <label class="flex items-center gap-2 text-xs text-gray-400">Lignes
+                                <select x-model.number="perPage" @change="resetPage()" class="rounded-lg border border-slate-700 bg-secondary px-2 py-1.5 text-white">
+                                    <option value="10">10</option><option value="25">25</option><option value="50">50</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="page > 1 && page--" :disabled="page === 1" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs text-white disabled:cursor-not-allowed disabled:opacity-40">Précédent</button>
+                            <span class="px-2 text-xs text-gray-400">Page <span x-text="page" class="font-semibold text-white"></span> / <span x-text="totalPages" class="font-semibold text-white"></span></span>
+                            <button @click="page < totalPages && page++" :disabled="page === totalPages" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs text-white disabled:cursor-not-allowed disabled:opacity-40">Suivant</button>
                         </div>
                     </div>
                 </div>

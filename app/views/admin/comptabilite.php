@@ -15,6 +15,45 @@
     $retraitsList = $allRetraits ?? [];
     $totalRetraitsCount = count($retraitsList);
 
+    $paymentsSearchIndex = [];
+    foreach ($paymentsList as $index => $transaction) {
+        $paymentsSearchIndex[] = [
+            'index' => $index,
+            'search' => mb_strtolower(implode(' ', [
+                $transaction->nom_postnom ?? '',
+                $transaction->modalite_engagement ?? '',
+                $transaction->amount ?? '',
+                $transaction->payment_date ?? '',
+                $transaction->payment_status ?? '',
+            ]), 'UTF-8'),
+        ];
+    }
+
+    $depensesSearchIndex = [];
+    foreach ($depensesList as $index => $depense) {
+        $depensesSearchIndex[] = [
+            'index' => $index,
+            'search' => mb_strtolower(implode(' ', [
+                $depense->titre ?? '',
+                $depense->description ?? '',
+                $depense->montant ?? '',
+                $depense->date_depense ?? '',
+            ]), 'UTF-8'),
+        ];
+    }
+
+    $retraitsSearchIndex = [];
+    foreach ($retraitsList as $index => $retrait) {
+        $retraitsSearchIndex[] = [
+            'index' => $index,
+            'search' => mb_strtolower(implode(' ', [
+                $retrait->numero ?? '',
+                $retrait->montant ?? '',
+                $retrait->date_retrait ?? '',
+            ]), 'UTF-8'),
+        ];
+    }
+
     $maxretraitAmount = $SoldeKpay[1]['balance'] - ($SoldeKpay[1]['balance'] * 0.04); // Montant maximum pour le retrait
 ?>
 
@@ -192,8 +231,24 @@
 
                         <!-- TAB 1 : TRANSACTIONS -->
                         <div x-show="activeTab === 'transactions'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-                            <div x-data="{ currentPage: 1, itemsPerPage: 1, totalItems: <?= $totalPaymentsCount ?> }">
+                            <div x-data="adminTable(<?= htmlspecialchars(json_encode($paymentsSearchIndex, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 10)">
                                 <?php if ($totalPaymentsCount > 0): ?>
+                                    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <label class="relative block w-full sm:max-w-sm">
+                                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                                            <input type="search" x-model="search" @input="resetPage()" placeholder="Rechercher un paiement..."
+                                                class="w-full rounded-xl border border-slate-700 bg-secondary/40 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs text-slate-400">
+                                            Afficher
+                                            <select x-model.number="perPage" @change="resetPage()" class="rounded-lg border border-slate-700 bg-secondary px-2.5 py-2 text-white focus:border-primary focus:outline-none">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                            par page
+                                        </label>
+                                    </div>
                                     <div class="overflow-x-auto -mx-6 md:-mx-8 px-6 md:px-8">
                                         <table class="w-full table-auto border-collapse">
                                             <thead>
@@ -206,7 +261,7 @@
                                             </thead>
                                             <tbody class="divide-y divide-slate-800/50">
                                                 <?php $index = 0; foreach ($paymentsList as $transaction): ?>
-                                                    <tr class="hover:bg-secondary/30 transition-colors" x-show="Math.ceil((<?= $index + 1 ?>) / itemsPerPage) === currentPage">
+                                                    <tr class="transition-colors hover:bg-secondary/40" x-show="isRowVisible(<?= $index ?>)" style="display: none;">
                                                         <td class="py-4 text-sm font-medium text-white"><?= $transaction->nom_postnom ?? 'N/A' ?></td>
                                                         <td class="py-4">
                                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -217,15 +272,18 @@
                                                         <td class="py-4 text-right text-sm text-slate-400"><?= isset($transaction->payment_date) ? date('d/m/Y H:i', strtotime($transaction->payment_date)) : '--/--/----' ?></td>
                                                     </tr>
                                                 <?php $index++; endforeach; ?>
+                                                <tr x-show="filteredRows.length === 0" style="display: none;">
+                                                    <td colspan="4" class="py-10 text-center text-sm text-slate-400">Aucun paiement ne correspond à votre recherche.</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <!-- Pagination component here (Réutilisée de ton code) -->
-                                    <div class="flex items-center justify-between pt-5 mt-4 border-t border-slate-800/50">
-                                        <span class="text-xs text-slate-400">Affichage de <span x-text="(currentPage-1)*itemsPerPage + 1"></span> à <span x-text="Math.min(currentPage*itemsPerPage, totalItems)"></span> sur <span x-text="totalItems"></span></span>
+                                    <div class="mt-4 flex flex-col gap-3 border-t border-slate-800/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="text-xs text-slate-400">Affichage de <span x-text="filteredRows.length ? (page - 1) * perPage + 1 : 0" class="font-semibold text-white"></span> à <span x-text="Math.min(page * perPage, filteredRows.length)" class="font-semibold text-white"></span> sur <span x-text="filteredRows.length" class="font-semibold text-white"></span></span>
                                         <div class="flex gap-2">
-                                            <button @click="currentPage--" :disabled="currentPage === 1" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Précédent</button>
-                                            <button @click="currentPage++" :disabled="currentPage === Math.ceil(totalItems/itemsPerPage)" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Suivant</button>
+                                            <button @click="page > 1 && page--" :disabled="page === 1" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Précédent</button>
+                                            <span class="self-center px-2 text-xs text-slate-400">Page <span x-text="page" class="font-semibold text-white"></span> / <span x-text="totalPages" class="font-semibold text-white"></span></span>
+                                            <button @click="page < totalPages && page++" :disabled="page === totalPages" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Suivant</button>
                                         </div>
                                     </div>
                                 <?php else: ?>
@@ -239,8 +297,24 @@
 
                         <!-- TAB 2 : DÉPENSES -->
                         <div x-show="activeTab === 'depenses'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-                            <div x-data="{ currentPage: 1, itemsPerPage: 10, totalItems: <?= $totalDepensesCount ?> }">
+                            <div x-data="adminTable(<?= htmlspecialchars(json_encode($depensesSearchIndex, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 10)">
                                 <?php if ($totalDepensesCount > 0): ?>
+                                    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <label class="relative block w-full sm:max-w-sm">
+                                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                                            <input type="search" x-model="search" @input="resetPage()" placeholder="Rechercher une dépense..."
+                                                class="w-full rounded-xl border border-slate-700 bg-secondary/40 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs text-slate-400">
+                                            Afficher
+                                            <select x-model.number="perPage" @change="resetPage()" class="rounded-lg border border-slate-700 bg-secondary px-2.5 py-2 text-white focus:border-primary focus:outline-none">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                            par page
+                                        </label>
+                                    </div>
                                     <div class="overflow-x-auto -mx-6 md:-mx-8 px-6 md:px-8">
                                         <table class="w-full table-auto border-collapse">
                                             <thead>
@@ -252,20 +326,24 @@
                                             </thead>
                                             <tbody class="divide-y divide-slate-800/50">
                                                 <?php $index = 0; foreach ($depensesList as $depense): ?>
-                                                    <tr class="hover:bg-secondary/30 transition-colors" x-show="Math.ceil((<?= $index + 1 ?>) / itemsPerPage) === currentPage">
+                                                    <tr class="transition-colors hover:bg-secondary/40" x-show="isRowVisible(<?= $index ?>)" style="display: none;">
                                                         <td class="py-4 text-sm font-medium text-white"><?= $depense->titre ?? 'N/A' ?></td>
                                                         <td class="py-4 text-sm font-bold text-amber-400">- <?= $depense->montant ?? 0 ?>$</td>
                                                         <td class="py-4 text-right text-sm text-slate-400"><?= isset($depense->date_depense) ? date('d/m/Y H:i', strtotime($depense->date_depense)) : '--/--/----' ?></td>
                                                     </tr>
                                                 <?php $index++; endforeach; ?>
+                                                <tr x-show="filteredRows.length === 0" style="display: none;">
+                                                    <td colspan="3" class="py-10 text-center text-sm text-slate-400">Aucune dépense ne correspond à votre recherche.</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="flex items-center justify-between pt-5 mt-4 border-t border-slate-800/50">
-                                        <span class="text-xs text-slate-400">Affichage de <span x-text="(currentPage-1)*itemsPerPage + 1"></span> à <span x-text="Math.min(currentPage*itemsPerPage, totalItems)"></span> sur <span x-text="totalItems"></span></span>
+                                    <div class="mt-4 flex flex-col gap-3 border-t border-slate-800/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="text-xs text-slate-400">Affichage de <span x-text="filteredRows.length ? (page - 1) * perPage + 1 : 0" class="font-semibold text-white"></span> à <span x-text="Math.min(page * perPage, filteredRows.length)" class="font-semibold text-white"></span> sur <span x-text="filteredRows.length" class="font-semibold text-white"></span></span>
                                         <div class="flex gap-2">
-                                            <button @click="currentPage--" :disabled="currentPage === 1" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Précédent</button>
-                                            <button @click="currentPage++" :disabled="currentPage === Math.ceil(totalItems/itemsPerPage)" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Suivant</button>
+                                            <button @click="page > 1 && page--" :disabled="page === 1" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Précédent</button>
+                                            <span class="self-center px-2 text-xs text-slate-400">Page <span x-text="page" class="font-semibold text-white"></span> / <span x-text="totalPages" class="font-semibold text-white"></span></span>
+                                            <button @click="page < totalPages && page++" :disabled="page === totalPages" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Suivant</button>
                                         </div>
                                     </div>
                                 <?php else: ?>
@@ -279,8 +357,24 @@
 
                         <!-- TAB 3 : RETRAITS KPAY -->
                         <div x-show="activeTab === 'retraits'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-                            <div x-data="{ currentPage: 1, itemsPerPage: 10, totalItems: <?= $totalRetraitsCount ?> }">
+                            <div x-data="adminTable(<?= htmlspecialchars(json_encode($retraitsSearchIndex, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 10)">
                                 <?php if ($totalRetraitsCount > 0): ?>
+                                    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <label class="relative block w-full sm:max-w-sm">
+                                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                                            <input type="search" x-model="search" @input="resetPage()" placeholder="Rechercher un retrait..."
+                                                class="w-full rounded-xl border border-slate-700 bg-secondary/40 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs text-slate-400">
+                                            Afficher
+                                            <select x-model.number="perPage" @change="resetPage()" class="rounded-lg border border-slate-700 bg-secondary px-2.5 py-2 text-white focus:border-primary focus:outline-none">
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                            par page
+                                        </label>
+                                    </div>
                                     <div class="overflow-x-auto -mx-6 md:-mx-8 px-6 md:px-8">
                                         <table class="w-full table-auto border-collapse">
                                             <thead>
@@ -293,7 +387,7 @@
                                             </thead>
                                             <tbody class="divide-y divide-slate-800/50">
                                                 <?php $index = 0; foreach ($retraitsList as $retrait): ?>
-                                                    <tr class="hover:bg-secondary/30 transition-colors" x-show="Math.ceil((<?= $index + 1 ?>) / itemsPerPage) === currentPage">
+                                                    <tr class="transition-colors hover:bg-secondary/40" x-show="isRowVisible(<?= $index ?>)" style="display: none;">
                                                         <td class="py-4 text-sm font-medium text-white flex items-center gap-2">
                                                             <i class="fas fa-mobile-screen text-slate-500"></i> <?= $retrait->numero ?? 'N/A' ?>
                                                         </td>
@@ -306,14 +400,18 @@
                                                         <td class="py-4 text-right text-sm text-slate-400"><?= isset($retrait->date_retrait) ? date('d/m/Y H:i', strtotime($retrait->date_retrait)) : '--/--/----' ?></td>
                                                     </tr>
                                                 <?php $index++; endforeach; ?>
+                                                <tr x-show="filteredRows.length === 0" style="display: none;">
+                                                    <td colspan="4" class="py-10 text-center text-sm text-slate-400">Aucun retrait ne correspond à votre recherche.</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="flex items-center justify-between pt-5 mt-4 border-t border-slate-800/50">
-                                        <span class="text-xs text-slate-400">Affichage de <span x-text="(currentPage-1)*itemsPerPage + 1"></span> à <span x-text="Math.min(currentPage*itemsPerPage, totalItems)"></span> sur <span x-text="totalItems"></span></span>
+                                    <div class="mt-4 flex flex-col gap-3 border-t border-slate-800/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="text-xs text-slate-400">Affichage de <span x-text="filteredRows.length ? (page - 1) * perPage + 1 : 0" class="font-semibold text-white"></span> à <span x-text="Math.min(page * perPage, filteredRows.length)" class="font-semibold text-white"></span> sur <span x-text="filteredRows.length" class="font-semibold text-white"></span></span>
                                         <div class="flex gap-2">
-                                            <button @click="currentPage--" :disabled="currentPage === 1" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Précédent</button>
-                                            <button @click="currentPage++" :disabled="currentPage === Math.ceil(totalItems/itemsPerPage)" class="px-3 py-1 bg-secondary border border-slate-700 rounded-lg text-xs disabled:opacity-50 text-white">Suivant</button>
+                                            <button @click="page > 1 && page--" :disabled="page === 1" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Précédent</button>
+                                            <span class="self-center px-2 text-xs text-slate-400">Page <span x-text="page" class="font-semibold text-white"></span> / <span x-text="totalPages" class="font-semibold text-white"></span></span>
+                                            <button @click="page < totalPages && page++" :disabled="page === totalPages" class="rounded-lg border border-slate-700 bg-secondary px-3 py-2 text-xs font-medium text-white transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40">Suivant</button>
                                         </div>
                                     </div>
                                 <?php else: ?>

@@ -1,5 +1,18 @@
 <?php 
     $title = "Admin - Détails du membre - " . $Membre->nom_postnom;
+    $paymentHistorySearchIndex = [];
+    foreach ($Paiements ?? [] as $index => $payment) {
+        $paymentHistorySearchIndex[] = [
+            'index' => $index,
+            'search' => mb_strtolower(implode(' ', [
+                $payment->payment_date ?? '',
+                $payment->amount ?? '',
+                $payment->devise ?? '',
+                $payment->payment_status ?? '',
+            ]), 'UTF-8'),
+        ];
+    }
+
     include APP_PATH . 'views/layouts/header.php'; 
     include APP_PATH . 'views/layouts/navbar_admin.php';
     include APP_PATH . 'templates/alertView.php'; 
@@ -277,12 +290,31 @@
                             <?php endif; ?>
                         </div>
                         <!-- historique des paiements -->
-                        <div class="bg-paper rounded-[2.5rem] shadow-sm color-border overflow-hidden">
+                        <div class="bg-paper rounded-[2.5rem] shadow-sm color-border overflow-hidden"
+                            x-data="adminTable(<?= htmlspecialchars(json_encode($paymentHistorySearchIndex, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 10)">
                             <div class="p-6 border-b border-slate-50 flex items-center gap-4 bg-paper">
                                 <span class="w-10 h-10 bg-paper shadow-sm color-border text-primary rounded-xl flex items-center justify-center font-black text-sm">03</span>
                                 <h3 class="text-white text-base font-bold">Historique des Paiements</h3>
                             </div>
                             <div class="p-8">
+                                <?php if (count($Paiements) > 0): ?>
+                                <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <label class="relative block w-full sm:max-w-sm">
+                                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                        <input type="search" x-model="search" @input="resetPage()" placeholder="Rechercher un paiement..."
+                                            class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                    </label>
+                                    <label class="flex items-center gap-2 text-xs text-slate-500">
+                                        Afficher
+                                        <select x-model.number="perPage" @change="resetPage()" class="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-slate-700 focus:border-primary focus:outline-none">
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                        par page
+                                    </label>
+                                </div>
+                                <?php endif; ?>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full text-left">
                                         <thead>
@@ -292,9 +324,9 @@
                                                 <th class="px-6 py-3 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Statut</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <?php foreach($Paiements as $pay): ?>
-                                            <tr class="border-t border-slate-50">
+                                        <tbody class="divide-y divide-slate-100">
+                                            <?php foreach($Paiements as $index => $pay): ?>
+                                            <tr class="transition-colors hover:bg-slate-50" x-show="isRowVisible(<?= $index ?>)" style="display: none;">
                                                 <td class="px-6 py-4 text-xs font-bold text-slate-500"><?= Helper::formatDate($pay->payment_date) ?></td>
                                                 <td class="px-6 py-4 text-xs font-bold text-slate-500"><?= $pay->amount .' '. $pay->devise ?></td>
                                                 <td class="px-6 py-4">
@@ -308,9 +340,28 @@
                                                 </td>
                                             </tr>
                                             <?php endforeach; ?>
+                                            <?php if (count($Paiements) > 0): ?>
+                                            <tr x-show="filteredRows.length === 0" style="display: none;">
+                                                <td colspan="3" class="px-6 py-8 text-center text-sm text-slate-400">Aucun paiement ne correspond à votre recherche.</td>
+                                            </tr>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td colspan="3" class="px-6 py-8 text-center text-sm text-slate-400">Aucun paiement enregistré.</td>
+                                            </tr>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                <?php if (count($Paiements) > 0): ?>
+                                <div class="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                    <span class="text-xs text-slate-500">Affichage de <span x-text="filteredRows.length ? (page - 1) * perPage + 1 : 0" class="font-semibold text-slate-700"></span> à <span x-text="Math.min(page * perPage, filteredRows.length)" class="font-semibold text-slate-700"></span> sur <span x-text="filteredRows.length" class="font-semibold text-slate-700"></span></span>
+                                    <div class="flex gap-2">
+                                        <button @click="page > 1 && page--" :disabled="page === 1" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40">Précédent</button>
+                                        <span class="self-center px-2 text-xs text-slate-500">Page <span x-text="page" class="font-semibold text-slate-700"></span> / <span x-text="totalPages" class="font-semibold text-slate-700"></span></span>
+                                        <button @click="page < totalPages && page++" :disabled="page === totalPages" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-40">Suivant</button>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endif; ?>

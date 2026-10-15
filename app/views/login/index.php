@@ -43,7 +43,7 @@
                 <div class="input-group">
                     <div class="flex justify-between items-center mb-1.5">
                         <label for="password" class="block text-sm font-medium text-slate-300 transition-all">Mot de passe</label>
-                        <a href="membre/forgot_pswd" class="text-xs text-primary hover:text-primary transition-colors">Oublié ?</a>
+                        <a href="membre/forgot_pswd" class="text-xs text-primary hover:text-primary transition-colors">Mot de passe oublié ?</a>
                     </div>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">

@@ -146,7 +146,7 @@
 
             <div class="mt-10 text-center">
                 <p class="text-[10px] text-gray-400 uppercase tracking-[0.1em]">
-                    Besoin d'aide ? <a href="mailto:<?= ADMIN_EMAIL ?>" class="text-primary font-bold underline decoration-primary/30">Contactez le support</a>
+                    Besoin d'aide ? <a href="mailto:<?= ADMIN_EMAIL2 ?>" class="text-primary font-bold underline decoration-primary/30">Contactez le support</a>
                 </p>
             </div>
         </div>

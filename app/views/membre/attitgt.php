@@ -60,7 +60,7 @@
             </div>
 
             <div class="mt-8 text-center">
-                <p class="text-xs text-gray-400">Besoin d'aide ? Contactez le support : <span class="font-bold"><?= ADMIN_EMAIL ?></span></p>
+                <p class="text-xs text-gray-400">Besoin d'aide ? Contactez le support : <span class="font-bold"><?= ADMIN_EMAIL2 ?></span></p>
             </div>
 
         </div>

@@ -19,14 +19,20 @@
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                         </a>
                     <?php endif; ?>
-                    <a href="/prieres" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('prieres') ?>">
-                        Prières
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
-                    </a>
-                    <a href="/relique" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('relique') ?>">
-                        Reliques
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
-                    </a>
+                    <?php if (Session::isLogged('membre')): ?>
+                        <a href="/pensees" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('pensees') ?>">
+                            Pensées
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('pensees') ? 'w-full' : '' ?>"></span>
+                        </a>
+                        <a href="/prieres" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('prieres') ?>">
+                            Prières
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                        </a>
+                        <a href="/relique" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('relique') ?>">
+                            Reliques
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
+                        </a>
+                    <?php endif; ?>
                     <a href="/livres" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-primary group <?= Helper::setActive('livres') ?>">
                         Livres
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
@@ -127,6 +133,11 @@
                 <a href="/musique" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Musiques
                 </a>
+                <?php if (Session::isLogged('membre')): ?>
+                    <a href="/pensees" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
+                        Pensées
+                    </a>
+                <?php endif; ?>
                 <!-- <a href="/blog" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Blog
                 </a> -->
