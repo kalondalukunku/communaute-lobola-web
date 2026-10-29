@@ -248,10 +248,10 @@
                                                             <div class="flex justify-end gap-2">
                                                                 <a class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition" href="membre/<?= $membre->member_id ?>">Voir</a>
 
-                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[5]): ?>
+                                                                <?php if($membre->status === ARRAY_STATUS_MEMBER[4] || $membre->status === ARRAY_STATUS_MEMBER[5]): ?>
                                                                     <form action="" method="post">
                                                                         <input type="hidden" name="cllil_membre_id<?= $membre->member_id ?>" value="<?= $membre->member_id ?>">
-                                                                            <button type="submit" name="cllil_membre_delete<?= $membre->member_id ?>" class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-red-500/20 hover:scale-105 transition"><i class="fas fa-trash-can text-[11px]"></i></button>
+                                                                        <button type="submit" name="cllil_membre_renvoyer_email<?= $membre->member_id ?>" class="bg-secondary text-primary text-[10px] font-black px-3 py-1.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 transition flex items-center gap-1"><i class="fas fa-envelope text-[11px]"></i><span>Mail</span></button>
                                                                     </form>
                                                                 <?php endif; ?>
                                                             </div>

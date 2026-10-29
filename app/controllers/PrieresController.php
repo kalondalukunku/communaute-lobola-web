@@ -2,10 +2,72 @@
 
 class PrieresController extends Controller
 {
+    public function audio()
+    {
+        Auth::requireLogin(['membre','enseignant']);
+
+        $audioFile = STORAGE . 'prieres/mere_divine.mp3';
+
+        if (!file_exists($audioFile) || !is_readable($audioFile)) {
+            http_response_code(404);
+            echo 'Audio introuvable.';
+            exit;
+        }
+
+        $size = filesize($audioFile);
+        $fp = fopen($audioFile, 'rb');
+
+        if ($fp === false) {
+            http_response_code(500);
+            echo 'Impossible de lire le fichier audio.';
+            exit;
+        }
+
+        $start = 0;
+        $end = $size - 1;
+
+        if (isset($_SERVER['HTTP_RANGE'])) {
+            if (preg_match('/bytes=([0-9]+)-([0-9]*)/', $_SERVER['HTTP_RANGE'], $matches)) {
+                $start = (int) $matches[1];
+                $end = isset($matches[2]) && $matches[2] !== '' ? (int) $matches[2] : $size - 1;
+
+                if ($start > $end || $start >= $size) {
+                    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                    header('Content-Range: bytes */' . $size);
+                    fclose($fp);
+                    exit;
+                }
+
+                header('HTTP/1.1 206 Partial Content');
+                header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
+            }
+        }
+
+        header('Content-Type: audio/mpeg');
+        header('Accept-Ranges: bytes');
+        header('Content-Length: ' . ($end - $start + 1));
+        header('Content-Disposition: inline; filename="mere_divine.mp3"');
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        fseek($fp, $start);
+        while (!feof($fp) && $start <= $end) {
+            $remaining = $end - $start + 1;
+            echo fread($fp, min(8192, $remaining));
+            $start += 8192;
+        }
+
+        fclose($fp);
+        exit;
+    }
+
     public function index()
     {
         Auth::requireLogin(['membre','enseignant']);
-        
+
+        $audioGuideUrl = BASE_URL . '/prieres/audio';
+
         $prieres = [
             [
                 'titre' => 'Prière de la Mère Divine',
@@ -15,7 +77,7 @@ class PrieresController extends Controller
                 'langues' => [
                     'Français' => "Mère divine,\nTu es assise sur le trône du Tout-Puissant, le Dieu de nos ancêtres.\nIl vous a inondé de tous les bienfaits qui peuvent nous aider à mieux vivre sur terre.\nDonne-nous les nôtres, nous noirs esclavagisés, nous en avons besoin.\nNous souhaitons les posséder en ce moment.",
                     'Ngemba' => "Mama Ndzzò,\nõ nan né kõ'o Tsapeu Si feu néhan ben, Si peu tèt peuk.\nI ke ya pouõ ngwon me tsotsé a fine kwōtche wek ne nan peupon dum sitsa'a.\nSu'u su Mama Ndzzò, ya yeuk pà, peuk peuk sa'a peu ne peuk pi né tsintsin me ka'an.\nPeuk lo'o yé, a ho'o kwōtche weuk ne kwoué ne me tsotsé peuk ke kou'o tseshè wõ, ne kwouom yeuk ne pà. Pa'a ne nang peupon ndoum sitsa'a.\nPeuk ndo'o ne wé yé tchia ntouom yeuk ne pà",
-                    'Lomingo' => "Ngoya Nsong'e Iyanza \nWe okihi o bonkumu bonka lapelape, akopaa makapo mambo maolonda mamoyi manka bato\nOtopaae liyaiyo bantamba tokombaooo\nOtweniake iloko toiyene.",
+                    'Lomongo' => "Ngoya Nsong'e Iyanza \nWe okihi o bonkumu bonka lapelape, akopaa makapo mambo maolonda mamoyi manka bato\nOtopaae liyaiyo bantamba tokombaooo\nOtweniake iloko toiyene.",
                     'GHOMALÀ' => "MÃH SI, MÃH MEFÔ SI FÔ GUUIEH, SI TIODĒN,\nO BÔH TCHOUEH NE NEFÔ SI FÔ GUUIEH, SI TCHIODEN\nSI Ã TAH PÙ SI Ã MAH BÉH HAA GOUON PEPŪNG YIEH A TCHEN NAH BOU.\nGOUON YIA WHÈ FINNEH KUITE WHOK NE  TCHENTE TCHOUEH DEMTCHÂH YIEN. SESSOH HAH YIOK NEH.\nWHOK PÔH SIESIEH PIÈ PÙH LE LÂH DEM MTAPOK POU MMAPOK SIEGNE POÙH AHH.\nDZIEH YIAH BE NE PIEH.\nPIÉH HÔ TCHEN NAH GUËH GOUNG HIÂ WHÈ TCHOUÈLOH",
                     'NAMAHANGA' => "Mère divine,\nTu es assise sur le trône du Tout-Puissant, le Dieu de nos ancêtres.\nIl t’a comblée de tous les bienfaits qui peuvent nous aider à mieux vivre sur terre.\nDonne-nous notre part, nous les noirs esclavagisés, nous en avons besoin.\nNous voulons l’avoir maintenant.",
                     'CRÉOLE MARTINIQUAIS' => "Mè divin,\nOu ka asizé asou tròn di TOUT PUISSANT, Bondié di nou zansèt.\nLi ba ou tout bon bagay ki ka aidé nou viv mieux asou latè.\nDonn nou sa ki nou ka dézévi, nou nèf esklavizé, nou an bezwen.\nNou swété nou ka posédé li tout de suite.",
@@ -43,6 +105,7 @@ class PrieresController extends Controller
             'title' => SITE_NAME . ' | Prières',
             'description' => 'Prière de la Mère Divine et ses traductions en plusieurs langues africaines.',
             'prieres' => $prieres,
+            'audioGuideUrl' => $audioGuideUrl,
         ];
 
         $this->view('prieres/index', $data);

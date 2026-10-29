@@ -6,6 +6,21 @@ class Auth {
         return Session::get('member_id') !== null;
     }
 
+    public static function getReturnUrl($fallback = '/')
+    {
+        Session::start();
+
+        $returnUrl = $_SESSION['redirect_after_login'] ?? $fallback;
+        unset($_SESSION['redirect_after_login']);
+
+        return $returnUrl;
+    }
+
+    public static function redirectAfterLogin($fallback = '/')
+    {
+        Utils::redirect(self::getReturnUrl($fallback));
+    }
+
     public static function requireLogin($keys = ['admin'])
     {
         Session::start();
@@ -27,8 +42,8 @@ class Auth {
 
         // Si aucune session trouvée
         if (!$isLogged) {
-
             Session::setFlash('error', 'Veuillez vous connecter pour continuer');
+            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
 
             // Redirection selon contexte
             if (in_array('admin', $keys)) {

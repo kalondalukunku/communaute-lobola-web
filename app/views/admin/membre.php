@@ -54,8 +54,14 @@
                 <form action="" method="post">
                     <button name="cllil_membre_active" class="px-5 py-2.5 rounded-xl border border-green-500 text-[10px] font-black tracking-widest text-green-600 hover:bg-green-50 transition-all uppercase">Activer</button>
                 </form>
+            <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[4]): ?>
+                <form action="" method="post">
+                    <button name="cllil_membre_renvoyer_email" class="px-5 py-2.5 rounded-xl border border-primary text-[10px] font-black tracking-widest text-primary hover:bg-secondary transition-all uppercase">Renvoyer mail</button>
+                </form>
             <?php elseif($Membre->statut_engagement !== ARRAY_STATUS_ENGAGEMENT[0]): ?>
-                    <button id="openModalBtn2" class="px-5 py-2.5 rounded-xl border border-red-500 text-[10px] font-black tracking-widest text-red-600 hover:bg-red-50 transition-all uppercase">Supprimer</button>
+                <form action="" method="post">
+                    <button name="cllil_membre_renvoyer_email" class="px-5 py-2.5 rounded-xl border border-primary text-[10px] font-black tracking-widest text-primary hover:bg-secondary transition-all uppercase">Envoi mail</button>
+                </form>
             <?php endif; ?>
         </div>
     </header>
@@ -92,6 +98,22 @@
                             <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[4]): ?>
                                 <span class="bg-red-50 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-tighter border border-red-100 uppercase">Intégration Rejetée</span>
                             <?php endif; ?>
+                        </div>
+
+                        <div class="mt-6 rounded-2xl bg-secondary/70 border border-white/10 p-4 text-left">
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-300 mb-2">Personne invitante</p>
+                            <div class="space-y-2">
+                                <div>
+                                    <p class="text-[10px] text-slate-400">Nom</p>
+                                    <p class="text-sm font-semibold text-white"><?= htmlspecialchars($Membre->inviter_nom ?? 'Non renseigné') ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400">Téléphone</p>
+                                    <a href="tel:<?= preg_replace('/[^0-9+]/', '', $Membre->inviter_phone ?? '') ?>" class="text-sm font-semibold text-primary hover:text-yellow-300 transition-colors">
+                                        <?= htmlspecialchars($Membre->inviter_phone ?? 'Non renseigné') ?>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -432,6 +454,12 @@
                             </p>
                             <p class="text-xs text-slate-500 font-medium leading-relaxed italic">"<?= $MembreMotif->raison ?>"</p>
                         </div>
+
+                        <div class="mt-8 flex justify-center">
+                            <form action="" method="post">
+                                <button name="cllil_membre_renvoyer_email" class="bg-primary text-white px-8 py-3.5 rounded-2xl text-[10px] font-black tracking-widest shadow-sm shadow-primary/20 hover:-translate-y-0.5 transition-all uppercase">Renvoyer l'email</button>
+                            </form>
+                        </div>
                     </div>
 
                 <?php elseif($Membre->status === ARRAY_STATUS_MEMBER[5]): ?>
@@ -628,14 +656,11 @@
     id="modalOverlay2" 
     class="hidden fixed inset-0 bg-transparent z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     
-    <!-- Conteneur du Modal -->
     <div 
         id="modalContent"
         class="bg-paper rounded-xl shadow-2xl w-full max-w-md transform transition-all">
-        
-        <!-- Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-100">
-            <h3 class="text-md font-bold text-gray-800">Vous voulez vraiment supprimer ce membre ? : <?= $Membre->nom_postnom ?></h3>
+            <h3 class="text-md font-bold text-gray-800">Envoyer un mail à <?= $Membre->nom_postnom ?></h3>
             <button id="closeIcon2" class="text-gray-400 hover:text-gray-600 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -644,11 +669,9 @@
         </div>
 
         <form action="" method="post">
-
-            <!-- Footer / Boutons d'action -->
             <div class="flex flex-col sm:flex-row-reverse gap-3 p-6 bg-gray-50 rounded-b-xl">
-                <button name="cllil_membre_delete" class="bg-red-500 text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">
-                    Supprimer le membre
+                <button name="cllil_membre_renvoyer_email" class="bg-primary text-paper px-8 py-3 rounded-xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition">
+                    Envoyer le mail
                 </button>
                 <button 
                     id="closeModalBtn2"

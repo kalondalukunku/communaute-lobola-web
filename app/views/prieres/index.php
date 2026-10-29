@@ -19,6 +19,38 @@
         </div>
     </section>
 
+    <section class="mt-8 rounded-[1.75rem] border border-primary/20 bg-gradient-to-b from-[#0a1b1a] to-[#071311] p-5 shadow-2xl">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.28em] text-primary font-bold">Lecteur audio</p>
+                <h2 class="mt-2 text-xl font-semibold text-white">Comment prier</h2>
+            </div>
+            <span class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary">
+                <i class="fa-solid fa-circle-play"></i>
+                Audio guide
+            </span>
+        </div>
+
+        <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div class="flex items-center gap-3">
+                <button id="prayerAudioToggle" type="button" class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-black shadow-lg shadow-primary/30 transition hover:scale-105 active:scale-95" aria-label="Lecture audio">
+                    <i class="fa-solid fa-play text-lg" id="prayerAudioIcon"></i>
+                </button>
+
+                <div class="flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-2">
+                    <div class="relative h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                        <div id="prayerAudioProgress" class="h-full w-0 rounded-full bg-primary transition-all"></div>
+                    </div>
+                </div>
+            </div>
+
+            <audio id="prayerAudio" preload="metadata" controlsList="nodownload" oncontextmenu="return false;">
+                <source src="<?= htmlspecialchars($audioGuideUrl ?? '') ?>" type="audio/mpeg">
+                Votre navigateur ne supporte pas l'audio HTML5.
+            </audio>
+        </div>
+    </section>
+
     <section class="mt-8">
         <?php foreach ($prieres as $index => $priere): ?>
             <article class="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 shadow-lg backdrop-blur-sm">
@@ -58,6 +90,39 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const prayersData = <?= json_encode($prieres, JSON_UNESCAPED_UNICODE) ?>;
+        const prayerAudio = document.getElementById('prayerAudio');
+        const prayerAudioToggle = document.getElementById('prayerAudioToggle');
+        const prayerAudioIcon = document.getElementById('prayerAudioIcon');
+        const prayerAudioProgress = document.getElementById('prayerAudioProgress');
+
+        if (prayerAudio && prayerAudioToggle) {
+            const setAudioState = () => {
+                const isPlaying = !prayerAudio.paused && !prayerAudio.ended;
+                prayerAudioIcon.classList.toggle('fa-play', !isPlaying);
+                prayerAudioIcon.classList.toggle('fa-pause', isPlaying);
+                prayerAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Lecture audio');
+            };
+
+            prayerAudioToggle.addEventListener('click', function () {
+                if (prayerAudio.paused) {
+                    prayerAudio.play();
+                } else {
+                    prayerAudio.pause();
+                }
+                setAudioState();
+            });
+
+            prayerAudio.addEventListener('play', setAudioState);
+            prayerAudio.addEventListener('pause', setAudioState);
+            prayerAudio.addEventListener('ended', setAudioState);
+            prayerAudio.addEventListener('timeupdate', function () {
+                if (!prayerAudio.duration) {
+                    return;
+                }
+                const progress = (prayerAudio.currentTime / prayerAudio.duration) * 100;
+                prayerAudioProgress.style.width = progress + '%';
+            });
+        }
 
         document.querySelectorAll('.language-btn').forEach((button) => {
             button.addEventListener('click', function () {

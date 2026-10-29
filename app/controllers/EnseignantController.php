@@ -597,7 +597,10 @@ class EnseignantController extends Controller
             Cache::set($cacheKey, $Enseignant);
             Session::set('enseignant', $Enseignant);
             Session::setFlash('success', 'Connecté.');
-            Utils::redirect('/enseignant/profile/'.$Enseignant->enseignant_id);
+
+            $returnUrl = $_SESSION['redirect_after_login'] ?? '/enseignant/profile/'.$Enseignant->enseignant_id;
+            unset($_SESSION['redirect_after_login']);
+            Utils::redirect($returnUrl);
         } else {
             Session::setFlash('error', 'Mot de passe incorrect.');
             $this->view('enseignant/index', ['data' => $data]);

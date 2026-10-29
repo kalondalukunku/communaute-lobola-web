@@ -670,6 +670,27 @@ class AdminController extends Controller
                     }    
                 }
             }
+
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_renvoyer_email'.$membre->member_id])) 
+            {
+                $mId = Utils::sanitize(trim($_POST['cllil_membre_id'.$membre->member_id] ?? ''));
+
+                if($mId === $membre->member_id) {
+                    $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membre->member_id;
+                    ob_start();
+                    include APP_PATH . 'templates/email/integration_active.php';
+                    $messageBody = ob_get_clean();
+
+                    if($this->sendEmailModel->sendEmail(
+                        $membre->email,
+                        'Intégration  - '. SITE_NAME,
+                        $messageBody
+                    )) {
+                        Session::setFlash('success', "L'email de notification a été renvoyé avec succès.");
+                        Utils::redirect('membres');
+                    }
+                }
+            }
         }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_admin_expt_membres_attente']))
@@ -942,19 +963,36 @@ class AdminController extends Controller
         {
             if(isset($_POST['cllil_membre_renvoyer_email'])) 
             {
-                // envoi de mail de notification
-                $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
-                ob_start();
-                include APP_PATH . 'templates/email/integration_active.php';
-                $messageBody = ob_get_clean();
+                $subject = 'Intégration  - '. SITE_NAME;
+                $messageBody = '';
+
+                if($Membre->status === ARRAY_STATUS_MEMBER[4])
+                {
+                    $motif = $MembreMotif->raison ?? 'Votre demande d\'intégration n\'a pas été retenue.';
+                    $lien_correction = SITE_URL . '/membre/rjtdmdf/' . $membreId;
+                    ob_start();
+                    include APP_PATH . 'templates/email/integration_rejete.php';
+                    $messageBody = ob_get_clean();
+                    $subject = 'Rejet de votre intégration  - '. SITE_NAME;
+                }
+                else
+                {
+                    $lien_activation = SITE_URL . '/membre/updt_pswd/' . $membreId;
+                    ob_start();
+                    include APP_PATH . 'templates/email/integration_active.php';
+                    $messageBody = ob_get_clean();
+                }
 
                 if($this->sendEmailModel->sendEmail(
                     $Membre->email, 
-                    'Intégration  - '. SITE_NAME, 
+                    $subject, 
                     $messageBody
                 )) 
                 {
-                    Session::setFlash('success', "L'email de notification a été renvoyé avec succès.");
+                    $successMessage = $Membre->status === ARRAY_STATUS_MEMBER[4]
+                        ? "L'email de rejet a été renvoyé avec succès."
+                        : "L'email de notification a été renvoyé avec succès.";
+                    Session::setFlash('success', $successMessage);
                     Utils::redirect('../membres');
                 }
             }
@@ -1833,7 +1871,10 @@ class AdminController extends Controller
         if (password_verify($password, $admin->pswd)) {
             Session::set('admin', $admin);
             Session::setFlash('success', 'Connecté.');
-            Utils::redirect('../admin/dashboard');
+
+            $returnUrl = $_SESSION['redirect_after_login'] ?? '../admin/dashboard';
+            unset($_SESSION['redirect_after_login']);
+            Utils::redirect($returnUrl);
         } else {
             Session::setFlash('error', 'Mot de passe incorrect.');
             $this->view('admin/login', ['data' => $data]);
