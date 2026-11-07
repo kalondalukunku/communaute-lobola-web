@@ -65,38 +65,117 @@ class Membre extends Model {
 
     public function delete($memberId)
     {
-        $q = $this->db->prepare("UPDATE $this->table SET status = 'deleted' WHERE member_id = :member_id");
-        return $q->execute(['member_id' => $memberId]);
+        $memberQuery = $this->db->prepare(
+            "SELECT path_profile FROM {$this->table} WHERE member_id = :member_id"
+        );
+        $memberQuery->execute(['member_id' => $memberId]);
+        $member = $memberQuery->fetch(PDO::FETCH_OBJ);
+
+        if (!$member) {
+            return false;
+        }
+
+        $engagementQuery = $this->db->prepare(
+            "SELECT document_path, preuve_paiement
+             FROM engagements
+             WHERE member_id = :member_id"
+        );
+        $engagementQuery->execute(['member_id' => $memberId]);
+        $engagements = $engagementQuery->fetchAll(PDO::FETCH_OBJ);
+
+        $this->db->beginTransaction();
+
+        try {
+            $deleteQueries = [
+                'DELETE FROM action_raisons WHERE member_id = :member_id',
+                'DELETE FROM engagements WHERE member_id = :member_id',
+                'DELETE FROM enseignement_vues WHERE user_id = :member_id',
+                'DELETE FROM initiation_history WHERE member_id = :member_id',
+                'DELETE FROM livre_paiement WHERE member_id = :member_id',
+                'DELETE FROM payments WHERE member_id = :member_id',
+                'DELETE FROM personal_notes WHERE member_id = :member_id',
+                'DELETE FROM questions WHERE member_id = :member_id',
+                'DELETE FROM tokens WHERE user_id = :member_id AND user_type = \'membre\'',
+                'DELETE FROM transactions WHERE member_id = :member_id',
+                "DELETE FROM {$this->table} WHERE member_id = :member_id",
+            ];
+
+            foreach ($deleteQueries as $query) {
+                $statement = $this->db->prepare($query);
+                $statement->execute(['member_id' => $memberId]);
+            }
+
+            $this->db->commit();
+        } catch (Throwable $exception) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $exception;
+        }
+
+        $paths = [$member->path_profile];
+        foreach ($engagements as $engagement) {
+            $paths[] = $engagement->document_path;
+            $paths[] = $engagement->preuve_paiement;
+        }
+
+        foreach ($paths as $path) {
+            $this->deleteStoredFile($path);
+        }
+
+        $this->deleteStoredDirectory(STORAGE_UPLOAD . 'avatar' . DIRECTORY_SEPARATOR . $memberId);
+        $this->deleteStoredDirectory(STORAGE_UPLOAD . 'engagement' . DIRECTORY_SEPARATOR . $memberId);
+
+        return true;
     }
 
     public function deleteAdmin($memberId)
     {
-        // Début de la transaction
-        $this->db->beginTransaction();
+        return $this->delete($memberId);
+    }
 
-        // 1. Suppression dans la table engagements
-        $queryEngagements = "DELETE FROM engagements WHERE member_id = :member_id";
-        $stmtEng = $this->db->prepare($queryEngagements);
-        $stmtEng->execute(['member_id' => $memberId]);
-
-        // 2. Suppression dans la table principale (membre)
-        $queryMember = "DELETE FROM {$this->table} WHERE member_id = :member_id";
-        $stmtMem = $this->db->prepare($queryMember);
-        $stmtMem->execute(['member_id' => $memberId]);
-        
-        // 3. Suppression dans la table action_raisons
-        $queryMember = "DELETE FROM action_raisons WHERE member_id = :member_id";
-        $stmtMem = $this->db->prepare($queryMember);
-        $stmtMem->execute(['member_id' => $memberId]);
-
-        // 4. Suppression de l avatar du membre
-        $fileavatar = STORAGE_UPLOAD . "avatar/" . $memberId;
-        if(file_exists($fileavatar)) {
-            unlink($fileavatar);
+    private function deleteStoredFile($path)
+    {
+        if (empty($path)) {
+            return;
         }
 
-        // Validation des deux opérations
-        return $this->db->commit();
+        $fullPath = $this->resolveStoredPath($path);
+        if (is_file($fullPath) && !unlink($fullPath)) {
+            throw new RuntimeException("Impossible de supprimer le fichier du membre : {$path}");
+        }
+    }
+
+    private function deleteStoredDirectory($directory)
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $entries = new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS);
+        foreach ($entries as $entry) {
+            if ($entry->isDir() && !$entry->isLink()) {
+                $this->deleteStoredDirectory($entry->getPathname());
+            } elseif (!unlink($entry->getPathname())) {
+                throw new RuntimeException(
+                    "Impossible de supprimer le fichier du membre : {$entry->getPathname()}"
+                );
+            }
+        }
+
+        if (!rmdir($directory)) {
+            throw new RuntimeException("Impossible de supprimer le dossier du membre : {$directory}");
+        }
+    }
+
+    private function resolveStoredPath($path)
+    {
+        if (preg_match('/^[A-Za-z]:[\\\\\/]/', $path) || str_starts_with($path, DIRECTORY_SEPARATOR)) {
+            return $path;
+        }
+
+        return BASE_PATH . ltrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path), DIRECTORY_SEPARATOR);
     }
 
     public function insert2(array $datas)
@@ -208,6 +287,17 @@ class Membre extends Model {
         $q = $this->db->prepare($query);
         $q->execute([$where => $parameter]); 
         return $q->fetchAll();
+    }
+
+    public function findWithoutStatus()
+    {
+        $query = "SELECT M.* FROM {$this->table} M
+                  WHERE M.status IS NULL OR M.status = ''
+                  ORDER BY M.created_at ASC, M.nom_postnom ASC";
+        $q = $this->db->prepare($query);
+        $q->execute();
+
+        return $q->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function findByWhere($where, $parameter)

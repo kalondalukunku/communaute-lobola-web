@@ -726,6 +726,51 @@ class AdminController extends Controller
         $this->view('admin/membres', $data);
     }
 
+    public function membres_a_supprimer()
+    {
+        Auth::requireLogin('admin');
+
+        $members = $this->MembreModel->findWithoutStatus();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['supprimer_tous'])) {
+                $deleted = 0;
+                foreach ($members as $member) {
+                    if ($this->MembreModel->delete($member->member_id)) {
+                        $deleted++;
+                    }
+                }
+
+                Session::setFlash(
+                    'success',
+                    $deleted . ' membre(s) sans statut supprimé(s) avec succès.'
+                );
+                Utils::redirect('/admin/membres_a_supprimer');
+                return;
+            }
+
+            $memberId = trim($_POST['member_id'] ?? '');
+            foreach ($members as $member) {
+                if ((string) $member->member_id === $memberId) {
+                    if ($this->MembreModel->delete($member->member_id)) {
+                        Session::setFlash('success', 'Membre supprimé avec succès.');
+                    }
+                    Utils::redirect('/admin/membres_a_supprimer');
+                    return;
+                }
+            }
+
+            Session::setFlash('error', 'Le membre sélectionné n’est plus disponible.');
+            Utils::redirect('/admin/membres_a_supprimer');
+            return;
+        }
+
+        $this->view('admin/membres_a_supprimer', [
+            'members' => $members,
+            'title' => 'Admin - Membres à supprimer',
+        ]);
+    }
+
     public function engages() 
     {
         Auth::requireLogin('admin');
@@ -929,6 +974,20 @@ class AdminController extends Controller
             'name' => $name,
             'pathFilePdf' => $pathFilePdf,
         ];
+
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_delete']))
+        {
+            if($this->MembreModel->delete($membreId))
+            {
+                Session::setFlash('success', 'Le membre a bien été supprimé du flux actif.');
+                Utils::redirect('../membres');
+                return;
+            }
+
+            Session::setFlash('error', 'Une erreur est survenue lors de la suppression du membre.');
+            $this->view('admin/membre', $data);
+            return;
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_integration_approuve'])) 
         {

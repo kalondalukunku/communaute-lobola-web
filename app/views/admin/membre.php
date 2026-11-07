@@ -45,7 +45,8 @@
                 <span class="font-bold text-white"><?= $Membre->nom_postnom ?></span>
             </div>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-3 flex-wrap">
+            <button id="openModalBtnDelete" type="button" class="px-5 py-2.5 rounded-xl border border-red-500 text-[10px] font-black tracking-widest text-red-600 hover:bg-red-50 transition-all uppercase">Supprimer</button>
             <?php if($Membre->status === ARRAY_STATUS_MEMBER[2] && $Membre->statut_engagement === ARRAY_STATUS_ENGAGEMENT[0]): ?>
                 <form action="" method="post" class="hidden md:block">
                     <button name="cllil_membre_suspended" class="px-5 py-2.5 rounded-xl border border-gray-200 text-[10px] font-black tracking-widest text-gray-500 hover:bg-gray-50 transition-all uppercase">Suspendre</button>
@@ -680,6 +681,34 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<div 
+    id="modalOverlayDelete" 
+    class="hidden fixed inset-0 bg-transparent z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#001411] p-6 shadow-2xl shadow-black/30">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.24em] text-red-400 font-black">Confirmation</p>
+                <h3 class="mt-2 text-xl font-bold text-white">Supprimer le membre ?</h3>
+            </div>
+            <button id="closeIconDelete" type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-gray-300">
+            <p>Vous êtes sur le point de supprimer définitivement <span class="font-semibold text-white"><?= htmlspecialchars($Membre->nom_postnom) ?></span>.</p>
+            <p class="mt-2 text-xs text-gray-400">Cette action est irréversible. Le membre sera retiré du flux actif et marqué comme supprimé, sans effacer l’historique associé.</p>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+            <button id="closeModalBtnDelete" type="button" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 transition hover:bg-white/10">Annuler</button>
+            <form action="" method="post">
+                <button type="submit" name="cllil_membre_delete" class="rounded-xl bg-red-500 px-4 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-red-500/20 transition hover:bg-red-400">Supprimer</button>
+            </form>
+        </div>
     </div>
 </div>
 

@@ -72,7 +72,12 @@
                                 <span>Télécharger</span>
                             </a>
                         <?php else : ?>
-                            <form action="" method="post" class="flex flex-col sm:flex-row gap-4 w-full">
+                            <a href="../../<?= $Livre->url_livre ?>" download
+                            class="flex-1 inline-flex items-center justify-center px-8 py-4 bg-primary hover:bg-blue-600 font-medium rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-3">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Télécharger</span>
+                            </a>
+                            <!-- <form action="" method="post" class="flex flex-col sm:flex-row gap-4 w-full">
                                 <button type="submit" name="cllil_membre_pay_livre"
                                 class="flex-1 inline-flex items-center justify-center px-8 py-4 bg-primary hover:bg-blue-600 font-medium rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 gap-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
@@ -80,7 +85,7 @@
                                     </svg>
                                     <span>Acheter</span>
                                 </button>
-                            </form>
+                            </form> -->
                         <?php endif; ?>
                         
                         <!-- <button class="inline-flex items-center justify-center p-4 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-xl transition-colors text-gray-400 hover:text-red-500" title="Ajouter aux favoris">

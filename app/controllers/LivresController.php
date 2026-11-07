@@ -37,14 +37,15 @@ class LivresController extends Controller
 
     public function show($livreId) 
     {
-        $membreId = Session::get('membre')['member_id'];
+        $membre = Session::get('membre');
+        $membreId = is_array($membre) ? ($membre['member_id'] ?? null) : null;
         $returnUrl = "https://communaute-lobola.ankhing.com/livres/return";
 
         $Livre = $this->LivreModel->getById($livreId);
         if (!$Livre) {
             Utils::redirect('../../livres');
         }
-        $PayLivre = $this->LivrePayModel->getById($livreId, $membreId);
+        $PayLivre = $membreId ? $this->LivrePayModel->getById($livreId, $membreId) : null;
 
         $ipCountry = Utils::getCountryByIp('169.159.210.166');
         // $ipCountry = Utils::getCountryByIp(Utils::getClientIP());
@@ -72,6 +73,12 @@ class LivresController extends Controller
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cllil_membre_pay_livre']))
         {
+            if (!$membreId) {
+                Session::setFlash('error', 'Seuls les membres peuvent acheter un livre.');
+                $this->view('livres/show', $data);
+                return;
+            }
+
             if($providerCountries[$memberCountry] === null || empty($providerCountries[$memberCountry])) {
                 Session::setFlash('error', 'Aucun opérateur disponible pour votre pays. Veuillez contacter l\'administrateur.');
                 $this->view('livres/show', $data);
@@ -109,7 +116,12 @@ class LivresController extends Controller
 
     public function return()
     {
-        $membreId = Session::get('membre')['member_id'];
+        $membre = Session::get('membre');
+        $membreId = is_array($membre) ? ($membre['member_id'] ?? null) : null;
+        if (!$membreId) {
+            Utils::redirect('/livres');
+            return;
+        }
         
         $status = strtoupper(trim((string) ($_GET['status'] ?? $_SESSION['kpay_payment_status'])));
         $reference = strtoupper(trim((string) ($_GET['reference'])));

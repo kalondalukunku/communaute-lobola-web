@@ -328,7 +328,9 @@ function renderThoughtDetailComment(array $comment): void
         } catch (error) {
             notify(error.message, true);
         } finally {
-            if (button.isConnected) button.disabled = false;
+            if (button.isConnected) {
+                window.LobolaLoaders?.stopForm(form);
+            }
         }
     });
 })();

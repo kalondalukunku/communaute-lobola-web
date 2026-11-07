@@ -1,7 +1,31 @@
-<?php
+﻿<?php
+require_once APP_PATH . 'models/Category.php';
+require_once APP_PATH . 'models/Serie.php';
+require_once APP_PATH . 'models/Enseignement.php';
 
 class PrieresController extends Controller
 {
+    private function ensurePrayerCategory()
+    {
+        $categoryModel = new Category();
+        $stmt = $categoryModel->db->prepare('SELECT category_id FROM categories WHERE LOWER(name) = LOWER(:name) LIMIT 1');
+        $stmt->execute(['name' => 'Prières']);
+        $category = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if ($category) {
+            return $category->category_id;
+        }
+
+        $categoryId = Utils::generateUuidV4();
+        $categoryModel->db->prepare('INSERT INTO categories (category_id, name, description) VALUES (:category_id, :name, :description)')->execute([
+            'category_id' => $categoryId,
+            'name' => 'Prières',
+            'description' => 'Séries de prières publiées par les enseignants',
+        ]);
+
+        return $categoryId;
+    }
+
     public function audio()
     {
         Auth::requireLogin(['membre','enseignant']);
@@ -66,7 +90,7 @@ class PrieresController extends Controller
     {
         Auth::requireLogin(['membre','enseignant']);
 
-        $audioGuideUrl = BASE_URL . '/prieres/audio';
+        
 
         $prieres = [
             [
@@ -101,13 +125,48 @@ class PrieresController extends Controller
             ]
         ];
 
-        $data = [
-            'title' => SITE_NAME . ' | Prières',
-            'description' => 'Prière de la Mère Divine et ses traductions en plusieurs langues africaines.',
-            'prieres' => $prieres,
-            'audioGuideUrl' => $audioGuideUrl,
-        ];
+        $categoryId = $this->ensurePrayerCategory();
+        $seriesModel = new Serie();
+        $teachingModel = new Enseignement();
 
-        $this->view('prieres/index', $data);
+        $series = $seriesModel->getAll();
+        $publicSeries = [];
+
+        foreach ($series as $serie) {
+            if ($serie->category_id !== $categoryId) {
+                continue;
+            }
+
+            $stmt = $teachingModel->db->prepare('SELECT * FROM teachings WHERE serie_id = :serie_id AND category_id = :category_id ORDER BY created_at ASC');
+            $stmt->execute(['serie_id' => $serie->serie_id, 'category_id' => $categoryId]);
+            $serie->teachings = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $publicSeries[] = $serie;
+        }
+
+        $audioGuideUrl = BASE_URL . '/prieres/audio';
+        $prieresAudio = [];
+
+        foreach ($publicSeries as $serie) {
+            foreach ($serie->teachings as $teaching) {
+                if (empty($teaching->audio_url)) {
+                    continue;
+                }
+
+                $prieresAudio[] = [
+                    'serie' => $serie->nom,
+                    'titre' => $teaching->title,
+                    'description' => $teaching->description ?: 'Prière audio publiée par un enseignant.',
+                    'audio_url' => $teaching->audio_url,
+                    'duration' => $teaching->duration_minutes ?? null,
+                ];
+            }
+        }
+
+        $this->view('prieres/index', [
+            'prieres' => $prieres,
+            'prieresAudio' => $prieresAudio,
+            'audioGuideUrl' => $audioGuideUrl,
+            'seriesPublic' => $publicSeries,
+        ]);
     }
 }

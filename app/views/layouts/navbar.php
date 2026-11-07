@@ -1,3 +1,17 @@
+<?php
+$membre = Session::get('membre');
+$enseignant = Session::get('enseignant');
+$nomAffiche = $membre['nom_postnom'] ?? ($enseignant['nom_complet'] ?? '');
+$avatarPath = $membre['path_profile'] ?? ($enseignant['path_profile'] ?? '');
+$memberProfileUrl = !empty($membre) ? '/membre/profile/' . ($membre['member_id'] ?? '') : '';
+$enseignantProfileUrl = !empty($enseignant) ? '/enseignant/profile/' . ($enseignant['enseignant_id'] ?? '') : '';
+$profileUrl = $memberProfileUrl ?: $enseignantProfileUrl;
+$editProfileUrl = !empty($membre) ? '/membre/profile_edit/' . ($membre['member_id'] ?? '') : '';
+$mobileProfileUrl = !empty($membre) ? '/membre/profile/' . ($membre['member_id'] ?? '') : (!empty($enseignant) ? '/enseignant/profile/' . ($enseignant['enseignant_id'] ?? '') : '');
+$mobileEditProfileUrl = !empty($membre) ? '/membre/profile_edit/' . ($membre['member_id'] ?? '') : '';
+$membreBolokele = !empty($membre) ? ($membre['bolokele'] ?? null) : null;
+$isBolokeleVisible = (!empty($membre) && !empty($membre['engagement_id']) && ($membreBolokele === '1' || $membreBolokele === '2')) || !empty($enseignant);
+?>
 <header x-data="{ mobileOpen: false, open: false }" class="<?= Helper::getUrlPart()[0] === 'bolokele' ? 'bg-[#130121]' : 'bg-paper/80 backdrop-blur-md' ?> text-white shadow-xl sticky top-0 z-[100] border-b border-white/5">
     <div class="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex items-center justify-between gap-3">
@@ -13,7 +27,7 @@
                         Mâat
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
                     </a>
-                    <?php if(isset(Session::get('membre')['engagement_id']) && Session::get('membre')['bolokele'] === '1' || Session::get('membre')['bolokele'] === '2' || isset(Session::get('enseignant')['enseignant_id'])): ?>
+                    <?php if ($isBolokeleVisible): ?>
                         <a href="/bolokele" class="relative py-2 text-[11px] sm:text-xs font-medium transition-colors hover:text-purple-400 group <?= Helper::setActive('bolokele') ?>">
                             BOLOKELE
                             <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full <?= Helper::setActive('') ? 'w-full' : '' ?>"></span>
@@ -55,7 +69,7 @@
                     <div class="text-right hidden lg:block">
                         <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">EmEm Htp</p>
                         <p class="text-sm font-semibold text-accent leading-none mt-1">
-                            <?= Session::get('membre')['nom_postnom'] ?? '' ?>
+                            <?= htmlspecialchars($nomAffiche) ?>
                         </p>
                     </div>
 
@@ -63,8 +77,11 @@
                         <button @click="open = !open" @click.outside="open = false" class="relative group focus:outline-none">
                             <div class="absolute -inset-1 bg-gradient-to-tr from-primary to-accent rounded-full opacity-0 group-hover:opacity-100 blur transition duration-500"></div>
                             <div class="relative w-9 h-9 rounded-full border-2 border-white/10 overflow-hidden bg-paper shadow-inner transition-transform group-hover:scale-105">
-                                <img src="/<?= Session::get('membre')['path_profile'] ?? Session::get('enseignant')['path_profile'] ?>" 
-                                    alt="Avatar" class="w-full h-full object-cover">
+                                <?php if (!empty($avatarPath)): ?>
+                                    <img src="/<?= htmlspecialchars($avatarPath) ?>" alt="Avatar" class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <div class="w-full h-full flex items-center justify-center text-xs font-bold text-[#D4AF37]">?</div>
+                                <?php endif; ?>
                             </div>
                         </button>
 
@@ -78,14 +95,16 @@
                             class="absolute right-0 mt-3 w-64 bg-paper rounded-xl shadow-xl color-border py-2 z-50 origin-top-right"
                             style="display: none;"
                         >
-                            <a href="<?= Session::get('membre') ? "/membre/profile/". Session::get('membre')['member_id'] : "" ?><?= Session::get('enseignant') ? "/enseignant/profile/". Session::get('enseignant')['enseignant_id'] : "" ?>" 
-                            class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
-                                Mon Profil
-                            </a>
-                            <a href="<?= Session::get('membre') ? "/membre/profile_edit/". Session::get('membre')['member_id'] : "" ?>" 
-                            class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
-                                Modifier mes informations
-                            </a>
+                            <?php if (!empty($profileUrl)): ?>
+                                <a href="<?= $profileUrl ?>" class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
+                                    Mon Profil
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!empty($editProfileUrl)): ?>
+                                <a href="<?= $editProfileUrl ?>" class="block px-4 py-2 text-sm text-white hover:bg-[#CFBB30] hover:text-white transition-colors">
+                                    Modifier mes informations
+                                </a>
+                            <?php endif; ?>
 
                             <hr class="my-1 border-gray-100">
 
@@ -116,7 +135,7 @@
                 <a href="/" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-primary">
                     Mâat
                 </a>
-                <?php if(isset(Session::get('membre')['engagement_id']) && Session::get('membre')['bolokele'] === '1' || Session::get('membre')['bolokele'] === '2' || isset(Session::get('enseignant')['enseignant_id'])): ?>
+                <?php if ($isBolokeleVisible): ?>
                     <a href="/bolokele" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-purple-400">
                         BOLOKELE
                     </a>
@@ -145,12 +164,16 @@
                     Aide
                 </a> -->
                 <div class="my-1 h-px bg-white/10"></div>
-                <a href="<?= Session::get('membre') ? "/membre/profile/". Session::get('membre')['member_id'] : "" ?><?= Session::get('enseignant') ? "/enseignant/profile/". Session::get('enseignant')['enseignant_id'] : "" ?>" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10">
-                    Mon Profil
-                </a>
-                <a href="<?= Session::get('membre') ? "/membre/profile_edit/". Session::get('membre')['member_id'] : "" ?>" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10">
-                    Modifier mes informations
-                </a>
+                <?php if (!empty($mobileProfileUrl)): ?>
+                    <a href="<?= $mobileProfileUrl ?>" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10">
+                        Mon Profil
+                    </a>
+                <?php endif; ?>
+                <?php if (!empty($mobileEditProfileUrl)): ?>
+                    <a href="<?= $mobileEditProfileUrl ?>" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10">
+                        Modifier mes informations
+                    </a>
+                <?php endif; ?>
                 <a href="/logout" @click="mobileOpen = false" class="rounded-xl px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10">
                     Déconnexion
                 </a>

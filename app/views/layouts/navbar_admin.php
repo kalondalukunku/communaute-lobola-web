@@ -84,6 +84,7 @@
                             <a href="/admin/engages" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/engages', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Membres Engagés</a>
                             <a href="/admin/inities" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/inities', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Type d'initié</a>
                             <a href="/admin/membres_suivi" class="block text-[11px] py-1 transition-colors hover:text-primary <?= Helper::setActiveAdmin('admin/membres_suivi', true) ? 'text-primary font-bold' : 'text-slate-400' ?>">Suivi des membres</a>
+                            <a href="/admin/membres_a_supprimer" class="block text-[11px] py-1 transition-colors hover:text-red-400 <?= Helper::setActiveAdmin('admin/membres_a_supprimer', true) ? 'text-red-400 font-bold' : 'text-slate-400' ?>">À supprimer</a>
                         </div>
                     </div>
                 </div>
